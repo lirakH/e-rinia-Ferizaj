@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "expoRouterApp",
-    "slug": "expoRouterApp",
+    "name": "rinia",
+    "slug": "rinia",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -12,9 +12,6 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
     "ios": {
       "supportsTablet": true
     },
