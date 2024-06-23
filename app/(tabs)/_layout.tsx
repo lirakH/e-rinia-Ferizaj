@@ -47,24 +47,13 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: '',
-          tabBarIcon: ({ color, focused }) => (
-            <Feather 
-            name="user" 
-            size={25} 
-            color={"#fff"}
-            />
-          ),
-        }}
-      />
+      
       <Tabs.Screen name="safe" options={{ href: null }} />
       <Tabs.Screen name="NGO/index" options={{ href: null }} />
       <Tabs.Screen name="NGO/[id]" options={{ href: null }} />
       <Tabs.Screen name="event/index" options={{ href: null }} />
       <Tabs.Screen name="event/[id]" options={{ href: null }} />
+      <Tabs.Screen name="profile" options={{ href: null }} />
     </Tabs>
   );
 }

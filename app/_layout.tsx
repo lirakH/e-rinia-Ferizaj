@@ -1,12 +1,12 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { View, Text, StyleSheet, Image, Button } from "react-native";
+import { StyleSheet, TouchableOpacity, Text } from "react-native";
 import React, { useEffect } from "react";
 import { Drawer } from "expo-router/drawer";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import {
   Feather,
   AntDesign,
-  MaterialCommunityIcons
+  MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
 
@@ -118,19 +118,39 @@ const CustomDrawerContent = (props) => {
 export default function Layout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Drawer drawerContent={(props) => <CustomDrawerContent {...props} />} >
+      <Drawer 
+        drawerContent={(props) => <CustomDrawerContent {...props} />} 
+        screenOptions={{ 
+          headerTitle: () =>
+            <TouchableOpacity onPress={() => {router.push('/')}} style={{ paddingHorizontal: 20 }}>
+              <Text style={{ color:"#0091F9", fontSize:20, fontWeight:"500" }}>E-rinia</Text>
+            </TouchableOpacity>,
+          headerTintColor: "#0091F9",
+          headerTitleAlign: "center",
+          headerRight: () => 
+            <TouchableOpacity onPress={() => {router.push('profile')}} style={{ paddingHorizontal: 20 }}>
+              <Feather 
+                  name="user" 
+                  size={25} 
+                  color="#0091F9"
+                  />
+            </TouchableOpacity>
+        }}
+        
+      >
       </Drawer>
     </GestureHandlerRootView>
   );
 }
 
-// options={{headerTitle:"", headerRight: () => <Button onPress={() => {router.push('profile')}} title='o' />}}
+// screenOptions={{headerTitle:"", headerRight: () => <Button onPress={() => {router.push('profile')}} title='o' />}}
 
 
 const styles = StyleSheet.create({
   drawerContentContainer: {
     flex: 1,
     justifyContent: 'center', // Center the items vertically
+    gap: 25
   },
   drawerItemsContainer: {
     flexGrow: 1,
