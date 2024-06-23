@@ -6,15 +6,15 @@ export default function Page() {
   const router = useRouter();
   return (
     <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-      <Text style={{fontSize:18}}>Blog Page</Text>
-      <Button onPress={() => router.push('/blog/1')} title='Go To Blog 1' />
-      <Button onPress={() => router.push('/blog/2')} title='Go To Blog 2' />
-      <Button onPress={() => router.push('/blog/3?author=john')} title='Go To Blog 3' />
+      <Text style={{fontSize:18}}>Event Page</Text>
+      <Button onPress={() => router.push('/event/1')} title='Go To event 1' />
+      <Button onPress={() => router.push('/event/2')} title='Go To event 2' />
+      <Button onPress={() => router.push('/event/3?author=john')} title='Go To event 3' />
       <Link href={{
-        pathname: 'blog/4',
+        pathname: 'event/4',
         params: { author: 'Jenny' }
       }}>
-        <Text style={{fontSize:18}}>Go to blog 4</Text>
+        <Text style={{fontSize:18}}>Go to event 4</Text>
       </Link>
       <Button onPress={() => router.back()} title='Go Back' />
     </View>

@@ -9,10 +9,10 @@ export default function Page() {
       <Link href={'/about'}>
         <Text style={{fontSize:18}}>Go to About Page</Text>
       </Link>
-      <Link href={'/blog'} asChild>
-        <Button title='Go to Blog Page' />
+      <Link href={'/event'} asChild>
+        <Button title='Go to event Page' />
       </Link>
-      <Link href={'/blog'} asChild>
+      <Link href={'/event'} asChild>
         <Button title='Go to Contact Page' />
       </Link>
       <Link href={'(drawer)/(tabs)/feed'} asChild>

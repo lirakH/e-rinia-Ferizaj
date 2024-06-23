@@ -110,7 +110,10 @@ const CustomDrawerContent = (props) => {
 export default function Layout() {
   return (
     <Drawer drawerContent={(props) => <CustomDrawerContent {...props} />} screenOptions={{headerShown: false}}>
-      <Drawer.Screen name="favourites" options={{headerShown: true}} />
+      <Drawer.Screen name="favourites" options={{headerShown: true, headerStyle: {
+          backgroundColor: "red",
+        },
+        headerTintColor: "white",}} />
       <Drawer.Screen name="settings" options={{headerShown: true}} />
     </Drawer>
   );

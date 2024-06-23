@@ -21,8 +21,8 @@ export default function _layout() {
       />
       <Stack.Screen name="about" options={{ headerTitle: "About" }} />
       <Stack.Screen
-        name="blog/index"
-        options={{ headerTitle: "All Blog Posts" }}
+        name="event/index"
+        options={{ headerTitle: "All event Posts" }}
       />
       <Stack.Screen name="contact" options={{ headerTitle: "Contact", presentation: 'modal' }} />
       <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
