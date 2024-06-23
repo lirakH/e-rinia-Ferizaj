@@ -4,7 +4,7 @@ import { ScrollView, Text } from 'react-native';
 export default function HomeScreen() {
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
-      <Text> Profili </Text>
+      <Text> Fav </Text>
     </ScrollView>
   );
 }

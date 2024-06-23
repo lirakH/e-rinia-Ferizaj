@@ -1,12 +1,12 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet, Image, Button } from "react-native";
 import React, { useEffect } from "react";
 import { Drawer } from "expo-router/drawer";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import {
   Feather,
   AntDesign,
-  MaterialIcons,
+  MaterialCommunityIcons
 } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
 
@@ -32,7 +32,7 @@ const CustomDrawerContent = (props) => {
           styles.navItemLabel,
           { color: pathname === "/" ? "#fff" : "#000" },
         ]}
-        style={{ backgroundColor: pathname === "/" ? "#333" : "#fff" }}
+        style={{ backgroundColor: pathname === "/" ? "#0091F9" : "#fff" }}
         onPress={() => {
           router.push("/");
         }}
@@ -50,7 +50,7 @@ const CustomDrawerContent = (props) => {
           styles.navItemLabel,
           { color: pathname === "/profile" ? "#fff" : "#000" },
         ]}
-        style={{ backgroundColor: pathname === "/profile" ? "#333" : "#fff" }}
+        style={{ backgroundColor: pathname === "/profile" ? "#0091F9" : "#fff" }}
         onPress={() => {
           router.push("/profile");
         }}
@@ -69,15 +69,15 @@ const CustomDrawerContent = (props) => {
           styles.navItemLabel,
           { color: pathname === "/event" ? "#fff" : "#000" },
         ]}
-        style={{ backgroundColor: pathname === "/event" ? "#333" : "#fff" }}
+        style={{ backgroundColor: pathname === "/event" ? "#0091F9" : "#fff" }}
         onPress={() => {
           router.push("/event");
         }}
       />
       <DrawerItem
         icon={({ color, size }) => (
-          <MaterialIcons
-            name="favorite-outline"
+          <MaterialCommunityIcons
+            name="hand-heart-outline"
             size={size}
             color={pathname === "/NGO" ? "#fff" : "#000"}
           />
@@ -87,7 +87,7 @@ const CustomDrawerContent = (props) => {
           styles.navItemLabel,
           { color: pathname === "/NGO" ? "#fff" : "#000" },
         ]}
-        style={{ backgroundColor: pathname === "/NGO" ? "#333" : "#fff" }}
+        style={{ backgroundColor: pathname === "/NGO" ? "#0091F9" : "#fff" }}
         onPress={() => {
           router.push("/NGO");
         }}
@@ -106,7 +106,7 @@ const CustomDrawerContent = (props) => {
           styles.navItemLabel,
           { color: pathname === "/safe" ? "#fff" : "#000" },
         ]}
-        style={{ backgroundColor: pathname === "/safe" ? "#333" : "#fff" }}
+        style={{ backgroundColor: pathname === "/safe" ? "#0091F9" : "#fff" }}
         onPress={() => {
           router.push("/safe");
         }}
@@ -118,12 +118,14 @@ const CustomDrawerContent = (props) => {
 export default function Layout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Drawer drawerContent={(props) => <CustomDrawerContent {...props} />}>
-        {/* Add your screen components here */}
+      <Drawer drawerContent={(props) => <CustomDrawerContent {...props} />} >
       </Drawer>
     </GestureHandlerRootView>
   );
 }
+
+// options={{headerTitle:"", headerRight: () => <Button onPress={() => {router.push('profile')}} title='o' />}}
+
 
 const styles = StyleSheet.create({
   drawerContentContainer: {
