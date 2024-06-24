@@ -143,9 +143,6 @@ export default function Layout() {
   );
 }
 
-// screenOptions={{headerTitle:"", headerRight: () => <Button onPress={() => {router.push('profile')}} title='o' />}}
-
-
 const styles = StyleSheet.create({
   drawerContentContainer: {
     flex: 1,

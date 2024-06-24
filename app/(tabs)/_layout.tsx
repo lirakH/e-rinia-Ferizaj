@@ -6,8 +6,6 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import {
   Feather,
-  AntDesign,
-  MaterialCommunityIcons
 } from "@expo/vector-icons";
 
 export default function TabLayout() {
