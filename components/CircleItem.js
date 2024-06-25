@@ -1,14 +1,21 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 
-const CircleItem = ({ item, drag, isActive }) => {
+const CircleItem = ({ item }) => {
+  const router = useRouter();
+
+  const handleCirclePress = () => {
+    router.push(`/NGO/${item.id}`);
+  };
+
   return (
-    <View style={styles.itemContainer} onLongPress={drag}>
-      <View style={[styles.circle, isActive && styles.activeCircle]}>
+    <Pressable style={styles.itemContainer} onPress={handleCirclePress}>
+      <View style={styles.circle}>
         <Image source={{ uri: item.image }} style={styles.image} />
       </View>
       <Text style={styles.label}>{item.label}</Text>
-    </View>
+    </Pressable>
   );
 };
 
@@ -30,10 +37,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 40,
-  },
-  activeCircle: {
-    borderColor: '#aaa',
-    borderWidth: 2,
   },
   label: {
     marginTop: 5,

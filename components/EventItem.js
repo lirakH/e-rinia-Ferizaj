@@ -1,14 +1,21 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 
 const EventItem = ({ item }) => {
+  const router = useRouter();
+
+  const handleEventPress = () => {
+    router.push(`/event/${item.id}`);
+  };
+
   return (
-    <View style={styles.eventCard}>
+    <Pressable style={styles.eventCard} onPress={handleEventPress}>
       <Image source={{ uri: item.image }} style={styles.eventImage} />
       <Text style={styles.eventDate}>{item.date}</Text>
       <Text style={styles.eventTitle}>{item.title}</Text>
       <Text style={styles.eventLocation}>{item.location}</Text>
-    </View>
+    </Pressable>
   );
 };
 
