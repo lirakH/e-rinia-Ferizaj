@@ -1,7 +1,9 @@
+// app/(tabs)/NGO/[id].js
 import React from 'react';
 import { View, Text, Image, StyleSheet, SectionList } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import EventItem2 from '@/components/EventItem2';
+import MemberList from '@/components/MemberList';
 
 // Sample NGO data
 const sampleNGOs = [
@@ -10,7 +12,34 @@ const sampleNGOs = [
     name: 'Music Lovers Foundation',
     description: 'We are a non-profit organization dedicated to promoting music education and appreciation.',
     logo: 'https://via.placeholder.com/150',
-    coverImage: 'https://via.placeholder.com/350x200',
+    type: 'ngo',
+    events: [
+      {
+        id: '1',
+        title: 'International Band Music',
+        date: '10 June',
+        location: '36 Guild Street London, UK',
+      },
+      {
+        id: '2',
+        title: 'Jazz Festival',
+        date: '15 July',
+        location: '42 Park Avenue, New York',
+      },
+    ],
+  },
+  {
+    id: '2',
+    name: 'Ministry of Education',
+    description: 'Government organization for education',
+    logo: 'https://via.placeholder.com/150',
+    type: 'government',
+    members: [
+      { id: '1', name: 'John Doe', position: "kryetarë", picture: 'https://via.placeholder.com/100' },
+      { id: '2', name: 'Jane Smith', position: "kryetarë", picture: 'https://via.placeholder.com/100' },
+      { id: '3', name: 'Michael Johnson', position: "kryetarë", picture: 'https://via.placeholder.com/100' },
+      { id: '4', name: 'Michael Johnson', position: "kryetarë", picture: 'https://via.placeholder.com/100' },
+    ],
     events: [
       {
         id: '1',
@@ -25,39 +54,18 @@ const sampleNGOs = [
         location: '42 Park Avenue, New York',
       },
       {
-        id: '1',
-        title: 'International Band Music',
-        date: '10 June',
-        location: '36 Guild Street London, UK',
+        id: '3',
+        title: 'National Education Conference',
+        date: '20 August',
+        location: 'Washington D.C., USA',
       },
-      {
-        id: '2',
-        title: 'Jazz Festival',
-        date: '15 July',
-        location: '42 Park Avenue, New York',
-      },
-      {
-        id: '1',
-        title: 'International Band Music',
-        date: '10 June',
-        location: '36 Guild Street London, UK',
-      },
-      {
-        id: '2',
-        title: 'Jazz Festival',
-        date: '15 July',
-        location: '42 Park Avenue, New York',
-      },
-      // Add more events as needed
     ],
   },
-  // Add more sample NGOs as needed
 ];
 
 export default function Page() {
   const { id } = useLocalSearchParams();
 
-  // Find the NGO details from the sample data based on the `id`
   const ngoDetails = sampleNGOs.find((ngo) => ngo.id === id);
 
   const renderNGODetails = () => (
@@ -70,14 +78,30 @@ export default function Page() {
     </View>
   );
 
-  const renderEventItem = ({ item }) => <EventItem2 event={item} />;
+  const renderMemberSection = ({ item }) => (
+    <View style={styles.memberSectionContainer}>
+      <MemberList members={item.members} />
+    </View>
+  );
 
   const renderSectionHeader = ({ section }) => {
-    if (section.title === 'Upcoming Events') {
-      return <Text style={styles.sectionHeader}>{section.title}</Text>;
+    if (section.title === 'Ngo Details') {
+      return null;
     }
-    return null;
+    return <Text style={styles.sectionHeader}>{section.title}</Text>;
   };
+
+  const renderEventItem = ({ item }) => <EventItem2 event={item} />;
+
+  const sections = [
+    { title: 'Ngo Details', data: [ngoDetails], renderItem: renderNGODetails },
+  ];
+
+  if (ngoDetails.type === 'government' && ngoDetails.members) {
+    sections.push({ title: 'Members', data: [{ members: ngoDetails.members }], renderItem: renderMemberSection });
+  }
+
+  sections.push({ title: 'Upcoming Events', data: ngoDetails.events, horizontal: true });
 
   return (
     <>
@@ -85,10 +109,7 @@ export default function Page() {
 
       {ngoDetails ? (
         <SectionList
-          sections={[
-            { data: [ngoDetails], renderItem: renderNGODetails },
-            { title: 'Upcoming Events', data: ngoDetails.events, horizontal: true },
-          ]}
+          sections={sections}
           renderItem={renderEventItem}
           renderSectionHeader={renderSectionHeader}
           keyExtractor={(item, index) => `${item.id}-${index}`}
@@ -110,10 +131,6 @@ const styles = StyleSheet.create({
   },
   detailsContainer: {
     padding: 20,
-  },
-  coverImage: {
-    width: '100%',
-    height: 200,
   },
   logoContainer: {
     flexDirection: 'column',
@@ -141,5 +158,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     padding: 10,
     marginVertical: 10,
+  },
+  memberSectionContainer: {
+    marginVertical: 10,
+    width: '100%',
+    backgroundColor: '#f1f1f1',
+    justifyContent: 'space-between',
+    marginBottom: 20,
   },
 });
