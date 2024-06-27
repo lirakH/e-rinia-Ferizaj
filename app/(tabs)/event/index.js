@@ -1,22 +1,60 @@
-import { View, Text, Button } from 'react-native'
-import React from 'react'
-import {Link, useRouter} from 'expo-router';
+import React from 'react';
+import { ScrollView, StyleSheet, View, Text } from 'react-native';
+import { Link } from 'expo-router';
+import { AntDesign } from '@expo/vector-icons';
+import EventList from "@/components/EventList.js";
 
-export default function Page() {
-  const router = useRouter();
+const EventScreen = () => {
   return (
-    <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-      <Text style={{fontSize:18}}>Event Page</Text>
-      <Button onPress={() => router.push('/event/1')} title='Go To event 1' />
-      <Button onPress={() => router.push('/event/2')} title='Go To event 2' />
-      <Button onPress={() => router.push('/event/3?author=john')} title='Go To event 3' />
-      <Link href={{
-        pathname: 'event/4',
-        params: { author: 'Jenny' }
-      }}>
-        <Text style={{fontSize:18}}>Go to event 4</Text>
-      </Link>
-      <Button onPress={() => router.back()} title='Go Back' />
-    </View>
-  )
-}
+    <ScrollView contentContainerStyle={styles.contentContainer}>
+      <View style={styles.titleContainer}>
+        <Text>New Activities and Events</Text>
+        <Link href="/event" style={styles.link}>
+          See All
+          <AntDesign name="caretright" size={12} color="#555" />
+        </Link>
+      </View>
+      <EventList />
+
+      <View style={styles.titleContainer}>
+        <Text>Goverment Activities and Events</Text>
+        <Link href="/event" style={styles.link}>
+          See All
+          <AntDesign name="caretright" size={12} color="#555" />
+        </Link>
+      </View>
+      <EventList />
+
+      <View style={styles.titleContainer}>
+        <Text>All Activities and Events</Text>
+        <Link href="/event" style={styles.link}>
+          See All
+          <AntDesign name="caretright" size={12} color="#555" />
+        </Link>
+      </View>
+      <EventList />
+
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  contentContainer: {
+    padding: 30,
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  link: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  ngoContainer: {
+    marginBottom: 20,
+  },
+});
+
+export default EventScreen;

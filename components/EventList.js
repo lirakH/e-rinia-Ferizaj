@@ -16,7 +16,7 @@ const EventList = () => {
   const [events, setEvents] = useState(initialEvents);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, marginLeft: -15,  }}>
       <DraggableFlatList
         data={events}
         renderItem={({ item }) => <EventItem item={item} />}
@@ -24,7 +24,7 @@ const EventList = () => {
         onDragEnd={({ data }) => setEvents(data)}
         horizontal
         showsHorizontalScrollIndicator={false} // Hide horizontal scroll indicator
-        contentContainerStyle={{ paddingHorizontal: 10, paddingVertical: 20 }} // Adjust padding as needed
+        contentContainerStyle={{ paddingHorizontal: 15, paddingVertical: 20, gap: 5 }} // Adjust padding as needed
       />
     </View>
   );

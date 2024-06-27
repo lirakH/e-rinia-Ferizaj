@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
+import { Text, Image, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 
 const EventItem = ({ item }) => {
@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginRight: 15, // Increased margin for more space between items
     marginTop: -15,
+    marginLeft: -10,
     marginBottom: 10,
     padding: 10,
     width: 200,
