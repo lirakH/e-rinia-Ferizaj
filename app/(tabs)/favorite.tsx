@@ -15,7 +15,123 @@ export default function FavouriteScreen() {
       try {
         // Sample JSON data
         const sampleData = [
-          
+          {
+            title: 'NGOs',
+            data: [
+              {
+                id: '1',
+                name: 'NGO 1',
+                picture: 'https://example.com/ngo1.jpg',
+                description: 'Description of NGO 1',
+                type: 'NGO',
+              },
+              {
+                id: '2',
+                name: 'NGO 2',
+                picture: 'https://example.com/ngo2.jpg',
+                description: 'Description of NGO 2',
+                type: 'NGO',
+              },
+              {
+                id: '1',
+                name: 'NGO 1',
+                picture: 'https://example.com/ngo1.jpg',
+                description: 'Description of NGO 1',
+                type: 'NGO',
+              },
+              {
+                id: '2',
+                name: 'NGO 2',
+                picture: 'https://example.com/ngo2.jpg',
+                description: 'Description of NGO 2',
+                type: 'NGO',
+              },
+              {
+                id: '1',
+                name: 'NGO 1',
+                picture: 'https://example.com/ngo1.jpg',
+                description: 'Description of NGO 1',
+                type: 'NGO',
+              },
+              {
+                id: '2',
+                name: 'NGO 2',
+                picture: 'https://example.com/ngo2.jpg',
+                description: 'Description of NGO 2',
+                type: 'NGO',
+              },
+              {
+                id: '1',
+                name: 'NGO 1',
+                picture: 'https://example.com/ngo1.jpg',
+                description: 'Description of NGO 1',
+                type: 'NGO',
+              },
+              {
+                id: '2',
+                name: 'NGO 2',
+                picture: 'https://example.com/ngo2.jpg',
+                description: 'Description of NGO 2',
+                type: 'NGO',
+              },
+            ],
+          },
+          {
+            title: 'Other Organizations',
+            data: [
+              {
+                id: '2',
+                name: 'NGO 1',
+                picture: 'https://example.com/org1.jpg',
+                description: 'Description of Organization 1',
+                type: 'government',
+              },
+              {
+                id: '4',
+                name: 'NGO 2',
+                picture: 'https://example.com/org2.jpg',
+                description: 'Description of Organization 1',
+                type: 'government',
+              },
+              {
+                id: '3',
+                name: 'NGO 1',
+                picture: 'https://example.com/org1.jpg',
+                description: 'Description of Organization 1',
+                type: 'Other',
+              },
+              {
+                id: '4',
+                name: 'Organizata aaa  2',
+                picture: 'https://example.com/org2.jpg',
+              },
+              {
+                id: '3',
+                name: 'NGO 1',
+                picture: 'https://example.com/org1.jpg',
+                description: 'Description of Organization 1',
+                type: 'government',
+              },
+              {
+                id: '4',
+                name: 'NGO 2',
+                picture: 'https://example.com/org2.jpg',
+              },
+              {
+                id: '3',
+                name: 'Organizata aaa 1',
+                picture: 'https://example.com/org1.jpg',
+                description: 'Description of Organization 1',
+                type: 'government',
+              },
+              {
+                id: '4',
+                name: 'NGO 2',
+                picture: 'https://example.com/org2.jpg',
+              },
+
+            ],
+          },
         ];
 
         setFavouriteNGOs(sampleData);

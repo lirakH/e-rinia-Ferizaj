@@ -1,6 +1,5 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -10,6 +9,24 @@ import {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+
+  const excludedRoutes = [
+    'safe',
+    'auth/LoginScreen',
+    'auth/NgoLoginScreen',
+    'auth/SignupScreen',
+    'event/[id]',
+    'event/AddEvent',
+    'event/AproveEvent',    
+    'event/index',
+    'NGO/[id]',
+    'NGO/AddNgo',
+    'NGO/index',
+    'profile/AdminProfileScreen',
+    'profile/index',
+    'profile/NgoProfileScreen',
+    'profile/VolunteerProfileScreen',
+  ];
 
   return (
     <Tabs
@@ -33,7 +50,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="favourite"
+        name="favorite"
         options={{
           title: '',
           tabBarIcon: ({ color, focused }) => (
@@ -46,12 +63,9 @@ export default function TabLayout() {
         }}
       />
       
-      <Tabs.Screen name="safe" options={{ href: null }} />
-      <Tabs.Screen name="NGO/index" options={{ href: null }} />
-      <Tabs.Screen name="NGO/[id]" options={{ href: null }} />
-      <Tabs.Screen name="event/index" options={{ href: null }} />
-      <Tabs.Screen name="event/[id]" options={{ href: null }} />
-      <Tabs.Screen name="profile" options={{ href: null }} />
+      {excludedRoutes.map((route, index) => (
+        <Tabs.Screen key={index} name={route} options={{ href: null }} />
+      ))}
     </Tabs>
   );
 }
