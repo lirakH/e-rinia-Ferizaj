@@ -80,52 +80,52 @@ export default function NgoScreen() {
             data: [
               {
                 id: '2',
-                name: 'Organization 1',
+                name: 'NGO 1',
                 picture: 'https://example.com/org1.jpg',
                 description: 'Description of Organization 1',
                 type: 'government',
               },
               {
                 id: '4',
-                name: 'Organization 2',
+                name: 'NGO 2',
                 picture: 'https://example.com/org2.jpg',
                 description: 'Description of Organization 1',
                 type: 'government',
               },
               {
                 id: '3',
-                name: 'Organization 1',
+                name: 'NGO 1',
                 picture: 'https://example.com/org1.jpg',
                 description: 'Description of Organization 1',
                 type: 'Other',
               },
               {
                 id: '4',
-                name: 'Organization 2',
+                name: 'Organizata aaa  2',
                 picture: 'https://example.com/org2.jpg',
               },
               {
                 id: '3',
-                name: 'Organization 1',
+                name: 'NGO 1',
                 picture: 'https://example.com/org1.jpg',
                 description: 'Description of Organization 1',
                 type: 'government',
               },
               {
                 id: '4',
-                name: 'Organization 2',
+                name: 'NGO 2',
                 picture: 'https://example.com/org2.jpg',
               },
               {
                 id: '3',
-                name: 'Organization 1',
+                name: 'Organizata aaa 1',
                 picture: 'https://example.com/org1.jpg',
                 description: 'Description of Organization 1',
                 type: 'government',
               },
               {
                 id: '4',
-                name: 'Organization 2',
+                name: 'NGO 2',
                 picture: 'https://example.com/org2.jpg',
               },
 
@@ -230,6 +230,8 @@ const styles = StyleSheet.create({
   itemContainer: {
     alignItems: 'center',
     marginBottom: 10,
+    marginHorizontal: 10,
+    width: 100,
   },
   itemName: {
     marginTop: -15,
@@ -252,7 +254,8 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginVertical: 10,
+    marginVertical: 20,
     textAlign: 'center',
+    marginBottom: 25,
   },
 });
