@@ -12,9 +12,9 @@ const CircleItem = ({ item }) => {
   return (
     <Pressable style={styles.itemContainer} onPress={handleCirclePress}>
       <View style={styles.circle}>
-        <Image source={{ uri: item.image }} style={styles.image} />
+        <Image source={{ uri: item.picture }} style={styles.image} />
       </View>
-      <Text style={styles.label}>{item.label}</Text>
+      <Text style={styles.label}>{item.name}</Text>
     </Pressable>
   );
 };

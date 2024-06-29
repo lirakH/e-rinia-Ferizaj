@@ -1,30 +1,45 @@
-import React from 'react';
-import { ScrollView, StyleSheet, View, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import { Link } from 'expo-router';
 import { AntDesign } from '@expo/vector-icons';
 import EventList from "@/components/EventList.js";
 import DraggableCircleGrid from '@/components/DraggableCircleGrid'; // Adjust path as necessary
-
-// Sample data for NGOs
-const typeOneNGOs = [
-  { id: '1', label: 'NGO One A', image: 'https://via.placeholder.com/150' },
-  { id: '2', label: 'NGO One B', image: 'https://via.placeholder.com/150' },
-  { id: '3', label: 'NGO One C', image: 'https://via.placeholder.com/150' },
-  { id: '4', label: 'NGO One D', image: 'https://via.placeholder.com/150' },
-  { id: '5', label: 'NGO One E', image: 'https://via.placeholder.com/150' },
-  { id: '6', label: 'NGO One F', image: 'https://via.placeholder.com/150' },
-];
-
-const typeTwoNGOs = [
-  { id: '1', label: 'NGO Two A', image: 'https://via.placeholder.com/150' },
-  { id: '2', label: 'NGO Two B', image: 'https://via.placeholder.com/150' },
-  { id: '3', label: 'NGO Two C', image: 'https://via.placeholder.com/150' },
-  { id: '4', label: 'NGO Two D', image: 'https://via.placeholder.com/150' },
-  { id: '5', label: 'NGO Two E', image: 'https://via.placeholder.com/150' },
-  { id: '6', label: 'NGO Two F', image: 'https://via.placeholder.com/150' },
-];
+import { getAllOrganizations } from '@/endpoints'; // Adjust path as necessary
 
 const HomeScreen = () => {
+  const [typeOneNGOs, setTypeOneNGOs] = useState([]);
+  const [typeTwoNGOs, setTypeTwoNGOs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNGOs = async () => {
+      try {
+        const response = await getAllOrganizations();
+        const ngos = response.data || [];
+        console.log("Fetched NGOs:", ngos); // Debug log
+        setTypeOneNGOs(ngos.filter(org => org.type === 'inst')); // Filter for type 'inst'
+        setTypeTwoNGOs(ngos.filter(org => org.type === 'NGO')); // Filter for type 'NGO'
+        console.log("Type One NGOs:", ngos.filter(org => org.type === 'inst')); // Debug log
+        console.log("Type Two NGOs:", ngos.filter(org => org.type === 'NGO')); // Debug log
+      } catch (error) {
+        console.error("Error fetching organizations:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchNGOs();
+  }, []);
+  
+
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
       <View style={styles.titleContainer}>
@@ -37,26 +52,30 @@ const HomeScreen = () => {
       <EventList />
 
       <View style={styles.titleContainer}>
-        <Text>Activities and Events</Text>
-        <Link href="/event" style={styles.link}>
+        <Text>Type One NGOs</Text>
+        <Link href="/organizations" style={styles.link}>
           See All
           <AntDesign name="caretright" size={12} color="#555" />
         </Link>
       </View>
-      <DraggableCircleGrid items={typeOneNGOs} />
+      {typeOneNGOs.length > 0 ? (
+        <DraggableCircleGrid items={typeOneNGOs} />
+      ) : (
+        <Text>No Type One NGOs at the moment</Text>
+      )}
 
       <View style={styles.titleContainer}>
-        <Text>Activities and Events</Text>
-        <Link href="/event" style={styles.link}>
+        <Text>Type Two NGOs</Text>
+        <Link href="/organizations" style={styles.link}>
           See All
           <AntDesign name="caretright" size={12} color="#555" />
         </Link>
       </View>
+      {typeTwoNGOs.length > 0 ? (
         <DraggableCircleGrid items={typeTwoNGOs} />
-
-        <View>
-          
-        </View>
+      ) : (
+        <Text>No Type Two NGOs at the moment</Text>
+      )}
     </ScrollView>
   );
 };
@@ -75,8 +94,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  ngoContainer: {
-    marginBottom: 20,
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
