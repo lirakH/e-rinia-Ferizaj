@@ -19,3 +19,10 @@ si qekjo ma poshte ose e jekum krejt ¯\_(ツ)_/¯
       V              */
 Thanks to Pradip Debnath for the navigation tutorial https://www.youtube.com/watch?v=ZG6GngLP3qo&t=890s
 This tutorial was used for the base code (it saved us time) because it was similar to our Figma design.
+
+
+donwloads:
+npm install jwt-decode
+npm install @react-native-async-storage/async-storage
+npm install react-native-draggable-flatlist axios @react-native-async-storage/async-storage
+

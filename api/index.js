@@ -14,7 +14,7 @@ const app = express();
 const sequelize = require("./config/db"); // Adjust the path as necessary
 const User = require("./models/volunteerModel"); // Adjust the path as necessary
 const corsOptions = {
-  origin: "http://localhost:5173", // Adjust this to match your frontend's origin
+  origin: "*", // Adjust this to match your frontend's origin
   optionsSuccessStatus: 200,
 };
 

@@ -11,10 +11,10 @@ const EventItem = ({ item }) => {
 
   return (
     <Pressable style={styles.eventCard} onPress={handleEventPress}>
-      <Image source={{ uri: item.image }} style={styles.eventImage} />
+      <Image source={{ uri: item.picture }} style={styles.eventImage} />
       <Text style={styles.eventDate}>{item.date}</Text>
-      <Text style={styles.eventTitle}>{item.title}</Text>
-      <Text style={styles.eventLocation}>{item.location}</Text>
+      <Text style={styles.eventTitle}>{item.name}</Text>
+      <Text style={styles.eventLocation}>{item.place}</Text>
     </Pressable>
   );
 };
