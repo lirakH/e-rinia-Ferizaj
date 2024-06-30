@@ -131,6 +131,16 @@ export const decodeOrganizationToken = async () => {
   return null;
 };
 
+export const decodeVolunteerToken = async () => {
+  const token = await getAuthToken();
+  if (token) {
+    const decoded = jwtDecode(token);
+    return decoded.volunteer.id;
+  }
+  return null;
+};
+
+
 export const verifyToken = async () => {
   const token = await getAuthToken();
   if (token) {
