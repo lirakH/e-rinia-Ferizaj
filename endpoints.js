@@ -313,11 +313,8 @@ export const loginOrganization = async (credentials) => {
 // Get All Organizations
 export const getAllOrganizations = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}organization`, {
-      headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
-      },
-    });
+    const response = await axios.get(`${API_BASE_URL}organization`);
+    console.log("Fetched organizations data:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching organizations:", error);
