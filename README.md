@@ -27,4 +27,5 @@ npm install @react-native-async-storage/async-storage
 npm install react-native-draggable-flatlist axios @react-native-async-storage/async-storage
 expo install expo-image-picker
 
+npm install react-native-share
 

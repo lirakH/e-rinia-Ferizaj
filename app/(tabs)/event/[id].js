@@ -48,29 +48,39 @@ export default function Page() {
             </View>
           </View>
           <View style={styles.detailsContainer}>
-            <View style={styles.shareContainer}>
+{/*            <View style={styles.shareContainer}>
             <TouchableOpacity style={styles.shareButton}>
               <Text style={{ color: '#fff' }}>Share</Text>
             </TouchableOpacity>
-            </View>
+            </View> */}
             <View style={styles.dateContainer}>
               <View style={styles.IconContainer}>
                 <Ionicons name="calendar-outline" size={20} color="#fff" />
                 </View>
-              <Text style={styles.date}>{eventDetails.date}</Text>
+                <View style={styles.infoContainer}>
+                <Text style={styles.NGOtitle}>Data:</Text>
+                <Text style={styles.date}>{eventDetails.date}</Text>
+                </View>
             </View>
             <View style={styles.locationContainer}>
-              <View style={styles.IconContainer}>
+                <View style={styles.IconContainer}>
                 <Ionicons name="location-outline" size={20} color="#fff" />
                 </View>
-              <Text style={styles.location}>{eventDetails.place}</Text>
+                <View style={styles.infoContainer}>
+                <Text style={styles.NGOtitle}>Lokacioni:</Text>
+                <Text style={styles.location}>{eventDetails.place}</Text>
+                </View>
             </View>
             {organization && (
               <View style={styles.organizationContainer}>
                 <Image source={{ uri: organization.picture || 'https://via.placeholder.com/100' }} style={styles.organizationImage} />
-                <Text style={styles.ngoName}>{organization.name}</Text>
+                <View style={styles.infoContainer}>
+                  <Text style={styles.NGOtitle}>Event i organizuar nga:</Text>
+                  <Text style={styles.ngoName}>{organization.name}</Text>
+                </View>
               </View>
             )}
+            <Text style={styles.descriptionTitle}>Pershkrimi i Eventit</Text>
             <Text style={styles.description}>{eventDetails.description}</Text>
           </View>
         </ScrollView>
@@ -104,9 +114,7 @@ const styles = StyleSheet.create({
     bottom: -15,
     padding: 20,
     margin: 10,
-    border: '1px solid #000',
     borderRadius: 20,
-    flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: "#f9f9f9",
   },
@@ -148,8 +156,8 @@ const styles = StyleSheet.create({
   },
   date: {
     fontSize: 16,
-    color: '#666',
-    marginLeft: 5,
+    color: '#000',
+    fontWeight: 'bold',
   },
   locationContainer: {
     flexDirection: 'row',
@@ -158,8 +166,8 @@ const styles = StyleSheet.create({
   },
   location: {
     fontSize: 16,
-    color: '#666',
-    marginLeft: 5,
+    color: '#000',
+    fontWeight: 'bold',
   },
   organizationContainer: {
     flexDirection: 'row',
@@ -167,10 +175,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   organizationImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 10,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
   },
   ngoName: {
     fontSize: 16,
@@ -181,10 +188,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     marginBottom: 20,
+    textAlign: 'justify',
+  },
+  descriptionTitle: {
+    marginTop: 20,
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
   },
   loading: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  infoContainer: {
+    marginLeft: 15,
+    justifyContent: 'center',
+    alignItems: 'left',
+  }
 });
