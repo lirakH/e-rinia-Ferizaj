@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Switch, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Switch, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { loginVolunteer } from '@/endpoints';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -9,64 +10,80 @@ const LoginScreen = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
 
+  const handleSignIn = async () => {
+    try {
+      await loginVolunteer({ email, password });
+      alert('Login successful');
+      setEmail('');
+      setPassword('');
+      router.push('profile');
+    } catch (error) {
+      alert('Login failed. Please check your credentials.');
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Sign in</Text>
-      <View style={styles.inputContainer}>
-        <Feather name="mail" size={20} color="black" style={styles.icon} />
-        <TextInput
-          style={styles.input}
-          placeholder="abc@email.com"
-          value={email}
-          onChangeText={setEmail}
-        />
-      </View>
-      <View style={styles.inputContainer}>
-        <Feather name="lock" size={20} color="black" style={styles.icon} />
-        <TextInput
-          style={styles.input}
-          placeholder="Your password"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-      </View>
-      <View style={styles.rememberContainer}>
-        <Switch
-          value={rememberMe}
-          onValueChange={setRememberMe}
-        />
-        <Text style={styles.rememberText}>Remember Me</Text>
-        <TouchableOpacity onPress={() => router.push('auth/ForgotPassword')}>
-          <Text style={styles.forgotText}>Forgot Password?</Text>
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Text style={styles.header}>Sign in</Text>
+        <View style={styles.inputContainer}>
+          <Feather name="mail" size={20} color="black" style={styles.icon} />
+          <TextInput
+            style={styles.input}
+            placeholder="abc@email.com"
+            value={email}
+            onChangeText={setEmail}
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Feather name="lock" size={20} color="black" style={styles.icon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Your password"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+        </View>
+        <View style={styles.rememberContainer}>
+          <Switch
+            value={rememberMe}
+            onValueChange={setRememberMe}
+          />
+          <Text style={styles.rememberText}>Remember Me</Text>
+          <TouchableOpacity onPress={() => router.push('auth/ForgotPassword')}>
+            <Text style={styles.forgotText}>Forgot Password?</Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity style={styles.signInButton} onPress={handleSignIn}>
+          <Text style={styles.buttonText}>SIGN IN</Text>
+          <Feather name="arrow-right" size={20} color="#fff" />
         </TouchableOpacity>
-      </View>
-      <TouchableOpacity style={styles.signInButton} onPress={() => {/* Handle sign in logic */}}>
-        <Text style={styles.buttonText}>SIGN IN</Text>
-        <Feather name="arrow-right" size={20} color="#fff" />
-      </TouchableOpacity>
-      <Text style={styles.orText}>OR</Text>
-      <TouchableOpacity style={styles.socialButton} onPress={() => {/* Handle Google login */}}>
-        <FontAwesome name="google" size={20} color="red" style={styles.socialIcon} />
-        <Text style={styles.socialButtonText}>Login with Google</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.socialButton} onPress={() => {/* Handle Facebook login */}}>
-        <FontAwesome name="facebook" size={20} color="blue" style={styles.socialIcon} />
-        <Text style={styles.socialButtonText}>Login with Facebook</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.push('auth/SignupScreen')}>
-        <Text style={styles.signupText}>Don’t have an account? <Text style={styles.signupLink}>Sign up</Text></Text>
-      </TouchableOpacity>
-    </View>
+        <Text style={styles.orText}>OR</Text>
+        <TouchableOpacity style={styles.socialButton}>
+          <FontAwesome name="google" size={20} color="red" style={styles.socialIcon} />
+          <Text style={styles.socialButtonText}>Login with Google</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.socialButton}>
+          <FontAwesome name="facebook" size={20} color="blue" style={styles.socialIcon} />
+          <Text style={styles.socialButtonText}>Login with Facebook</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('auth/SignupScreen')}>
+          <Text style={styles.signupText}>Don’t have an account? <Text style={styles.signupLink}>Sign up</Text></Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  scrollContainer: {
     padding: 20,
     justifyContent: 'center',
-    backgroundColor: '#fff',
   },
   header: {
     fontSize: 24,

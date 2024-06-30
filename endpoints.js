@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import { jwtDecode } from "jwt-decode"; // Correct way to import jwt-decode
+import jwtDecode from 'jwt-decode';
 
 const API_BASE_URL = "http://192.168.178.131:4000/api/";
 
@@ -22,8 +22,8 @@ export const loginAdmin = async (credentials) => {
     );
     const token = response.data.token;
 
-    // Store the token in local storage
-    localStorage.setItem("authToken", token);
+    // Store the token in AsyncStorage
+    await AsyncStorage.setItem("authToken", token);
 
     return response.data;
   } catch (error) {
@@ -35,9 +35,10 @@ export const loginAdmin = async (credentials) => {
 // Create Admin
 export const createAdmin = async (adminData) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.post(`${API_BASE_URL}/admin`, adminData, {
       headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -50,9 +51,10 @@ export const createAdmin = async (adminData) => {
 // Get All Admins
 export const getAllAdmins = async () => {
   try {
+    const token = await getAuthToken();
     const response = await axios.get(`${API_BASE_URL}/admin`, {
       headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -65,9 +67,10 @@ export const getAllAdmins = async () => {
 // Get Admin by ID
 export const getAdminById = async (id) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.get(`${API_BASE_URL}admin/${id}`, {
       headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -80,9 +83,10 @@ export const getAdminById = async (id) => {
 // Update Admin
 export const updateAdmin = async (id, adminData) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.put(`${API_BASE_URL}admin/${id}`, adminData, {
       headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -95,9 +99,10 @@ export const updateAdmin = async (id, adminData) => {
 // Delete Admin
 export const deleteAdmin = async (id) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.delete(`${API_BASE_URL}admin/${id}`, {
       headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -108,29 +113,30 @@ export const deleteAdmin = async (id) => {
 };
 
 // Decode token to get admin ID
-export const decodeToken = () => {
-  const token = getAuthToken();
+export const decodeToken = async () => {
+  const token = await getAuthToken();
   if (token) {
     const decoded = jwtDecode(token);
     return decoded.admin.id;
   }
   return null;
 };
-export const decodeOrganizationToken = () => {
-  const token = getAuthToken();
+
+export const decodeOrganizationToken = async () => {
+  const token = await getAuthToken();
   if (token) {
     const decoded = jwtDecode(token);
     return decoded.organization.id;
   }
   return null;
 };
-export const verifyToken = () => {
-  const token = getAuthToken();
+
+export const verifyToken = async () => {
+  const token = await getAuthToken();
   if (token) {
     const decoded = jwtDecode(token);
     const currentTime = Date.now() / 1000;
     if (decoded.exp < currentTime) {
-      // Token has expired
       console.log("Token has expired");
       return false;
     }
@@ -138,6 +144,7 @@ export const verifyToken = () => {
   }
   return false;
 };
+
 export const loginVolunteer = async (credentials) => {
   try {
     const response = await axios.post(
@@ -146,8 +153,8 @@ export const loginVolunteer = async (credentials) => {
     );
     const token = response.data.token;
 
-    // Store the token in local storage
-    localStorage.setItem("authToken", token);
+    // Store the token in AsyncStorage
+    await AsyncStorage.setItem("authToken", token);
 
     return response.data;
   } catch (error) {
@@ -155,6 +162,7 @@ export const loginVolunteer = async (credentials) => {
     throw error;
   }
 };
+
 export const registerVolunteer = async (volunteerData) => {
   try {
     const response = await axios.post(
@@ -167,11 +175,13 @@ export const registerVolunteer = async (volunteerData) => {
     throw error;
   }
 };
+
 export const getAllVolunteers = async () => {
   try {
+    const token = await getAuthToken();
     const response = await axios.get(`${API_BASE_URL}volunteer`, {
       headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -180,11 +190,13 @@ export const getAllVolunteers = async () => {
     throw error;
   }
 };
+
 export const getVolunteerById = async (id) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.get(`${API_BASE_URL}volunteer/${id}`, {
       headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -193,14 +205,16 @@ export const getVolunteerById = async (id) => {
     throw error;
   }
 };
+
 export const updateVolunteer = async (id, volunteerData) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.put(
       `${API_BASE_URL}volunteer/${id}`,
       volunteerData,
       {
         headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -210,11 +224,13 @@ export const updateVolunteer = async (id, volunteerData) => {
     throw error;
   }
 };
+
 export const deleteVolunteer = async (id) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.delete(`${API_BASE_URL}volunteer/${id}`, {
       headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -223,14 +239,16 @@ export const deleteVolunteer = async (id) => {
     throw error;
   }
 };
+
 export const favoriteOrganization = async (organizationId) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.post(
       `${API_BASE_URL}volunteer/favorite-organization`,
       { organizationId },
       {
         headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -240,30 +258,34 @@ export const favoriteOrganization = async (organizationId) => {
     throw error;
   }
 };
+
 export const unfavoriteOrganization = async (organizationId) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.post(
       `${API_BASE_URL}volunteer/unfavorite-organization`,
       { organizationId },
       {
         headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
     return response.data;
   } catch (error) {
-    console.error("Error favoriting organization:", error);
+    console.error("Error unfavoriting organization:", error);
     throw error;
   }
 };
+
 export const getLikedOrganizations = async () => {
   try {
+    const token = await getAuthToken();
     const response = await axios.get(
       `${API_BASE_URL}volunteer/liked-organizations`,
       {
         headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -273,15 +295,17 @@ export const getLikedOrganizations = async () => {
     throw error;
   }
 };
+
 // Register Organization
 export const registerOrganization = async (organizationData) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.post(
       `${API_BASE_URL}organization`,
       organizationData,
       {
         headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -301,8 +325,8 @@ export const loginOrganization = async (credentials) => {
     );
     const token = response.data.token;
 
-    // Store the token in local storage
-    localStorage.setItem("authToken", token);
+    // Store the token in AsyncStorage
+    await AsyncStorage.setItem("authToken", token);
 
     return response.data;
   } catch (error) {
@@ -315,7 +339,6 @@ export const loginOrganization = async (credentials) => {
 export const getAllOrganizations = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}organization`);
-    //console.log("Fetched organizations data:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching organizations:", error);
@@ -326,9 +349,10 @@ export const getAllOrganizations = async () => {
 // Get Organization by ID
 export const getOrganizationById = async (id) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.get(`${API_BASE_URL}organization/${id}`, {
       headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -341,12 +365,13 @@ export const getOrganizationById = async (id) => {
 // Update Organization
 export const updateOrganization = async (id, organizationData) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.put(
       `${API_BASE_URL}organization/${id}`,
       organizationData,
       {
         headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -360,9 +385,10 @@ export const updateOrganization = async (id, organizationData) => {
 // Delete Organization
 export const deleteOrganization = async (id) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.delete(`${API_BASE_URL}organization/${id}`, {
       headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -375,12 +401,13 @@ export const deleteOrganization = async (id) => {
 // Upload Organization Picture
 export const uploadOrganizationPicture = async (id, formData) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.post(
       `${API_BASE_URL}organization/upload/${id}`,
       formData,
       {
         headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       }
@@ -391,14 +418,16 @@ export const uploadOrganizationPicture = async (id, formData) => {
     throw error;
   }
 };
+
 export const createEvent = async (eventData) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.post(
-      "http://localhost:4000/api/events",
+      `${API_BASE_URL}events`,
       eventData,
       {
         headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -412,9 +441,10 @@ export const createEvent = async (eventData) => {
 // Update Event
 export const updateEvent = async (id, eventData) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.put(`${API_BASE_URL}events/${id}`, eventData, {
       headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -427,9 +457,10 @@ export const updateEvent = async (id, eventData) => {
 // Delete Event
 export const deleteEvent = async (id) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.delete(`${API_BASE_URL}events/${id}`, {
       headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -442,12 +473,13 @@ export const deleteEvent = async (id) => {
 // Approve Event
 export const approveEvent = async (id) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.put(
       `${API_BASE_URL}events/${id}/approve`,
       {},
       {
         headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -501,12 +533,13 @@ export const getEventsByOrganization = async (orgId) => {
 // Upload Event Picture
 export const uploadEventPicture = async (id, formData) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.post(
       `${API_BASE_URL}events/upload/${id}`,
       formData,
       {
         headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       }

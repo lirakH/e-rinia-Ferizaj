@@ -1,10 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfilePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const checkLoginStatus = async () => {
+        const token = await AsyncStorage.getItem('authToken');
+        setIsLoggedIn(!!token);
+      };
+
+      checkLoginStatus();
+    }, [])
+  );
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('authToken');
+    setIsLoggedIn(false);
+  };
 
   if (!isLoggedIn) {
     return (
@@ -29,7 +46,7 @@ const ProfilePage = () => {
     <View style={styles.container}>
       <Text style={styles.header}>Profile Page</Text>
       {/* Display user's profile information here */}
-      <TouchableOpacity style={styles.logoutButton} onPress={() => setIsLoggedIn(false)}>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.buttonText}>Logout</Text>
       </TouchableOpacity>
     </View>
