@@ -59,7 +59,7 @@ export default function Page() {
     { title: 'Ngo Details', data: [ngoDetails], renderItem: renderNGODetails },
   ];
 
-  if (ngoDetails?.type === 'government' && ngoDetails.members) {
+  if (ngoDetails?.type === 'Institution' && ngoDetails.members) {
     sections.push({ title: 'Members', data: [{ members: ngoDetails.members }], renderItem: renderMemberSection });
   }
 

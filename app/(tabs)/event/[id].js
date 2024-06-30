@@ -1,38 +1,37 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-
-// Sample event data
-const sampleEvents = [
-  {
-    id: '1',
-    title: 'International Band Music',
-    date: '10 June',
-    location: '36 Guild Street London, UK',
-    image: 'https://via.placeholder.com/150',
-    author: 'John Doe',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nisl nec ultricies lacinia, nisl nisl aliquet nisl, nec aliquam nisl nisl eget nisl.',
-    ngo: 'Music Lovers Foundation',
-  },
-  {
-    id: '2',
-    title: 'Jazz',
-    date: '10 June',
-    location: '36 Guild Street London, UK',
-    image: 'https://via.placeholder.com/150',
-    author: 'John Doe',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nisl nec ultricies lacinia, nisl nisl aliquet nisl, nec aliquam nisl nisl eget nisl.',
-    ngo: 'Music Lovers Foundation',
-  },
-  // Add more sample events as needed
-];
+import { getEventById, getOrganizationById } from '@/endpoints'; // Adjust path as necessary
 
 export default function Page() {
   const { id } = useLocalSearchParams();
+  const [eventDetails, setEventDetails] = useState(null);
+  const [organization, setOrganization] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Find the event details from the sample data based on the `id`
-  const eventDetails = sampleEvents.find((event) => event.id === id);
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        const eventData = await getEventById(id);
+        setEventDetails(eventData);
+        if (eventData.organizationId) {
+          const organizationData = await getOrganizationById(eventData.organizationId);
+          setOrganization(organizationData);
+        }
+      } catch (error) {
+        console.error('Error fetching event details:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvent();
+  }, [id]);
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
+  }
 
   return (
     <>
@@ -41,27 +40,37 @@ export default function Page() {
       {eventDetails ? (
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.imageContainer}>
-            <Image source={{ uri: eventDetails.image }} style={styles.image} />
-            <View style={styles.titleContainer}>
-              <Text style={styles.title}>{eventDetails.title}</Text>
+            <Image source={{ uri: eventDetails.picture || 'https://via.placeholder.com/150' }} style={styles.image} />
+            <View style={styles.titleContainer1}>
+              <View style={styles.titleContainer}>
+              <Text style={styles.title}>{eventDetails.name}</Text>
+            </View>
             </View>
           </View>
           <View style={styles.detailsContainer}>
-              <TouchableOpacity style={styles.shareButton}>
-                <Text>Share</Text>
-              </TouchableOpacity>
+            <View style={styles.shareContainer}>
+            <TouchableOpacity style={styles.shareButton}>
+              <Text style={{ color: '#fff' }}>Share</Text>
+            </TouchableOpacity>
+            </View>
             <View style={styles.dateContainer}>
-              <Ionicons name="calendar-outline" size={20} color="#666" />
+              <View style={styles.IconContainer}>
+                <Ionicons name="calendar-outline" size={20} color="#fff" />
+                </View>
               <Text style={styles.date}>{eventDetails.date}</Text>
             </View>
             <View style={styles.locationContainer}>
-              <Ionicons name="location-outline" size={20} color="#666" />
-              <Text style={styles.location}>{eventDetails.location}</Text>
+              <View style={styles.IconContainer}>
+                <Ionicons name="location-outline" size={20} color="#fff" />
+                </View>
+              <Text style={styles.location}>{eventDetails.place}</Text>
             </View>
-            <View style={styles.locationContainer}>
-              <Ionicons name="location-outline" size={20} color="#666" />
-              <Text style={styles.ngoName}>{eventDetails.ngo}</Text>
-            </View>
+            {organization && (
+              <View style={styles.organizationContainer}>
+                <Image source={{ uri: organization.picture || 'https://via.placeholder.com/100' }} style={styles.organizationImage} />
+                <Text style={styles.ngoName}>{organization.name}</Text>
+              </View>
+            )}
             <Text style={styles.description}>{eventDetails.description}</Text>
           </View>
         </ScrollView>
@@ -84,22 +93,36 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 300,
   },
+  titleContainer1: {
+    width: '100%',
+    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
   titleContainer: {
     position: 'absolute',
-    bottom: 20,
-    left: 20,
+    bottom: -15,
+    padding: 20,
+    margin: 10,
+    border: '1px solid #000',
+    borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: "#f9f9f9",
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#000',
     marginRight: 10,
+  },
+  shareContainer:{
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 20,
   },
   shareButton: {
     backgroundColor: '#0091F9',
-    color: '#fff',
     padding: 10,
     borderRadius: 5,
     width: 150,
@@ -108,6 +131,15 @@ const styles = StyleSheet.create({
   },
   detailsContainer: {
     padding: 20,
+  },
+  IconContainer: {
+    backgroundColor: '#0091F9',
+    padding: 10,
+    borderRadius: 50,
+    width: 50,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   dateContainer: {
     flexDirection: 'row',
@@ -129,28 +161,30 @@ const styles = StyleSheet.create({
     color: '#666',
     marginLeft: 5,
   },
-  description: {
-    fontSize: 16,
-    lineHeight: 24,
-    marginBottom: 20,
+  organizationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
   },
-  ngoContainer: {
-    backgroundColor: '#f5f5f5',
-    padding: 20,
-    borderRadius: 10,
-  },
-  ngoTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
+  organizationImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
   },
   ngoName: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
   },
-  ngoDescription: {
+  description: {
     fontSize: 16,
     lineHeight: 24,
+    marginBottom: 20,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

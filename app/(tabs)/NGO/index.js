@@ -1,139 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SectionList, ActivityIndicator, FlatList } from 'react-native';
 import CircleItem from '@/components/CircleItem';
-import { useRouter } from 'expo-router';
+import { getAllOrganizations } from '@/endpoints'; // Adjust the path as necessary
 
 export default function NgoScreen() {
-  const [NGOs, setNGOs] = useState([]);
+  const [sections, setSections] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const router = useRouter();
 
   useEffect(() => {
     const fetchNGOs = async () => {
       try {
-        // Sample JSON data
-        const sampleData = [
-          {
-            title: 'NGOs',
-            data: [
-              {
-                id: '1',
-                name: 'NGO 1',
-                picture: 'https://example.com/ngo1.jpg',
-                description: 'Description of NGO 1',
-                type: 'NGO',
-              },
-              {
-                id: '2',
-                name: 'NGO 2',
-                picture: 'https://example.com/ngo2.jpg',
-                description: 'Description of NGO 2',
-                type: 'NGO',
-              },
-              {
-                id: '1',
-                name: 'NGO 1',
-                picture: 'https://example.com/ngo1.jpg',
-                description: 'Description of NGO 1',
-                type: 'NGO',
-              },
-              {
-                id: '2',
-                name: 'NGO 2',
-                picture: 'https://example.com/ngo2.jpg',
-                description: 'Description of NGO 2',
-                type: 'NGO',
-              },
-              {
-                id: '1',
-                name: 'NGO 1',
-                picture: 'https://example.com/ngo1.jpg',
-                description: 'Description of NGO 1',
-                type: 'NGO',
-              },
-              {
-                id: '2',
-                name: 'NGO 2',
-                picture: 'https://example.com/ngo2.jpg',
-                description: 'Description of NGO 2',
-                type: 'NGO',
-              },
-              {
-                id: '1',
-                name: 'NGO 1',
-                picture: 'https://example.com/ngo1.jpg',
-                description: 'Description of NGO 1',
-                type: 'NGO',
-              },
-              {
-                id: '2',
-                name: 'NGO 2',
-                picture: 'https://example.com/ngo2.jpg',
-                description: 'Description of NGO 2',
-                type: 'NGO',
-              },
-            ],
-          },
-          {
-            title: 'Other Organizations',
-            data: [
-              {
-                id: '2',
-                name: 'NGO 1',
-                picture: 'https://example.com/org1.jpg',
-                description: 'Description of Organization 1',
-                type: 'government',
-              },
-              {
-                id: '4',
-                name: 'NGO 2',
-                picture: 'https://example.com/org2.jpg',
-                description: 'Description of Organization 1',
-                type: 'government',
-              },
-              {
-                id: '3',
-                name: 'NGO 1',
-                picture: 'https://example.com/org1.jpg',
-                description: 'Description of Organization 1',
-                type: 'Other',
-              },
-              {
-                id: '4',
-                name: 'Organizata aaa  2',
-                picture: 'https://example.com/org2.jpg',
-              },
-              {
-                id: '3',
-                name: 'NGO 1',
-                picture: 'https://example.com/org1.jpg',
-                description: 'Description of Organization 1',
-                type: 'government',
-              },
-              {
-                id: '4',
-                name: 'NGO 2',
-                picture: 'https://example.com/org2.jpg',
-              },
-              {
-                id: '3',
-                name: 'Organizata aaa 1',
-                picture: 'https://example.com/org1.jpg',
-                description: 'Description of Organization 1',
-                type: 'government',
-              },
-              {
-                id: '4',
-                name: 'NGO 2',
-                picture: 'https://example.com/org2.jpg',
-              },
-
-            ],
-          },
-        ];
-
-        setNGOs(sampleData);
+        const data = await getAllOrganizations();
+        const institutions = data.filter(item => item.type === 'Institution');
+        const ngos = data.filter(item => item.type === 'NGO');
+        
+        setSections([
+          { title: 'Institutions', data: institutions },
+          { title: 'NGOs', data: ngos }
+        ]);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -144,11 +29,10 @@ export default function NgoScreen() {
     fetchNGOs();
   }, []);
 
-
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <Text>Loading...</Text>
+        <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
@@ -172,27 +56,35 @@ export default function NgoScreen() {
     <Text style={styles.sectionHeader}>{title}</Text>
   );
 
+  const renderSection = ({ section }) => (
+    <>
+      {renderSectionHeader({ section })}
+      <FlatList
+        data={section.data}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+        numColumns={3}
+        contentContainerStyle={styles.gridContainer}
+      />
+    </>
+  );
+
   return (
     <View style={styles.container}>
-      {NGOs.length === 0 ? (
+      {sections.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyTextTitle}>No NGOs yet</Text>
           <Text style={styles.emptyTextBody}>They will be added shortly</Text>
         </View>
       ) : (
-        <FlatList
-          data={NGOs}
-          keyExtractor={(item, index) => `${item.title}-${index}`}
-          renderItem={({ item }) => (
-            <FlatList
-              data={item.data}
-              keyExtractor={(item) => item.id}
-              renderItem={renderItem}
-              numColumns={3}
-              contentContainerStyle={styles.gridContainer}
-              ListHeaderComponent={renderSectionHeader({ section: item })}
-            />
-          )}
+        <SectionList
+          sections={sections}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item, section }) => null}
+          ListHeaderComponent={() => null}
+          ListFooterComponent={() => null}
+          SectionSeparatorComponent={() => null}
+          renderSectionFooter={({ section }) => renderSection({ section })}
         />
       )}
     </View>
@@ -205,7 +97,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    alignContent: 'center',
   },
   emptyContainer: {
     flex: 1,
@@ -225,7 +116,6 @@ const styles = StyleSheet.create({
   gridContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    alignContent: 'center',
   },
   itemContainer: {
     alignItems: 'center',
@@ -234,22 +124,9 @@ const styles = StyleSheet.create({
     width: 100,
   },
   itemName: {
-    marginTop: -15,
     fontSize: 16,
+    marginTop: 5,
     marginBottom: 10,
-  },
-  button: {
-    backgroundColor: '#2196F3',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    marginTop: 20,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-    textAlign: 'center',
   },
   sectionHeader: {
     fontSize: 20,
