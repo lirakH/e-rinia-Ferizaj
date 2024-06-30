@@ -1,77 +1,35 @@
 // app/(tabs)/NGO/[id].js
-import React from 'react';
-import { View, Text, Image, StyleSheet, SectionList } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Image, StyleSheet, SectionList, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import EventItem2 from '@/components/EventItem2';
 import MemberList from '@/components/MemberList';
-
-// Sample NGO data
-const sampleNGOs = [
-  {
-    id: '1',
-    name: 'Music Lovers Foundation',
-    description: 'We are a non-profit organization dedicated to promoting music education and appreciation.',
-    logo: 'https://via.placeholder.com/150',
-    type: 'ngo',
-    events: [
-      {
-        id: '1',
-        title: 'International Band Music',
-        date: '10 June',
-        location: '36 Guild Street London, UK',
-      },
-      {
-        id: '2',
-        title: 'Jazz Festival',
-        date: '15 July',
-        location: '42 Park Avenue, New York',
-      },
-    ],
-  },
-  {
-    id: '2',
-    name: 'Ministry of Education',
-    description: 'Government organization for education',
-    logo: 'https://via.placeholder.com/150',
-    type: 'government',
-    members: [
-      { id: '1', name: 'John Doe', position: "kryetarë", picture: 'https://via.placeholder.com/100' },
-      { id: '2', name: 'Jane Smith', position: "kryetarë", picture: 'https://via.placeholder.com/100' },
-      { id: '3', name: 'Michael Johnson', position: "kryetarë", picture: 'https://via.placeholder.com/100' },
-      { id: '4', name: 'Michael Johnson', position: "kryetarë", picture: 'https://via.placeholder.com/100' },
-    ],
-    events: [
-      {
-        id: '1',
-        title: 'International Band Music',
-        date: '10 June',
-        location: '36 Guild Street London, UK',
-      },
-      {
-        id: '2',
-        title: 'Jazz Festival',
-        date: '15 July',
-        location: '42 Park Avenue, New York',
-      },
-      {
-        id: '3',
-        title: 'National Education Conference',
-        date: '20 August',
-        location: 'Washington D.C., USA',
-      },
-    ],
-  },
-];
+import { getOrganizationById } from '@/endpoints'; // Adjust path as necessary
 
 export default function Page() {
   const { id } = useLocalSearchParams();
+  const [ngoDetails, setNgoDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const ngoDetails = sampleNGOs.find((ngo) => ngo.id === id);
+  useEffect(() => {
+    const fetchOrganization = async () => {
+      try {
+        const data = await getOrganizationById(id);
+        setNgoDetails(data);
+      } catch (error) {
+        console.error('Error fetching NGO details:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrganization();
+  }, [id]);
 
   const renderNGODetails = () => (
     <View style={styles.detailsContainer}>
       <View style={styles.logoContainer}>
-        <Image source={{ uri: ngoDetails.logo }} style={styles.logo} />
+        <Image source={{ uri: ngoDetails.logo || 'https://via.placeholder.com/150' }} style={styles.logo} />
         <Text style={styles.name}>{ngoDetails.name}</Text>
       </View>
       <Text style={styles.description}>{ngoDetails.description}</Text>
@@ -93,20 +51,25 @@ export default function Page() {
 
   const renderEventItem = ({ item }) => <EventItem2 event={item} />;
 
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
+  }
+
   const sections = [
     { title: 'Ngo Details', data: [ngoDetails], renderItem: renderNGODetails },
   ];
 
-  if (ngoDetails.type === 'government' && ngoDetails.members) {
+  if (ngoDetails?.type === 'government' && ngoDetails.members) {
     sections.push({ title: 'Members', data: [{ members: ngoDetails.members }], renderItem: renderMemberSection });
   }
 
-  sections.push({ title: 'Upcoming Events', data: ngoDetails.events, horizontal: true });
+  if (ngoDetails?.events) {
+    sections.push({ title: 'Upcoming Events', data: ngoDetails.events, horizontal: true });
+  }
 
   return (
     <>
       <Stack.Screen options={{ headerTitle: `NGO ${id}` }} />
-
       {ngoDetails ? (
         <SectionList
           sections={sections}
@@ -165,5 +128,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f1f1f1',
     justifyContent: 'space-between',
     marginBottom: 20,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

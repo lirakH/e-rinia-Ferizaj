@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { jwtDecode } from "jwt-decode"; // Correct way to import jwt-decode
 
 const API_BASE_URL = "http://192.168.178.131:4000/api/";
 
@@ -314,7 +315,7 @@ export const loginOrganization = async (credentials) => {
 export const getAllOrganizations = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}organization`);
-    console.log("Fetched organizations data:", response.data);
+    //console.log("Fetched organizations data:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching organizations:", error);

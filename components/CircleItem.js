@@ -14,7 +14,7 @@ const CircleItem = ({ item }) => {
       <View style={styles.circle}>
         <Image source={{ uri: item.picture }} style={styles.image} />
       </View>
-      <Text style={styles.label}>{item.name}</Text>
+      <Text style={styles.label}>{item.label}</Text>
     </Pressable>
   );
 };

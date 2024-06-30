@@ -7,37 +7,33 @@ import DraggableCircleGrid from '@/components/DraggableCircleGrid'; // Adjust pa
 import { getAllOrganizations } from '@/endpoints'; // Adjust path as necessary
 
 const HomeScreen = () => {
-  const [typeOneNGOs, setTypeOneNGOs] = useState([]);
-  const [typeTwoNGOs, setTypeTwoNGOs] = useState([]);
+  const [typeOneOrganizations, setTypeOneOrganizations] = useState([]);
+  const [typeTwoOrganizations, setTypeTwoOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchNGOs = async () => {
+    const fetchOrganizations = async () => {
       try {
-        const response = await getAllOrganizations();
-        const ngos = response.data || [];
-        console.log("Fetched NGOs:", ngos); // Debug log
-        setTypeOneNGOs(ngos.filter(org => org.type === 'inst')); // Filter for type 'inst'
-        setTypeTwoNGOs(ngos.filter(org => org.type === 'NGO')); // Filter for type 'NGO'
-        console.log("Type One NGOs:", ngos.filter(org => org.type === 'inst')); // Debug log
-        console.log("Type Two NGOs:", ngos.filter(org => org.type === 'NGO')); // Debug log
+        const data = await getAllOrganizations();
+        //console.log('Fetched organizations data:', data); // Debugging line
+
+        const typeOne = data.filter(org => org.type === 'Institution');
+        const typeTwo = data.filter(org => org.type === 'NGO');
+
+        setTypeOneOrganizations(typeOne);
+        setTypeTwoOrganizations(typeTwo);
       } catch (error) {
-        console.error("Error fetching organizations:", error);
+        console.error('Error fetching organizations:', error);
       } finally {
         setLoading(false);
       }
     };
-  
-    fetchNGOs();
+
+    fetchOrganizations();
   }, []);
-  
 
   if (loading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
+    return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
   }
 
   return (
@@ -52,30 +48,22 @@ const HomeScreen = () => {
       <EventList />
 
       <View style={styles.titleContainer}>
-        <Text>Type One NGOs</Text>
-        <Link href="/organizations" style={styles.link}>
+        <Text>Type One Organizations</Text>
+        <Link href="/event" style={styles.link}>
           See All
           <AntDesign name="caretright" size={12} color="#555" />
         </Link>
       </View>
-      {typeOneNGOs.length > 0 ? (
-        <DraggableCircleGrid items={typeOneNGOs} />
-      ) : (
-        <Text>No Type One NGOs at the moment</Text>
-      )}
+      <DraggableCircleGrid items={typeOneOrganizations.map(org => ({ id: org.id.toString(), label: org.name, picture: org.picture || 'https://via.placeholder.com/150' }))} />
 
       <View style={styles.titleContainer}>
-        <Text>Type Two NGOs</Text>
-        <Link href="/organizations" style={styles.link}>
+        <Text>Type Two Organizations</Text>
+        <Link href="/event" style={styles.link}>
           See All
           <AntDesign name="caretright" size={12} color="#555" />
         </Link>
       </View>
-      {typeTwoNGOs.length > 0 ? (
-        <DraggableCircleGrid items={typeTwoNGOs} />
-      ) : (
-        <Text>No Type Two NGOs at the moment</Text>
-      )}
+      <DraggableCircleGrid items={typeTwoOrganizations.map(org => ({ id: org.id.toString(), label: org.name, picture: org.picture || 'https://via.placeholder.com/150' }))} />
     </ScrollView>
   );
 };
@@ -94,7 +82,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  loaderContainer: {
+  loading: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
