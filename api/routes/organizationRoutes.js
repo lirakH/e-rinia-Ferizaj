@@ -57,11 +57,7 @@ router.get(
 
   organizationController.getAllOrganizations
 );
-router.get(
-  "/:id",
-  allowAdminOrOrganization,
-  organizationController.getOrganization
-);
+router.get("/:id", organizationController.getOrganization);
 router.put(
   "/:id",
   allowAdminOrOrganization,
