@@ -3,9 +3,6 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { decodeVolunteerToken, decodeOrganizationToken, decodeAdminToken } from '@/endpoints';
-import AdminProfileScreen from './AdminProfileScreen';
-import VolunteerProfileScreen from './VolunteerProfileScreen';
-import NgoProfileScreen from './NgoProfileScreen';
 
 const ProfilePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -38,6 +35,24 @@ const ProfilePage = () => {
     }, [])
   );
 
+  useEffect(() => {
+    if (isLoggedIn) {
+      switch (userRole) {
+        case 'volunteer':
+          router.push('profile/VolunteerProfileScreen');
+          break;
+        case 'organization':
+          router.push('profile/NgoProfileScreen');
+          break;
+        case 'admin':
+          router.push('profile/AdminProfileScreen');
+          break;
+        default:
+          break;
+      }
+    }
+  }, [isLoggedIn, userRole, router]);
+
   if (!isLoggedIn) {
     return (
       <View style={styles.container}>
@@ -57,16 +72,7 @@ const ProfilePage = () => {
     );
   }
 
-  switch (userRole) {
-    case 'volunteer':
-      return <VolunteerProfileScreen />;
-    case 'organization':
-      return <NgoProfileScreen />;
-    case 'admin':
-      return <AdminProfileScreen />;
-    default:
-      return null;
-  }
+  return null;
 };
 
 const styles = StyleSheet.create({
