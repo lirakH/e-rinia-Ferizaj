@@ -180,13 +180,58 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
   header: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
+  },
+  subHeader: {
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 20,
+  },
+  image: {
+    width: 200,
+    height: 200,
+    marginBottom: 20,
+  },
+  signInButton: {
+    backgroundColor: "#007BFF",
+    padding: 10,
+    borderRadius: 5,
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  signUpButton: {
+    backgroundColor: "#28a745",
+    padding: 10,
+    borderRadius: 5,
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  ngoSignInButton: {
+    backgroundColor: "#ffc107",
+    padding: 10,
+    borderRadius: 5,
+    width: "100%",
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  signUpText: {
+    fontSize: 16,
+    color: "#555",
+  },
+  linkText: {
+    color: "#28a745",
+    fontWeight: "bold",
   },
   profileImage: {
     width: 100,
@@ -218,10 +263,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     marginBottom: 20,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
   },
   ngoTitleContainer: {
     marginTop: 25,
