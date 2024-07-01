@@ -6,8 +6,6 @@ export default function HomeScreen() {
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
       <Text> Profili </Text>
-      <Link href="/auth/LoginScreen" style={styles.link}>Sign in</Link>
-
     </ScrollView>
   );
 }
