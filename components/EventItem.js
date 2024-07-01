@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   eventCard: {
     backgroundColor: '#fff',
     borderRadius: 10,
-    marginRight: 15, // Increased margin for more space between items
+    marginRight: 15,
     marginTop: -15,
     marginLeft: -10,
     marginBottom: 10,

@@ -78,16 +78,16 @@ const HomeScreen = () => {
       <TouchableOpacity onPress={handleSafePress} style={styles.safeContainer}>
         <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/en/thumb/a/ac/Kosovo-Police_logo.svg/1200px-Kosovo-Police_logo.svg.png' }} style={styles.logoPlaceholder} />
         <View style={styles.safeContent}>
-          <Text style={styles.safeText}>Lajmro Policine</Text>
-          <Text style={styles.safeText2}>Instalo aplikacionin e Policise</Text>
+          <Text style={styles.safeText}>Lajmro Policinë</Text>
+          <Text style={styles.safeText2}>Instalo aplikacionin e Policisë</Text>
         </View>
       </TouchableOpacity>
       
       <View style={styles.newSectionContent}>
         <Text style={styles.newSectionTitle}>Falenderim Donatorit</Text>
         <Text style={styles.newSectionDescription}>
-          Aplikacioni E-Rinia u realizua fale:
-          Projektit "filan fiskteku", projekt i realizuar nga organizata KUSA - Kosovo US Alumni dhe financuar nga Ambasada Amerikane ne Kosove
+          Aplikacioni E-Rinia u realizua falë:
+          Projektit "filan fiskteku", projekt i realizuar nga organizata KUSA - Kosovo US Alumni dhe financuar nga Ambasada Amerikane në Kosovë
         </Text>
         <View style={styles.newSectionImages}>
         <Image source={{ uri: 'https://d2v9ipibika81v.cloudfront.net/uploads/sites/133/Pristina_Seal-1.png' }} style={styles.logoPlaceholder2} />

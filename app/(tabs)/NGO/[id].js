@@ -65,12 +65,19 @@ export default function Page() {
 
   const sections = [
     { title: 'Ngo Details', data: [ngoDetails], renderItem: renderNGODetails },
-    { title: 'Eventet e Organizates', data: events, horizontal: true },
+    { title: 'Eventet e Organizates', data: events.length > 0 ? events : [{ id: 'no-events', title: 'No Events at the moment', date: '', location: '', picture: '' }], horizontal: true },
   ];
 
   if (ngoDetails && ngoDetails.type === 'government' && members.length > 0) {
     sections.push({ title: 'Members', data: [{ members }], renderItem: renderMemberSection });
   }
+
+  const renderItem = ({ item }) => {
+    if (item.id === 'no-events') {
+      return <Text style={styles.noEventsText}>{item.title}</Text>;
+    }
+    return <EventItem2 event={item} />;
+  };
 
   return (
     <>
@@ -79,7 +86,7 @@ export default function Page() {
       {ngoDetails ? (
         <SectionList
           sections={sections}
-          renderItem={renderEventItem}
+          renderItem={renderItem}
           renderSectionHeader={renderSectionHeader}
           keyExtractor={(item, index) => `${item.id}-${index}`}
           contentContainerStyle={styles.container}
@@ -133,5 +140,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#f1f1f1',
     justifyContent: 'space-between',
     marginBottom: 20,
+  },
+  noEventsText: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#888',
+    marginVertical: 20,
   },
 });
