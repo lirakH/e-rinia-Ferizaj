@@ -1,7 +1,8 @@
-// migrations/[timestamp]-create-events.js
+"use strict";
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("events", {
+    await queryInterface.createTable("Events", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -13,18 +14,19 @@ module.exports = {
         allowNull: false,
       },
       picture: {
-        type: Sequelize.BLOB, // Change to Sequelize.STRING if storing image URLs
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       place: {
         type: Sequelize.STRING,
         allowNull: false,
       },
       date: {
-        type: Sequelize.DATEONLY, // If you only need the date without time, otherwise use Sequelize.DATE
+        type: Sequelize.DATE,
         allowNull: false,
       },
       description: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       approved: {
@@ -34,22 +36,32 @@ module.exports = {
       },
       organizationId: {
         type: Sequelize.INTEGER,
+        references: {
+          model: "Organizations", // This should match the table name defined in your Organization model
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
         allowNull: false,
+      },
+      adminComment: {
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn("NOW"),
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn("NOW"),
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("events");
+    await queryInterface.dropTable("Events");
   },
 };

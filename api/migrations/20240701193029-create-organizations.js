@@ -20,16 +20,23 @@ module.exports = {
       },
       joinCode: {
         type: Sequelize.STRING,
-        // allowNull: true/false depending on your business logic
+        allowNull: true,
       },
       picture: {
-        type: Sequelize.BLOB,
-        // Or Sequelize.STRING if you're storing image URLs
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       description: {
-        type: Sequelize.TEXT,
-        // Using TEXT for potentially long descriptions
-        // allowNull: true/false depending on your business logic
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      type: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      shortname: {
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,
@@ -39,12 +46,11 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal(
-          "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
-        ),
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
   },
+
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable("Organizations");
   },

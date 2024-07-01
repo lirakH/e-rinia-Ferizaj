@@ -10,6 +10,9 @@ const {
   authorizeRole: authorizeRoleAdmin,
 } = require("../controllers/adminController");
 
+const jwt = require("jsonwebtoken");
+const jwtSecret = process.env.JWT_SECRET;
+
 const router = express.Router();
 const multer = require("multer");
 const path = require("path");
@@ -33,6 +36,32 @@ if (!fs.existsSync(dir)) {
   fs.mkdirSync(dir, { recursive: true });
 }
 
+// Inline middleware function to allow both admins and organizations
+const allowAdminOrOrganization = (req, res, next) => {
+  const token = req.header("Authorization")?.replace("Bearer ", "");
+  if (!token) {
+    return res.status(401).json({ msg: "No token, authorization denied" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, jwtSecret);
+
+    if (decoded.admin) {
+      req.admin = decoded.admin;
+      req.userRole = "admin";
+      return next();
+    } else if (decoded.organization) {
+      req.organization = decoded.organization;
+      req.userRole = "organization";
+      return next();
+    } else {
+      return res.status(401).json({ msg: "Token is not valid" });
+    }
+  } catch (err) {
+    return res.status(401).json({ msg: "Token is not valid" });
+  }
+};
+
 router.post(
   "/",
   authMiddlewareOrganization,
@@ -40,19 +69,9 @@ router.post(
   eventController.createEvent
 );
 
-router.put(
-  "/:id",
-  authMiddlewareOrganization,
-  authorizeRoleOrganization("organization"),
-  eventController.updateEvent
-);
+router.put("/:id", allowAdminOrOrganization, eventController.updateEvent);
 
-router.delete(
-  "/:id",
-  authMiddlewareOrganization,
-  authorizeRoleOrganization("organization"),
-  eventController.deleteEvent
-);
+router.delete("/:id", allowAdminOrOrganization, eventController.deleteEvent);
 
 router.put(
   "/:id/approve",

@@ -20,26 +20,25 @@ module.exports = (sequelize) => {
         // allowNull defaults to true
       },
       picture: {
-        type: DataTypes.STRING, // Changed from BLOB to STRING
+        type: DataTypes.STRING,
         allowNull: true,
       },
       description: {
         type: DataTypes.STRING,
-        // Or DataTypes.TEXT if you need more space
       },
-      // Add a type attribute to your Organization model
       type: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-
-      // Add any other attributes as necessary
+      shortname: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       sequelize,
       modelName: "Organization",
       tableName: "organizations",
-      // Other model options
     }
   );
 

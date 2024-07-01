@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Admins", {
+    await queryInterface.createTable("Volunteers", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -22,23 +22,24 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      // If you want to store the profile picture as a URL:
       profilePicture: {
         type: Sequelize.STRING,
+        allowNull: true,
       },
-      // Sequelize automatically adds the fields 'createdAt' and 'updatedAt' by default,
-      // if you want to handle timestamps yourself, you should add them manually
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
   },
+
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Admins");
+    await queryInterface.dropTable("Volunteers");
   },
 };

@@ -103,8 +103,15 @@ exports.updateEvent = async (req, res) => {
         );
     }
 
-    const { name, picture, place, date, description } = req.body;
-    await event.update({ name, picture, place, date, description });
+    const { name, picture, place, date, description, adminComment } = req.body;
+    await event.update({
+      name,
+      picture,
+      place,
+      date,
+      description,
+      adminComment,
+    });
 
     res.json(event);
   } catch (error) {

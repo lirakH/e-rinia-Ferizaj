@@ -99,3 +99,35 @@ exports.uploadProfilePicture = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+exports.getMembersByOrganizationId = async (req, res) => {
+  try {
+    const { organizationId } = req.params;
+
+    // Fetch the organization and check its type
+    const organization = await Organization.findByPk(organizationId);
+
+    if (!organization) {
+      return res.status(404).send("Organization not found");
+    }
+
+    if (organization.type !== "Institution") {
+      return res
+        .status(403)
+        .send(
+          "This action is only allowed for Institution type organizations."
+        );
+    }
+
+    // Fetch members associated with the organization
+    const members = await Member.findAll({ where: { organizationId } });
+
+    if (!members.length) {
+      return res.status(404).send("No members found for this organization");
+    }
+
+    return res.json(members);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Server error");
+  }
+};

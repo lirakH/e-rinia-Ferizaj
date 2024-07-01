@@ -88,7 +88,8 @@ exports.authMiddlewareOrganization = (req, res, next) => {
 
 exports.createOrganization = async (req, res) => {
   try {
-    const { name, email, joinCode, picture, description, type } = req.body;
+    const { name, email, joinCode, picture, description, type, shortname } =
+      req.body;
 
     // Validate the type
     if (type !== "NGO" && type !== "Institution") {
@@ -106,6 +107,7 @@ exports.createOrganization = async (req, res) => {
       picture,
       description,
       type,
+      shortname, // Include shortname in the creation
     });
 
     // Respond with the new organization data, but do not include sensitive info like joinCode
@@ -116,6 +118,7 @@ exports.createOrganization = async (req, res) => {
       picture: organization.picture,
       description: organization.description,
       type, // Include the type in the response
+      shortname: organization.shortname, // Include shortname in the response
     });
   } catch (error) {
     console.error(error);
@@ -155,14 +158,23 @@ exports.updateOrganization = async (req, res) => {
       return res.status(404).send("Organization not found");
     }
 
-    const { name, email, joinCode, picture, description } = req.body;
-    const updatedOrganization = await organization.update({
+    const { name, email, joinCode, picture, description, shortname } = req.body;
+
+    const updatedData = {
       name,
       email,
       joinCode,
       picture,
       description,
-    });
+      shortname, // Include shortname in the update
+    };
+
+    if (joinCode) {
+      // If joinCode is provided, hash it before updating
+      updatedData.joinCode = await bcrypt.hash(joinCode, 10);
+    }
+
+    const updatedOrganization = await organization.update(updatedData);
 
     return res.json(updatedOrganization);
   } catch (error) {

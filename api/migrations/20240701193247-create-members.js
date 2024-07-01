@@ -1,3 +1,5 @@
+"use strict";
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable("Members", {
@@ -7,18 +9,19 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       organizationId: {
         type: Sequelize.INTEGER,
         references: {
-          model: "organizations", // Ensure this matches the actual table name (case-sensitive)
+          model: "Organizations", // This should match the table name defined in your Organization model
           key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "SET NULL",
-      },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       position: {
         type: Sequelize.STRING,
@@ -36,9 +39,7 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal(
-          "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
-        ),
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
   },
