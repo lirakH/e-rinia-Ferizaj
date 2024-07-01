@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, SectionList, ActivityIndicator } from 'react-native';
+import { View, Text, Image, StyleSheet, SectionList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
+import { FontAwesome } from '@expo/vector-icons';
 import EventItem2 from '@/components/EventItem2';
 import MemberList from '@/components/MemberList';
-import { getOrganizationById, getEventsByOrganization } from '@/endpoints';
+import { getOrganizationById, getEventsByOrganization, favoriteOrganization, unfavoriteOrganization, getAuthToken, getLikedOrganizations } from '@/endpoints';
 
 export default function Page() {
   const { id } = useLocalSearchParams();
@@ -11,8 +12,21 @@ export default function Page() {
   const [events, setEvents] = useState([]);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
+    const checkAuthentication = async () => {
+      const token = await getAuthToken();
+      console.log("Auth token:", token); // Debug statement
+      setIsAuthenticated(!!token);
+      if (token) {
+        const likedOrganizations = await getLikedOrganizations();
+        const liked = likedOrganizations.some(org => org.id.toString() === id.toString());
+        setIsLiked(liked);
+      }
+    };
+
     const fetchNGODetails = async () => {
       try {
         const fetchedNGODetails = await getOrganizationById(id);
@@ -20,7 +34,6 @@ export default function Page() {
         // Placeholder for fetching members
         const fetchedMembers = []; // await getMembersByOrganization(id);
 
-        console.log('fetchedEvents', fetchedEvents);
         setNgoDetails(fetchedNGODetails);
         setEvents(fetchedEvents);
         setMembers(fetchedMembers);
@@ -31,11 +44,30 @@ export default function Page() {
       }
     };
 
+    checkAuthentication();
     fetchNGODetails();
   }, [id]);
 
+  const handleLikeButtonPress = async () => {
+    try {
+      if (isLiked) {
+        await unfavoriteOrganization(id);
+      } else {
+        await favoriteOrganization(id);
+      }
+      setIsLiked(!isLiked);
+    } catch (error) {
+      console.error('Error updating favorite status:', error);
+    }
+  };
+
   const renderNGODetails = () => (
     <View style={styles.detailsContainer}>
+      {isAuthenticated && (
+        <TouchableOpacity style={styles.likeButton} onPress={handleLikeButtonPress}>
+          <FontAwesome name={isLiked ? 'heart' : 'heart-o'} size={24} color="#007BFF" />
+        </TouchableOpacity>
+      )}
       <View style={styles.logoContainer}>
         <Image source={{ uri: ngoDetails.picture }} style={styles.logo} />
         <Text style={styles.name}>{ngoDetails.name}</Text>
@@ -127,6 +159,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     marginBottom: 20,
+  },
+  likeButton: {
+    marginTop: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: 'transparent',
+    borderRadius: 5,
+  },
+  likeButtonText: {
+    color: '#007BFF',
+    fontWeight: 'bold',
   },
   sectionHeader: {
     fontSize: 18,

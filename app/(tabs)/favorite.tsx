@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, 
 import CircleItem from '@/components/CircleItem';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { getLikedOrganizations, getAuthToken } from '@/endpoints'; // Adjust the path as necessary
+import { getLikedOrganizations, getAuthToken } from '@/endpoints';
 
 export default function FavouriteScreen() {
   const [favouriteNGOs, setFavouriteNGOs] = useState([]);
@@ -50,7 +50,7 @@ export default function FavouriteScreen() {
     router.push('/profile'); // Redirect to login page
   };
   const handleNavigateToNGO = () => {
-    router.push('/NGO'); // Redirect to login page
+    router.push('/NGO'); // Redirect to NGO page
   };
 
   if (isLoading) {
@@ -117,15 +117,20 @@ export default function FavouriteScreen() {
           </TouchableOpacity>
         </View>
       ) : (
-        <SectionList
-          sections={favouriteNGOs}
-          keyExtractor={(item, index) => `${item.id}-${index}`}
-          renderItem={({ item, section }) => null}
-          ListHeaderComponent={() => null}
-          ListFooterComponent={() => null}
-          SectionSeparatorComponent={() => null}
-          renderSectionFooter={({ section }) => renderSection({ section })}
-        />
+        <>
+          <SectionList
+            sections={favouriteNGOs}
+            keyExtractor={(item, index) => `${item.id}-${index}`}
+            renderItem={({ item, section }) => null}
+            ListHeaderComponent={() => null}
+            ListFooterComponent={() => null}
+            SectionSeparatorComponent={() => null}
+            renderSectionFooter={({ section }) => renderSection({ section })}
+          />
+          <TouchableOpacity onPress={handleNavigateToNGO} style={styles.button}>
+            <Text style={styles.buttonText}>Add More Favourites</Text>
+          </TouchableOpacity>
+        </>
       )}
     </View>
   );
@@ -174,6 +179,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 8,
     marginTop: 20,
+    alignSelf: 'center', // Center the button horizontally
   },
   buttonText: {
     color: '#fff',
