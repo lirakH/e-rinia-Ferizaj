@@ -42,7 +42,7 @@ const HomeScreen = () => {
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
       <View style={styles.titleContainer}>
-        <Text>Activities and Events</Text>
+        <Text style={styles.titleContainerTitle} >Aktivitetet e reja</Text>
         <Link href="/event" style={styles.link}>
           See All
           <AntDesign name="caretright" size={12} color="#555" />
@@ -51,8 +51,8 @@ const HomeScreen = () => {
       <EventList />
 
       <View style={styles.titleContainer}>
-        <Text>Type One Organizations</Text>
-        <Link href="/event" style={styles.link}>
+        <Text style={styles.titleContainerTitle}>Institucionet</Text>
+        <Link href="/NGO" style={styles.link}>
           See All
           <AntDesign name="caretright" size={12} color="#555" />
         </Link>
@@ -60,17 +60,17 @@ const HomeScreen = () => {
       <DraggableCircleGrid items={typeOneOrganizations.map(org => ({ id: org.id.toString(), label: org.name, picture: org.picture || 'https://via.placeholder.com/150' }))} />
 
       <View style={styles.titleContainer}>
-        <Text>Type Two Organizations</Text>
-        <Link href="/event" style={styles.link}>
+        <Text style={styles.titleContainerTitle}>Organizatat</Text>
+        <Link href="/NGO" style={styles.link}>
           See All
           <AntDesign name="caretright" size={12} color="#555" />
         </Link>
       </View>
       <DraggableCircleGrid items={typeTwoOrganizations.map(org => ({ id: org.id.toString(), label: org.name, picture: org.picture || 'https://via.placeholder.com/150' }))} />
 
-      <View style={styles.titleContainer}>
-        <Text>Safe Zona</Text>
-        <Link href="/event" style={styles.link}>
+      <View style={styles.titleContainer2}>
+        <Text style={styles.titleContainerTitle}>Safe Zona</Text>
+        <Link href="/safe" style={styles.link}>
           See All
           <AntDesign name="caretright" size={12} color="#555" />
         </Link>
@@ -109,6 +109,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
+  titleContainer2: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    marginTop: 30,
+  },
+  titleContainerTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
   link: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -141,9 +152,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   logoPlaceholder: {
-    width: 80,
+    width: 100,
     height: 80,
     margin: 15,
+    padding: 20,
+    borderColor: '#0091F9',
     borderRadius: 10,
     resizeMode: 'contain',
     backgroundColor: '#fff',
@@ -159,7 +172,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
-    backgroundColor: '#0091F9',
+    borderWidth: 0,
+    borderColor: '#0091F9',
+    backgroundColor: '#fff',
     padding: 10,
     borderRadius: 20,
   },
@@ -169,12 +184,12 @@ const styles = StyleSheet.create({
   safeText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#0091F9',
     marginLeft: 10,
   },
   safeText2: {
     fontSize: 14,
-    color: '#fff',
+    color: '#0091F9',
     marginLeft: 10,
   },
   newSectionImages: {

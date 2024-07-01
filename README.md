@@ -29,3 +29,6 @@ expo install expo-image-picker
 
 npm install react-native-share
 
+expo install expo-auth-session expo-auth-session/providers/facebook
+expo install expo-auth-session expo-google-auth-session
+

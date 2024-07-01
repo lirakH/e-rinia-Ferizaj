@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Switch, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Switch, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { loginVolunteer } from '@/endpoints';
+import * as Google from 'expo-auth-session/providers/google';
+import * as Facebook from 'expo-auth-session/providers/facebook';
+import * as WebBrowser from 'expo-web-browser';
+
+WebBrowser.maybeCompleteAuthSession();
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -10,15 +15,40 @@ const LoginScreen = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
 
+  const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
+    expoClientId: 'YOUR_EXPO_CLIENT_ID',
+    iosClientId: 'YOUR_IOS_CLIENT_ID',
+    androidClientId: 'YOUR_ANDROID_CLIENT_ID',
+    webClientId: 'YOUR_WEB_CLIENT_ID',
+  });
+
+  const [facebookRequest, facebookResponse, facebookPromptAsync] = Facebook.useAuthRequest({
+    clientId: 'YOUR_FACEBOOK_APP_ID',
+  });
+
+  React.useEffect(() => {
+    if (googleResponse?.type === 'success') {
+      const { authentication } = googleResponse;
+      Alert.alert('Login successful', 'Google login was successful.');
+      router.push('profile');
+    }
+
+    if (facebookResponse?.type === 'success') {
+      const { authentication } = facebookResponse;
+      Alert.alert('Login successful', 'Facebook login was successful.');
+      router.push('profile');
+    }
+  }, [googleResponse, facebookResponse]);
+
   const handleSignIn = async () => {
     try {
       await loginVolunteer({ email, password });
-      alert('Login successful');
+      Alert.alert('Login successful');
       setEmail('');
       setPassword('');
       router.push('profile');
     } catch (error) {
-      alert('Login failed. Please check your credentials.');
+      Alert.alert('Login failed', 'Please check your credentials.');
     }
   };
 
@@ -60,11 +90,11 @@ const LoginScreen = () => {
           <Feather name="arrow-right" size={20} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.orText}>OR</Text>
-        <TouchableOpacity style={styles.socialButton}>
+        <TouchableOpacity style={styles.socialButton} onPress={() => googlePromptAsync()}>
           <FontAwesome name="google" size={20} color="red" style={styles.socialIcon} />
           <Text style={styles.socialButtonText}>Login with Google</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.socialButton}>
+        <TouchableOpacity style={styles.socialButton} onPress={() => facebookPromptAsync()}>
           <FontAwesome name="facebook" size={20} color="blue" style={styles.socialIcon} />
           <Text style={styles.socialButtonText}>Login with Facebook</Text>
         </TouchableOpacity>

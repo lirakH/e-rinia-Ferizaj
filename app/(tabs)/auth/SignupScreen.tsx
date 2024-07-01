@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { registerVolunteer } from '@/endpoints';
+import * as Google from 'expo-auth-session/providers/google';
+import * as Facebook from 'expo-auth-session/providers/facebook';
+import * as WebBrowser from 'expo-web-browser';
+
+WebBrowser.maybeCompleteAuthSession();
 
 const SignupScreen = () => {
   const [fullName, setFullName] = useState('');
@@ -11,22 +16,47 @@ const SignupScreen = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const router = useRouter();
 
+  const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
+    expoClientId: 'YOUR_EXPO_CLIENT_ID',
+    iosClientId: 'YOUR_IOS_CLIENT_ID',
+    androidClientId: 'YOUR_ANDROID_CLIENT_ID',
+    webClientId: 'YOUR_WEB_CLIENT_ID',
+  });
+
+  const [facebookRequest, facebookResponse, facebookPromptAsync] = Facebook.useAuthRequest({
+    clientId: 'YOUR_FACEBOOK_APP_ID',
+  });
+
+  React.useEffect(() => {
+    if (googleResponse?.type === 'success') {
+      const { authentication } = googleResponse;
+      Alert.alert('Sign up successful', 'Google sign-up was successful.');
+      router.push('auth/LoginScreen');
+    }
+
+    if (facebookResponse?.type === 'success') {
+      const { authentication } = facebookResponse;
+      Alert.alert('Sign up successful', 'Facebook sign-up was successful.');
+      router.push('auth/LoginScreen');
+    }
+  }, [googleResponse, facebookResponse]);
+
   const handleSignUp = async () => {
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      Alert.alert('Error', 'Passwords do not match');
       return;
     }
 
     try {
       await registerVolunteer({ name: fullName, email, password });
-      alert('Registration successful');
+      Alert.alert('Registration successful');
       setFullName('');
       setEmail('');
       setPassword('');
       setConfirmPassword('');
       router.push('auth/LoginScreen');
     } catch (error) {
-      alert('Registration failed. Please try again.');
+      Alert.alert('Registration failed', 'Please try again.');
     }
   };
 
@@ -77,11 +107,11 @@ const SignupScreen = () => {
           <Feather name="arrow-right" size={20} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.orText}>Or With</Text>
-        <TouchableOpacity style={styles.socialButton}>
+        <TouchableOpacity style={styles.socialButton} onPress={() => googlePromptAsync()}>
           <FontAwesome name="google" size={20} color="red" style={styles.socialIcon} />
           <Text style={styles.socialButtonText}>Google</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.socialButton}>
+        <TouchableOpacity style={styles.socialButton} onPress={() => facebookPromptAsync()}>
           <FontAwesome name="facebook" size={20} color="blue" style={styles.socialIcon} />
           <Text style={styles.socialButtonText}>Facebook</Text>
         </TouchableOpacity>

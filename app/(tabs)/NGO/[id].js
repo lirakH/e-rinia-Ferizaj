@@ -1,21 +1,29 @@
-// app/(tabs)/NGO/[id].js
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, SectionList, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import EventItem2 from '@/components/EventItem2';
 import MemberList from '@/components/MemberList';
-import { getOrganizationById } from '@/endpoints'; // Adjust path as necessary
+import { getOrganizationById, getEventsByOrganization } from '@/endpoints';
 
 export default function Page() {
   const { id } = useLocalSearchParams();
   const [ngoDetails, setNgoDetails] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchOrganization = async () => {
+    const fetchNGODetails = async () => {
       try {
-        const data = await getOrganizationById(id);
-        setNgoDetails(data);
+        const fetchedNGODetails = await getOrganizationById(id);
+        const fetchedEvents = await getEventsByOrganization(id);
+        // Placeholder for fetching members
+        const fetchedMembers = []; // await getMembersByOrganization(id);
+
+        console.log('fetchedEvents', fetchedEvents);
+        setNgoDetails(fetchedNGODetails);
+        setEvents(fetchedEvents);
+        setMembers(fetchedMembers);
       } catch (error) {
         console.error('Error fetching NGO details:', error);
       } finally {
@@ -23,13 +31,13 @@ export default function Page() {
       }
     };
 
-    fetchOrganization();
+    fetchNGODetails();
   }, [id]);
 
   const renderNGODetails = () => (
     <View style={styles.detailsContainer}>
       <View style={styles.logoContainer}>
-        <Image source={{ uri: ngoDetails.logo || 'https://via.placeholder.com/150' }} style={styles.logo} />
+        <Image source={{ uri: ngoDetails.picture }} style={styles.logo} />
         <Text style={styles.name}>{ngoDetails.name}</Text>
       </View>
       <Text style={styles.description}>{ngoDetails.description}</Text>
@@ -52,24 +60,22 @@ export default function Page() {
   const renderEventItem = ({ item }) => <EventItem2 event={item} />;
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
+    return <ActivityIndicator size="large" color="#0000ff" />;
   }
 
   const sections = [
     { title: 'Ngo Details', data: [ngoDetails], renderItem: renderNGODetails },
+    { title: 'Eventet e Organizates', data: events, horizontal: true },
   ];
 
-  if (ngoDetails?.type === 'Institution' && ngoDetails.members) {
-    sections.push({ title: 'Members', data: [{ members: ngoDetails.members }], renderItem: renderMemberSection });
-  }
-
-  if (ngoDetails?.events) {
-    sections.push({ title: 'Upcoming Events', data: ngoDetails.events, horizontal: true });
+  if (ngoDetails && ngoDetails.type === 'government' && members.length > 0) {
+    sections.push({ title: 'Members', data: [{ members }], renderItem: renderMemberSection });
   }
 
   return (
     <>
       <Stack.Screen options={{ headerTitle: `NGO ${id}` }} />
+
       {ngoDetails ? (
         <SectionList
           sections={sections}
@@ -118,7 +124,6 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 18,
     fontWeight: 'bold',
-    backgroundColor: '#f5f5f5',
     padding: 10,
     marginVertical: 10,
   },
@@ -128,10 +133,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#f1f1f1',
     justifyContent: 'space-between',
     marginBottom: 20,
-  },
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });

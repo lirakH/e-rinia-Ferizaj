@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, Linking, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Linking, Alert, ScrollView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -23,34 +23,32 @@ const Safe = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>Zona e Sigurise</Text>
       <Text style={styles.description}>
-        Siguria juaj mbrohet me ligj! Raporto cdo parregullesi qe ndodhe ne shkollen tuaj! 
-        Lajmro Policine per rastet kriminale apo problemet e sigurise ne aktivitetet publike!
+        Siguria juaj mbrohet me ligj! Raporto çdo parregullësi që ndodhë në shkollën tuaj! 
+        Lajmëro Policinë për rastet kriminale apo problemet e sigurisë në aktivitetet publike!
       </Text>
-      <TouchableOpacity style={styles.button} onPress={handlePress}>
+      <TouchableOpacity onPress={handlePress} style={styles.safeContainer}>
         <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/en/thumb/a/ac/Kosovo-Police_logo.svg/1200px-Kosovo-Police_logo.svg.png' }} style={styles.logo} />
-        <Text style={styles.buttonText}>Lajmro Policine</Text>
+          <Text style={styles.safeText}>Lajmro Policine</Text>
       </TouchableOpacity>
       <Text style={styles.placeholderText}>Rreth këtij aplikacioni.</Text>
       <Text style={styles.placeholderText}>
-      Aplikimi do të përdoret nga qytetarët e Kosovës për të njoftuar policinë për krime të ndryshme. Qytetari ka të drejtë të mos i zbulojë informacionet e tij personale nëse nuk do të donte t'i zbulonte ato detaje. Për përdorim më të mirë kur të dërgohet një informacion në polici do të marrim gjithashtu IP të përdoruesit që dërgon informacionin. Qytetari mund të dërgojë gjithashtu vendndodhjen nga ku po raporton. Për më shumë detaje, ju lutemi referojuni dokumentacionit.
+        Aplikimi do të përdoret nga qytetarët e Kosovës për të njoftuar policinë për krime të ndryshme. Qytetari ka të drejtë të mos i zbulojë informacionet e tij personale nëse nuk do të donte t'i zbulonte ato detaje. Për përdorim më të mirë kur të dërgohet një informacion në polici do të marrim gjithashtu IP të përdoruesit që dërgon informacionin. Qytetari mund të dërgojë gjithashtu vendndodhjen nga ku po raporton. Për më shumë detaje, ju lutemi referojuni dokumentacionit.
       </Text>
       <TouchableOpacity style={styles.storeButton} onPress={handlePress}>
         <Image source={{ uri: 'https://getsby.com/wp-content/uploads/2023/06/google-play-badge.png' }} style={styles.storeImage} />
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
-
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 20,
     alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: '#fff',
   },
   header: {
@@ -60,30 +58,29 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 16,
-    textAlign: 'Justify',
+    textAlign: 'justify',
     marginBottom: 20,
   },
   button: {
     backgroundColor: '#0088cc',
-    padding: 30,
+    padding: 20,
     borderRadius: 25,
-    flexDirection: 'column',
     alignItems: 'center',
     marginBottom: 20,
+    width: '80%',
   },
   logo: {
     width: 80,
     height: 80,
-    marginRight: 10,
+    margin: 15,
+    marginLeft: 0,
     backgroundColor: '#fff',
-    borderRadius: 10,
-    marginBottom: 15,
+    borderRadius: 20,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: -10,
   },
   placeholderText: {
     fontSize: 14,
@@ -92,11 +89,26 @@ const styles = StyleSheet.create({
   },
   storeButton: {
     padding: 10,
-    marginTop: -10,
   },
   storeImage: {
     width: 250,
     height: 80,
+  },
+  safeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    backgroundColor: '#0091F9',
+    padding: 10,
+    borderRadius: 20,
+    paddingHorizontal: 30,
+  },
+  safeText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginLeft: 10,
   },
 });
 
