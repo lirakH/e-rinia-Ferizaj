@@ -1,10 +1,13 @@
 import { Image, StyleSheet, Platform } from 'react-native';
 import { ScrollView, Text } from 'react-native';
+import { Link, useRouter } from 'expo-router';
 
 export default function HomeScreen() {
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
       <Text> Profili </Text>
+      <Link href="/auth/LoginScreen" style={styles.link}>Sign in</Link>
+
     </ScrollView>
   );
 }

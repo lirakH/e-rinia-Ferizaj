@@ -9,6 +9,13 @@ import {
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const handleLogout = async () => {
+  await AsyncStorage.removeItem('authToken');
+  // Navigate to the login screen or any other appropriate screen
+  router.push('/');
+};
 
 const CustomDrawerContent = (props) => {
   const pathname = usePathname();
@@ -61,7 +68,6 @@ const CustomDrawerContent = (props) => {
             name="list"
             size={size}
             color={pathname === "/event" ? "#fff" : "#000"}
-            
           />
         )}
         label={"Aktivitet"}
@@ -92,7 +98,6 @@ const CustomDrawerContent = (props) => {
           router.push("/NGO");
         }}
       />
-      
       <DrawerItem
         icon={({ color, size }) => (
           <AntDesign 
@@ -110,6 +115,22 @@ const CustomDrawerContent = (props) => {
         onPress={() => {
           router.push("/safe");
         }}
+      />
+      <DrawerItem
+        icon={({ color, size }) => (
+          <Feather
+            name="log-out"
+            size={size}
+            color="#000"
+          />
+        )}
+        label={"Logout"}
+        labelStyle={[
+          styles.navItemLabel,
+          { color: "#000" },
+        ]}
+        style={{ backgroundColor: "#fff" }}
+        onPress={handleLogout}
       />
     </DrawerContentScrollView>
   );
@@ -136,7 +157,6 @@ export default function Layout() {
                   />
             </TouchableOpacity>
         }}
-        
       >
       </Drawer>
     </GestureHandlerRootView>
