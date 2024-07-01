@@ -1,158 +1,74 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, SectionList } from 'react-native';
 import CircleItem from '@/components/CircleItem';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { getLikedOrganizations, getAuthToken } from '@/endpoints'; // Adjust the path as necessary
 
 export default function FavouriteScreen() {
   const [favouriteNGOs, setFavouriteNGOs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState(null);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchFavouriteNGOs = async () => {
-      try {
-        // Sample JSON data
-        const sampleData = [
-          {
-            title: 'NGOs',
-            data: [
-              {
-                id: '1',
-                name: 'NGO 1',
-                picture: 'https://example.com/ngo1.jpg',
-                description: 'Description of NGO 1',
-                type: 'NGO',
-              },
-              {
-                id: '2',
-                name: 'NGO 2',
-                picture: 'https://example.com/ngo2.jpg',
-                description: 'Description of NGO 2',
-                type: 'NGO',
-              },
-              {
-                id: '1',
-                name: 'NGO 1',
-                picture: 'https://example.com/ngo1.jpg',
-                description: 'Description of NGO 1',
-                type: 'NGO',
-              },
-              {
-                id: '2',
-                name: 'NGO 2',
-                picture: 'https://example.com/ngo2.jpg',
-                description: 'Description of NGO 2',
-                type: 'NGO',
-              },
-              {
-                id: '1',
-                name: 'NGO 1',
-                picture: 'https://example.com/ngo1.jpg',
-                description: 'Description of NGO 1',
-                type: 'NGO',
-              },
-              {
-                id: '2',
-                name: 'NGO 2',
-                picture: 'https://example.com/ngo2.jpg',
-                description: 'Description of NGO 2',
-                type: 'NGO',
-              },
-              {
-                id: '1',
-                name: 'NGO 1',
-                picture: 'https://example.com/ngo1.jpg',
-                description: 'Description of NGO 1',
-                type: 'NGO',
-              },
-              {
-                id: '2',
-                name: 'NGO 2',
-                picture: 'https://example.com/ngo2.jpg',
-                description: 'Description of NGO 2',
-                type: 'NGO',
-              },
-            ],
-          },
-          {
-            title: 'Other Organizations',
-            data: [
-              {
-                id: '2',
-                name: 'NGO 1',
-                picture: 'https://example.com/org1.jpg',
-                description: 'Description of Organization 1',
-                type: 'government',
-              },
-              {
-                id: '4',
-                name: 'NGO 2',
-                picture: 'https://example.com/org2.jpg',
-                description: 'Description of Organization 1',
-                type: 'government',
-              },
-              {
-                id: '3',
-                name: 'NGO 1',
-                picture: 'https://example.com/org1.jpg',
-                description: 'Description of Organization 1',
-                type: 'Other',
-              },
-              {
-                id: '4',
-                name: 'Organizata aaa  2',
-                picture: 'https://example.com/org2.jpg',
-              },
-              {
-                id: '3',
-                name: 'NGO 1',
-                picture: 'https://example.com/org1.jpg',
-                description: 'Description of Organization 1',
-                type: 'government',
-              },
-              {
-                id: '4',
-                name: 'NGO 2',
-                picture: 'https://example.com/org2.jpg',
-              },
-              {
-                id: '3',
-                name: 'Organizata aaa 1',
-                picture: 'https://example.com/org1.jpg',
-                description: 'Description of Organization 1',
-                type: 'government',
-              },
-              {
-                id: '4',
-                name: 'NGO 2',
-                picture: 'https://example.com/org2.jpg',
-              },
+  useFocusEffect(
+    React.useCallback(() => {
+      const checkAuthentication = async () => {
+        const token = await getAuthToken();
+        if (!token) {
+          setIsAuthenticated(false);
+          setIsLoading(false);
+        } else {
+          setIsAuthenticated(true);
+          fetchFavouriteNGOs();
+        }
+      };
 
-            ],
-          },
-        ];
+      const fetchFavouriteNGOs = async () => {
+        try {
+          const data = await getLikedOrganizations();
+          const ngos = data.filter(item => item.type === 'NGO');
+          const otherOrganizations = data.filter(item => item.type !== 'NGO');
 
-        setFavouriteNGOs(sampleData);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+          setFavouriteNGOs([
+            { title: 'Institutions', data: otherOrganizations },
+            { title: 'NGOs', data: ngos }
+          ]);
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
-    fetchFavouriteNGOs();
-  }, []);
+      checkAuthentication();
+    }, [])
+  );
 
-  const handleNavigateToIndex = () => {
-    router.push('/NGO');
+  const handleNavigateToLogin = () => {
+    router.push('/profile'); // Redirect to login page
+  };
+  const handleNavigateToNGO = () => {
+    router.push('/NGO'); // Redirect to login page
   };
 
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <Text>Loading...</Text>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.emptyTextTitle}>You are not signed in</Text>
+        <Text style={styles.emptyTextBody}>Sign in to check your favourite NGOs</Text>
+        <TouchableOpacity onPress={handleNavigateToLogin} style={styles.button}>
+          <Text style={styles.buttonText}>Sign In</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -176,36 +92,39 @@ export default function FavouriteScreen() {
     <Text style={styles.sectionHeader}>{title}</Text>
   );
 
+  const renderSection = ({ section }) => (
+    <>
+      {renderSectionHeader({ section })}
+      <FlatList
+        data={section.data}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+        numColumns={3}
+        contentContainerStyle={styles.gridContainer}
+      />
+    </>
+  );
+
   return (
     <View style={styles.container}>
-      {favouriteNGOs.length === 0 ? (
+      {favouriteNGOs.every(section => section.data.length === 0) ? (
         <View style={styles.emptyContainer}>
           <MaterialIcons name="favorite" size={100} color="#bbb" />
           <Text style={styles.emptyTextTitle}>No favourite NGOs yet</Text>
           <Text style={styles.emptyTextBody}>Make sure you have added Favourite NGOs</Text>
-          <TouchableOpacity onPress={handleNavigateToIndex} style={styles.button}>
+          <TouchableOpacity onPress={handleNavigateToNGO} style={styles.button}>
             <Text style={styles.buttonText}>Add Favourite</Text>
           </TouchableOpacity>
         </View>
       ) : (
-        <FlatList
-          data={favouriteNGOs}
-          keyExtractor={(item, index) => `${item.title}-${index}`}
-          renderItem={({ item }) => (
-            <FlatList
-              data={item.data}
-              keyExtractor={(item) => item.id}
-              renderItem={renderItem}
-              numColumns={3}
-              contentContainerStyle={styles.gridContainer}
-              ListHeaderComponent={renderSectionHeader({ section: item })}
-            />
-          )}
-          ListFooterComponent={
-            <TouchableOpacity onPress={handleNavigateToIndex} style={styles.button}>
-              <Text style={styles.buttonText}>Add More Favourites</Text>
-            </TouchableOpacity>
-          }
+        <SectionList
+          sections={favouriteNGOs}
+          keyExtractor={(item, index) => `${item.id}-${index}`}
+          renderItem={({ item, section }) => null}
+          ListHeaderComponent={() => null}
+          ListFooterComponent={() => null}
+          SectionSeparatorComponent={() => null}
+          renderSectionFooter={({ section }) => renderSection({ section })}
         />
       )}
     </View>
@@ -218,7 +137,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    alignContent: 'center',
   },
   emptyContainer: {
     flex: 1,
@@ -238,15 +156,16 @@ const styles = StyleSheet.create({
   gridContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    alignContent: 'center',
   },
   itemContainer: {
     alignItems: 'center',
     marginBottom: 10,
+    marginHorizontal: 10,
+    width: 100,
   },
   itemName: {
-    marginTop: -15,
     fontSize: 16,
+    marginTop: 5,
     marginBottom: 10,
   },
   button: {
@@ -265,7 +184,8 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginVertical: 10,
+    marginVertical: 20,
     textAlign: 'center',
+    marginBottom: 25,
   },
 });

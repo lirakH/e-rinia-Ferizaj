@@ -80,6 +80,7 @@ const ProfilePage = () => {
   const handleLogout = async () => {
     await AsyncStorage.removeItem('authToken');
     setIsLoggedIn(false);
+    setFavoriteNGOs([]); // Clear favorite NGOs on logout
     router.push('auth/LoginScreen');
   };
 
