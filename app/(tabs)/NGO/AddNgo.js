@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, CheckBox } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from 'react-native';
+import CheckBox from 'expo-checkbox';
 import * as ImagePicker from 'expo-image-picker';
 
 const AddNgo = () => {
   const [ngoDetails, setNgoDetails] = useState({
     picture: '',
     name: '',
-    shkurt: '',
+    shkurtesa: '',
     joinCode: '',
     email: '',
     description: '',
@@ -37,7 +38,24 @@ const AddNgo = () => {
     }
   };
 
+  const isEmailValid = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleAddNgo = () => {
+    const { picture, name, shkurtesa, joinCode, email, description, type } = ngoDetails;
+
+    if (!picture || !name || !shkurtesa || !joinCode || !email || !description || !type) {
+      Alert.alert('Error', 'All fields are required');
+      return;
+    }
+
+    if (!isEmailValid(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    }
+
     // Handle the logic to add the NGO
     console.log('NGO Details:', ngoDetails);
   };
@@ -64,8 +82,8 @@ const AddNgo = () => {
         <TextInput
           style={styles.input}
           placeholder="NGO Shkurtesa"
-          value={ngoDetails.shkurt}
-          onChangeText={(value) => handleInputChange('shkurt', value)}
+          value={ngoDetails.shkurtesa}
+          onChangeText={(value) => handleInputChange('shkurtesa', value)}
         />
         <TextInput
           style={styles.input}
@@ -78,6 +96,7 @@ const AddNgo = () => {
           placeholder="NGO Email"
           value={ngoDetails.email}
           onChangeText={(value) => handleInputChange('email', value)}
+          keyboardType="email-address"
         />
         <TextInput
           style={[styles.input, styles.textArea]}

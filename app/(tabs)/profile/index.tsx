@@ -16,7 +16,6 @@ export default function HomeScreen() {
       <Link href="/profile/AdminProfileScreen" style={styles.link}>/profile/AdminProfileScreen</Link>
       <Link href="/profile/NgoProfileScreen" style={styles.link}>/profile/NgoProfileScreen</Link>
       <Link href="/profile/VolunteerProfileScreen" style={styles.link}>/profile/VolunteerProfileScreen</Link>
-      <Link href="/NGO/AddNgo" style={styles.link}>/NGO/AddNgo</Link>
     </ScrollView>
   );
 }

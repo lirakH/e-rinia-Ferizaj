@@ -12,6 +12,7 @@ export default function TabLayout() {
 
   const excludedRoutes = [
     'safe',
+    'auth/ForgotPassword',
     'auth/LoginScreen',
     'auth/NgoLoginScreen',
     'auth/SignupScreen',
