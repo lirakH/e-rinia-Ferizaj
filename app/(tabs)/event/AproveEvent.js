@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const ApproveEvent = () => {
   const [eventDetails, setEventDetails] = useState({
     picture: '',
     name: '',
-    date: '',
+    date: new Date(),
     place: '',
     description: '',
     adminComment: ''
@@ -29,35 +30,33 @@ const ApproveEvent = () => {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>Approve Event</Text>
       <View style={styles.inputContainer}>
+        <View style={styles.imageContainer}>
+          {eventDetails.picture ? (
+            <Image source={{ uri: eventDetails.picture }} style={styles.image} />
+          ) : (
+            <Text style={styles.imagePlaceholder}>Event Picture</Text>
+          )}
+        </View>
         <TextInput
-          style={styles.input}
-          placeholder="Event Picture"
-          value={eventDetails.picture}
-          onChangeText={(value) => handleInputChange('picture', value)}
-        />
-        <TextInput
-          style={styles.input}
+          style={[styles.input, styles.readOnlyInput]}
           placeholder="Event Name"
           value={eventDetails.name}
-          onChangeText={(value) => handleInputChange('name', value)}
+          editable={false}
         />
+        <View style={[styles.dateInput, styles.readOnlyInput]}>
+          <Text style={styles.dateText}>{eventDetails.date.toDateString()}</Text>
+        </View>
         <TextInput
-          style={styles.input}
-          placeholder="Event Date"
-          value={eventDetails.date}
-          onChangeText={(value) => handleInputChange('date', value)}
-        />
-        <TextInput
-          style={styles.input}
+          style={[styles.input, styles.readOnlyInput]}
           placeholder="Event Place"
           value={eventDetails.place}
-          onChangeText={(value) => handleInputChange('place', value)}
+          editable={false}
         />
         <TextInput
-          style={[styles.input, styles.textArea]}
+          style={[styles.input, styles.textArea, styles.readOnlyInput]}
           placeholder="Event Description"
           value={eventDetails.description}
-          onChangeText={(value) => handleInputChange('description', value)}
+          editable={false}
           multiline={true}
         />
         <TextInput
@@ -127,6 +126,39 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  imageContainer: {
+    width: 200,
+    height: 100,
+    borderRadius: 15,
+    backgroundColor: '#ccc',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  imagePlaceholder: {
+    color: '#fff',
+    textAlign: 'center',
+  },
+  dateInput: {
+    width: '100%',
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 15,
+  },
+  dateText: {
+    color: '#000',
+  },
+  readOnlyInput: {
+    backgroundColor: '#f1f1f1',
   },
 });
 
