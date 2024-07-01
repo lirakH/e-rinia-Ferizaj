@@ -54,6 +54,7 @@ exports.getAllEvents = async (req, res) => {
     const { count, rows } = await Event.findAndCountAll({
       offset,
       limit,
+      order: [["createdAt", "DESC"]], // Order by createdAt in descending order
     });
 
     const totalPages = Math.ceil(count / pageSize);
