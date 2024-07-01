@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, ActivityIndicator } from 'react-native';
 import { useRouter, useFocusEffect, Link } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
@@ -12,19 +12,23 @@ const ProfilePage = () => {
   const [userData, setUserData] = useState({ id: '', name: '', email: '', profilePicture: null });
   const [favoriteNGOs, setFavoriteNGOs] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true); // New state for loading indicator
   const router = useRouter();
 
   useFocusEffect(
     React.useCallback(() => {
       const checkLoginStatus = async () => {
         const token = await AsyncStorage.getItem('authToken');
+        console.log('Token:', token); // Debug statement
         if (token) {
           setIsLoggedIn(true);
           const volunteerId = await decodeVolunteerToken(); // Decode the token to get the volunteer ID
+          console.log('Volunteer ID:', volunteerId); // Debug statement
           fetchUserData(volunteerId); // Fetch user data using the volunteer ID
           fetchFavoriteNGOs();
         } else {
           setIsLoggedIn(false);
+          setLoading(false); // Stop loading if not logged in
         }
       };
 
@@ -42,14 +46,17 @@ const ProfilePage = () => {
       console.error('Error fetching user data:', error);
     }
   };
-  
 
   const fetchFavoriteNGOs = async () => {
     try {
+      console.log('Fetching favorite NGOs');
       const ngos = await getLikedOrganizations();
+      console.log('Fetched favorite NGOs:', ngos);
       setFavoriteNGOs(ngos);
     } catch (error) {
       console.error('Error fetching favorite NGOs:', error);
+    } finally {
+      setLoading(false); // Stop loading after fetching favorite NGOs
     }
   };
 
@@ -84,11 +91,13 @@ const ProfilePage = () => {
     router.push('auth/LoginScreen');
   };
 
-  const renderFavoriteNGO = ({ item }) => (
-    <View style={styles.ngoItem}>
-      <Text>{item.name}</Text>
-    </View>
-  );
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   if (!isLoggedIn) {
     return (
