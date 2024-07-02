@@ -3,11 +3,6 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Switch, ScrollView
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { AuthContext } from '@/AuthContext';
-import * as Google from 'expo-auth-session/providers/google';
-import * as Facebook from 'expo-auth-session/providers/facebook';
-import * as WebBrowser from 'expo-web-browser';
-
-WebBrowser.maybeCompleteAuthSession();
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -16,38 +11,13 @@ const LoginScreen = () => {
   const router = useRouter();
   const { loginVolunteer } = useContext(AuthContext);
 
-  const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
-    expoClientId: 'YOUR_EXPO_CLIENT_ID',
-    iosClientId: 'YOUR_IOS_CLIENT_ID',
-    androidClientId: 'YOUR_ANDROID_CLIENT_ID',
-    webClientId: 'YOUR_WEB_CLIENT_ID',
-  });
-
-  const [facebookRequest, facebookResponse, facebookPromptAsync] = Facebook.useAuthRequest({
-    clientId: 'YOUR_FACEBOOK_APP_ID',
-  });
-
-  React.useEffect(() => {
-    if (googleResponse?.type === 'success') {
-      const { authentication } = googleResponse;
-      Alert.alert('Login successful', 'Google login was successful.');
-      router.push('/(tabs)');
-    }
-
-    if (facebookResponse?.type === 'success') {
-      const { authentication } = facebookResponse;
-      Alert.alert('Login successful', 'Facebook login was successful.');
-      router.push('/(tabs)');
-    }
-  }, [googleResponse, facebookResponse]);
-
   const handleSignIn = async () => {
     try {
       await loginVolunteer({ email, password });
       Alert.alert('Login successful');
       setEmail('');
       setPassword('');
-      router.push('/(tabs)');
+      // Navigation is handled in the ProfilePage component
     } catch (error) {
       if (error.response) {
         if (error.response.status === 401) {
@@ -102,11 +72,11 @@ const LoginScreen = () => {
           <Feather name="arrow-right" size={20} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.orText}>OR</Text>
-        <TouchableOpacity style={styles.socialButton} onPress={() => googlePromptAsync()}>
+        <TouchableOpacity style={styles.socialButton} onPress={() => Alert.alert('Info', 'Google login not implemented')}>
           <FontAwesome name="google" size={20} color="red" style={styles.socialIcon} />
           <Text style={styles.socialButtonText}>Login with Google</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.socialButton} onPress={() => facebookPromptAsync()}>
+        <TouchableOpacity style={styles.socialButton} onPress={() => Alert.alert('Info', 'Facebook login not implemented')}>
           <FontAwesome name="facebook" size={20} color="blue" style={styles.socialIcon} />
           <Text style={styles.socialButtonText}>Login with Facebook</Text>
         </TouchableOpacity>
