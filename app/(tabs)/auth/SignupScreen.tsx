@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { registerVolunteer } from '@/endpoints';
+import { AuthContext } from '@/AuthContext';
 import * as Google from 'expo-auth-session/providers/google';
 import * as Facebook from 'expo-auth-session/providers/facebook';
 import * as WebBrowser from 'expo-web-browser';
@@ -15,6 +15,7 @@ const SignupScreen = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const router = useRouter();
+  const { registerVolunteer } = useContext(AuthContext);
 
   const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
     expoClientId: 'YOUR_EXPO_CLIENT_ID',
@@ -30,12 +31,15 @@ const SignupScreen = () => {
   React.useEffect(() => {
     if (googleResponse?.type === 'success') {
       const { authentication } = googleResponse;
+      // Here you would typically send the authentication token to your backend
+      // and receive a JWT token in response
       Alert.alert('Sign up successful', 'Google sign-up was successful.');
       router.push('auth/LoginScreen');
     }
 
     if (facebookResponse?.type === 'success') {
       const { authentication } = facebookResponse;
+      // Similar to Google sign-up, send this token to your backend
       Alert.alert('Sign up successful', 'Facebook sign-up was successful.');
       router.push('auth/LoginScreen');
     }
@@ -49,14 +53,25 @@ const SignupScreen = () => {
 
     try {
       await registerVolunteer({ name: fullName, email, password });
-      Alert.alert('Registration successful');
+      Alert.alert('Registration successful', 'You can now log in with your new account.');
       setFullName('');
       setEmail('');
       setPassword('');
       setConfirmPassword('');
       router.push('auth/LoginScreen');
     } catch (error) {
-      Alert.alert('Registration failed', 'Please try again.');
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        Alert.alert('Registration failed', error.response.data.message || 'Please try again.');
+      } else if (error.request) {
+        // The request was made but no response was received
+        Alert.alert('Network error', 'Unable to connect to the server. Please check your internet connection.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      }
+      console.error('Registration error:', error);
     }
   };
 

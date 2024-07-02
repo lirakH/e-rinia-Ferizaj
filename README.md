@@ -34,3 +34,5 @@ expo install expo-auth-session expo-google-auth-session
 expo install expo-checkbox
 npm install @react-native-community/datetimepicker
 
+
+npm install axios react-native-async-storage jwt-decode // <<-- nese se kemi

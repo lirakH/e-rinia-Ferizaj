@@ -1,6 +1,6 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, TouchableOpacity, Text } from "react-native";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Drawer } from "expo-router/drawer";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import {
@@ -10,15 +10,11 @@ import {
 } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const handleLogout = async () => {
-  await AsyncStorage.removeItem('authToken');
-  // Navigate to the login screen or any other appropriate screen
-  router.push('/');
-};
+import { AuthProvider, AuthContext } from '@/AuthContext'; // Adjust this path as needed
 
 const CustomDrawerContent = (props) => {
   const pathname = usePathname();
+  const { userToken, logout, resetApp } = useContext(AuthContext);
 
   useEffect(() => {
     console.log(pathname);
@@ -116,27 +112,40 @@ const CustomDrawerContent = (props) => {
           router.push("/safe");
         }}
       />
-      <DrawerItem
-        icon={({ color, size }) => (
-          <Feather
-            name="log-out"
-            size={size}
-            color="#000"
-          />
-        )}
-        label={"Logout"}
-        labelStyle={[
-          styles.navItemLabel,
-          { color: "#000" },
-        ]}
-        style={{ backgroundColor: "#fff" }}
-        onPress={handleLogout}
-      />
+      {userToken && (
+        <DrawerItem
+          icon={({ color, size }) => (
+            <Feather
+              name="log-out"
+              size={size}
+              color="#000"
+            />
+          )}
+          label={"Logout"}
+          labelStyle={[
+            styles.navItemLabel,
+            { color: "#000" },
+          ]}
+          style={{ backgroundColor: "#fff" }}
+          onPress={async () => {
+            await logout();
+            router.push('/');
+          }}
+        />
+      )}
     </DrawerContentScrollView>
   );
 };
 
-export default function Layout() {
+function RootLayoutNav() {
+  const { resetApp } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (__DEV__) {
+      resetApp();
+    }
+  }, []);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer 
@@ -163,23 +172,31 @@ export default function Layout() {
   );
 }
 
+export default function Layout() {
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
+  );
+}
+
 const styles = StyleSheet.create({
   drawerContentContainer: {
     flex: 1,
-    justifyContent: 'center', // Center the items vertically
+    justifyContent: 'center',
     gap: 25
   },
   drawerItemsContainer: {
     flexGrow: 1,
-    justifyContent: 'center', // Center the items within the container
+    justifyContent: 'center',
   },
   navItemLabel: {
     marginLeft: -20,
     fontSize: 18,
   },
   navItem: {
-    flexDirection: 'row', // Ensure the flex direction is row
-    alignItems: 'center', // Center vertically
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   userInfoWrapper: {
     flexDirection: "row",

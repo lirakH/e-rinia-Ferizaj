@@ -1,36 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Linking, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { loginAdmin, loginOrganization } from '@/endpoints'; // Adjust the import path as needed
+import { AuthContext } from '@/AuthContext';
+import { useRouter } from 'expo-router';
 
 const NgoLoginScreen = () => {
   const [ngoName, setNgoName] = useState('');
   const [email, setEmail] = useState('');
   const [ngoCode, setNgoCode] = useState('');
+  const { loginAdmin, loginOrganization } = useContext(AuthContext);
+  const router = useRouter();
 
   const handleLogin = async () => {
     const credentials = { email, password: ngoCode };
     try {
       if (ngoName.toLowerCase() === 'admin') {
-        const adminResponse = await loginAdmin(credentials);
+        await loginAdmin(credentials);
         Alert.alert('Success', 'Logged in as admin');
-        console.log(adminResponse.data);
-        setEmail('');
-        setNgoCode('');
-        setNgoName('');
-        // Handle admin login success (e.g., navigation, storing tokens)
       } else {
-        const ngoResponse = await loginOrganization(credentials);
+        await loginOrganization(credentials);
         Alert.alert('Success', 'Logged in as NGO');
-        console.log(ngoResponse.data);
-        setEmail('');
-        setNgoCode('');
-        setNgoName('');
-        // Handle NGO login success (e.g., navigation, storing tokens)
       }
+      setEmail('');
+      setNgoCode('');
+      setNgoName('');
+      router.push('/(tabs)');
     } catch (error) {
-      Alert.alert('Error', 'Login failed. Please check your credentials and try again.');
-      console.error(error);
+      if (error.response) {
+        if (error.response.status === 401) {
+          Alert.alert('Login failed', 'Invalid credentials. Please check your email and NGO code.');
+        } else {
+          Alert.alert('Login failed', 'An unexpected error occurred. Please try again later.');
+        }
+      } else if (error.request) {
+        Alert.alert('Network error', 'Unable to connect to the server. Please check your internet connection.');
+      } else {
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      }
+      console.error('Login error:', error);
     }
   };
 

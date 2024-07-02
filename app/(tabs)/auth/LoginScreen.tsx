@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Switch, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { loginVolunteer } from '@/endpoints';
+import { AuthContext } from '@/AuthContext';
 import * as Google from 'expo-auth-session/providers/google';
 import * as Facebook from 'expo-auth-session/providers/facebook';
 import * as WebBrowser from 'expo-web-browser';
@@ -14,6 +14,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
+  const { loginVolunteer } = useContext(AuthContext);
 
   const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
     expoClientId: 'YOUR_EXPO_CLIENT_ID',
@@ -30,13 +31,13 @@ const LoginScreen = () => {
     if (googleResponse?.type === 'success') {
       const { authentication } = googleResponse;
       Alert.alert('Login successful', 'Google login was successful.');
-      router.push('profile');
+      router.push('/(tabs)');
     }
 
     if (facebookResponse?.type === 'success') {
       const { authentication } = facebookResponse;
       Alert.alert('Login successful', 'Facebook login was successful.');
-      router.push('profile');
+      router.push('/(tabs)');
     }
   }, [googleResponse, facebookResponse]);
 
@@ -46,9 +47,20 @@ const LoginScreen = () => {
       Alert.alert('Login successful');
       setEmail('');
       setPassword('');
-      router.push('profile');
+      router.push('/(tabs)');
     } catch (error) {
-      Alert.alert('Login failed', 'Please check your credentials.');
+      if (error.response) {
+        if (error.response.status === 401) {
+          Alert.alert('Login failed', 'Invalid email or password. Please try again.');
+        } else {
+          Alert.alert('Login failed', 'An unexpected error occurred. Please try again later.');
+        }
+      } else if (error.request) {
+        Alert.alert('Network error', 'Unable to connect to the server. Please check your internet connection.');
+      } else {
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      }
+      console.error('Login error:', error);
     }
   };
 
@@ -99,7 +111,7 @@ const LoginScreen = () => {
           <Text style={styles.socialButtonText}>Login with Facebook</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push('auth/SignupScreen')}>
-          <Text style={styles.signupText}>Don’t have an account? <Text style={styles.signupLink}>Sign up</Text></Text>
+          <Text style={styles.signupText}>Don't have an account? <Text style={styles.signupLink}>Sign up</Text></Text>
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
