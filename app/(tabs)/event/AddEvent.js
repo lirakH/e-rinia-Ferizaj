@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { createEvent, uploadEventPicture } from '@/endpoints'; // Adjust the import path as needed
 
 const AddEvent = () => {
   const [eventDetails, setEventDetails] = useState({
@@ -32,9 +33,36 @@ const AddEvent = () => {
     }
   };
 
-  const handleAddEvent = () => {
-    // Handle the logic to add the event
-    console.log('Event Details:', eventDetails);
+  const handleAddEvent = async () => {
+    try {
+      // Create event data
+      const eventData = {
+        name: eventDetails.name,
+        date: eventDetails.date.toISOString(),
+        place: eventDetails.place,
+        description: eventDetails.description,
+        adminComment: eventDetails.adminComment,
+      };
+
+      const createdEvent = await createEvent(eventData);
+      Alert.alert('Success', 'Event created successfully.');
+
+      // Upload event picture
+      if (eventDetails.picture) {
+        const formData = new FormData();
+        formData.append('picture', {
+          uri: eventDetails.picture,
+          name: 'eventPicture.jpg',
+          type: 'image/jpeg',
+        });
+
+        await uploadEventPicture(createdEvent.id, formData);
+        Alert.alert('Success', 'Event picture uploaded successfully.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to create event. Please try again.');
+      console.error(error);
+    }
   };
 
   const handleDateChange = (event, selectedDate) => {

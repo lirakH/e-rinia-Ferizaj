@@ -1,11 +1,38 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Linking } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Linking, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { loginAdmin, loginOrganization } from '@/endpoints'; // Adjust the import path as needed
 
 const NgoLoginScreen = () => {
   const [ngoName, setNgoName] = useState('');
   const [email, setEmail] = useState('');
   const [ngoCode, setNgoCode] = useState('');
+
+  const handleLogin = async () => {
+    const credentials = { email, password: ngoCode };
+    try {
+      if (ngoName.toLowerCase() === 'admin') {
+        const adminResponse = await loginAdmin(credentials);
+        Alert.alert('Success', 'Logged in as admin');
+        console.log(adminResponse.data);
+        setEmail('');
+        setNgoCode('');
+        setNgoName('');
+        // Handle admin login success (e.g., navigation, storing tokens)
+      } else {
+        const ngoResponse = await loginOrganization(credentials);
+        Alert.alert('Success', 'Logged in as NGO');
+        console.log(ngoResponse.data);
+        setEmail('');
+        setNgoCode('');
+        setNgoName('');
+        // Handle NGO login success (e.g., navigation, storing tokens)
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Login failed. Please check your credentials and try again.');
+      console.error(error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -38,7 +65,7 @@ const NgoLoginScreen = () => {
           onChangeText={setNgoCode}
         />
       </View>
-      <TouchableOpacity style={styles.signInButton} onPress={() => {/* Handle NGO sign in logic */}}>
+      <TouchableOpacity style={styles.signInButton} onPress={handleLogin}>
         <Text style={styles.buttonText}>SIGN IN</Text>
         <Feather name="arrow-right" size={20} color="#fff" />
       </TouchableOpacity>

@@ -66,31 +66,39 @@ const EventScreen = () => {
       <View style={styles.titleContainer}>
         <Text style={styles.titleContainerTitle}>{title}</Text>
       </View>
-      <FlatList
-        data={data}
-        renderItem={({ item }) => <EventItem2 event={item} />}
-        keyExtractor={(item) => item.id.toString()}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.horizontalList}
-      />
+      {data.length === 0 ? (
+        <Text style={styles.noEventsText}>No Events at the moment</Text>
+      ) : (
+        <FlatList
+          data={data}
+          renderItem={({ item }) => <EventItem2 event={item} />}
+          keyExtractor={(item) => item.id.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.horizontalList}
+        />
+      )}
     </View>
   );
 
   const renderVerticalList = (data) => (
-    <FlatList
-      data={data}
-      renderItem={({ item }) => <EventItem2 event={item} />}
-      keyExtractor={(item) => item.id.toString()}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.verticalList}
-    />
+    data.length === 0 ? (
+      <Text style={styles.noEventsText}>No Events at the moment</Text>
+    ) : (
+      <FlatList
+        data={data}
+        renderItem={({ item }) => <EventItem2 event={item} />}
+        keyExtractor={(item) => item.id.toString()}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.verticalList}
+      />
+    )
   );
 
   const sections = [
     {
       title: 'Te gjitha Aktivitetet',
-      data: allEvents.length > 0 ? allEvents : [{ id: 'no-events', title: 'No Events at the moment', date: '', location: '', picture: '' }],
+      data: allEvents,
       horizontal: false
     }
   ];
