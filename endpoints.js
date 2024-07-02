@@ -2,7 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 
-const API_BASE_URL = "http://192.168.178.132:4000/api/"; //shpi
+const API_BASE_URL = "http://192.168.178.131:4000/api/"; //shpi Arba
+//const API_BASE_URL = "http://192.168.178.132:4000/api/"; //shpi Arba5g
 //const API_BASE_URL = "http://192.168.1.47:4000/api/"; //punë
 
 // Helper function to get the auth token using AsyncStorage

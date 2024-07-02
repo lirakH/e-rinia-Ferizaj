@@ -17,7 +17,7 @@ const LoginScreen = () => {
       Alert.alert('Login successful');
       setEmail('');
       setPassword('');
-      router.replace('/(tabs)/profile');
+      // Navigation is handled in the ProfilePage component
     } catch (error) {
       if (error.response) {
         if (error.response.status === 401) {
@@ -72,11 +72,11 @@ const LoginScreen = () => {
           <Feather name="arrow-right" size={20} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.orText}>OR</Text>
-        <TouchableOpacity style={styles.socialButton} onPress={() => googlePromptAsync()}>
+        <TouchableOpacity style={styles.socialButton} onPress={() => Alert.alert('Info', 'Google login not implemented')}>
           <FontAwesome name="google" size={20} color="red" style={styles.socialIcon} />
           <Text style={styles.socialButtonText}>Login with Google</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.socialButton} onPress={() => facebookPromptAsync()}>
+        <TouchableOpacity style={styles.socialButton} onPress={() => Alert.alert('Info', 'Facebook login not implemented')}>
           <FontAwesome name="facebook" size={20} color="blue" style={styles.socialIcon} />
           <Text style={styles.socialButtonText}>Login with Facebook</Text>
         </TouchableOpacity>
