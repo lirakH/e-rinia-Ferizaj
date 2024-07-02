@@ -2,7 +2,7 @@ import { Image, StyleSheet, Platform } from 'react-native';
 import { ScrollView, Text } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 
-export default function HomeScreen() {
+export default function AdminScreen() {
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
       <Text> Admin profile / debug Screen </Text>

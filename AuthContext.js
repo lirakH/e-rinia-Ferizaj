@@ -10,17 +10,16 @@ export const AuthProvider = ({ children }) => {
   const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
-    // Check if the user is already logged in
     const bootstrapAsync = async () => {
       try {
-        const token = await getAuthToken();
+        const token = await AsyncStorage.getItem('userToken');
+        const role = await AsyncStorage.getItem('userRole');
         if (token && await verifyToken(token)) {
           setUserToken(token);
-          // You might want to decode the token here to get the user role
-          // setUserRole(decodedToken.role);
+          setUserRole(role);
         }
       } catch (e) {
-        // Restoring token failed
+        console.error('Restoring token failed', e);
       }
       setIsLoading(false);
     };
@@ -87,7 +86,6 @@ export const AuthProvider = ({ children }) => {
         setUserToken(null);
         setUserRole(null);
         setIsLoading(false);
-        // Add any other state resets here
       } catch (error) {
         console.error('Error resetting app:', error);
       }
