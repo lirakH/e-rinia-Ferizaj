@@ -1,5 +1,18 @@
 const express = require("express");
-const eventController = require("../controllers/eventController");
+const {
+  createEvent,
+  getAllEvents,
+  getEvent,
+  updateEvent,
+  deleteEvent,
+  approveEvent,
+  getEventsByOrganizationPublic,
+  getEventsByInstitution,
+  uploadEventPicture,
+  getApprovedEvents,
+  getNotApprovedEvents,
+} = require("../controllers/eventController");
+
 const {
   authMiddlewareOrganization,
   authorizeRole: authorizeRoleOrganization,
@@ -66,32 +79,33 @@ router.post(
   "/",
   authMiddlewareOrganization,
   authorizeRoleOrganization("organization"),
-  eventController.createEvent
+  createEvent
 );
 
-router.put("/:id", allowAdminOrOrganization, eventController.updateEvent);
+router.put("/:id", allowAdminOrOrganization, updateEvent);
 
-router.delete("/:id", allowAdminOrOrganization, eventController.deleteEvent);
+router.delete("/:id", allowAdminOrOrganization, deleteEvent);
 
 router.put(
   "/:id/approve",
   authMiddlewareAdmin,
   authorizeRoleAdmin("admin"),
-  eventController.approveEvent
+  approveEvent
 );
-
-router.get("/", eventController.getAllEvents);
-router.get("/:id", eventController.getEvent);
-
+router.get("/approved", getApprovedEvents);
 router.get(
-  "/organization/:orgId",
-  eventController.getEventsByOrganizationPublic
+  "/not-approved",
+  authMiddlewareAdmin,
+  authorizeRoleAdmin("admin"),
+  getNotApprovedEvents
 );
-router.get("/institution", eventController.getEventsByInstitution);
-router.post(
-  "/upload/:id",
-  upload.single("picture"),
-  eventController.uploadEventPicture
-);
+router.get("/", getAllEvents);
+router.get("/:id", getEvent);
+
+router.get("/organization/:orgId", getEventsByOrganizationPublic);
+router.get("/institution", getEventsByInstitution);
+router.post("/upload/:id", upload.single("picture"), uploadEventPicture);
+
+// New routes for approved and not approved events
 
 module.exports = router;

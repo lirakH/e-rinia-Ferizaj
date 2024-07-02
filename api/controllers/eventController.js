@@ -1,28 +1,5 @@
-const { Event } = require("../models"); // Adjust the path as necessary
+const { Event, Organization } = require("../models"); // Adjust the path as necessary
 
-// exports.createEvent = async (req, res) => {
-//   try {
-//     // Assuming req.organization contains the authenticated organization's information
-//     const organizationId = req.organization.id; // Adjust based on your token payload structure
-
-//     const { name, picture, place, date, description } = req.body;
-
-//     const event = await Event.create({
-//       name,
-//       picture, // Handling of image uploads is assumed to be elsewhere
-//       place,
-//       date,
-//       description,
-//       approved: false, // Events start as not approved
-//       organizationId, // Assign the organization ID from the authenticated user
-//     });
-
-//     res.status(201).json(event);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send("Server error");
-//   }
-// };
 exports.createEvent = async (req, res) => {
   try {
     const organizationId = req.organization.id;
@@ -88,7 +65,6 @@ exports.getEvent = async (req, res) => {
   }
 };
 
-// Event Update
 exports.updateEvent = async (req, res) => {
   try {
     const { id } = req.params; // The event ID
@@ -121,7 +97,6 @@ exports.updateEvent = async (req, res) => {
   }
 };
 
-// Event Deletion
 exports.deleteEvent = async (req, res) => {
   try {
     const { id } = req.params;
@@ -165,8 +140,8 @@ exports.approveEvent = async (req, res) => {
     return res.status(500).send("Server error");
   }
 };
-// In your eventController.js
 
+// Get Events by Organization Public
 exports.getEventsByOrganizationPublic = async (req, res) => {
   try {
     // The organization's ID is retrieved from the URL parameters
@@ -183,6 +158,8 @@ exports.getEventsByOrganizationPublic = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+
+// Get Events by Institution
 exports.getEventsByInstitution = async (req, res) => {
   const { page = 1, pageSize = 10 } = req.query;
 
@@ -218,11 +195,13 @@ exports.getEventsByInstitution = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+
+// Upload Event Picture
 exports.uploadEventPicture = async (req, res) => {
   try {
     const event = await Event.findByPk(req.params.id);
     if (!event) {
-      return res.status(404).send(" not found");
+      return res.status(404).send("Event not found");
     }
 
     const file = req.file;
@@ -238,4 +217,66 @@ exports.uploadEventPicture = async (req, res) => {
   }
 };
 
-// In your routes file
+// Get Approved Events
+exports.getApprovedEvents = async (req, res) => {
+  const { page = 1, pageSize = 10 } = req.query;
+
+  const offset = (page - 1) * pageSize;
+  const limit = parseInt(pageSize, 10);
+
+  try {
+    const { count, rows } = await Event.findAndCountAll({
+      where: { approved: true },
+      offset,
+      limit,
+      order: [["createdAt", "DESC"]],
+    });
+
+    const totalPages = Math.ceil(count / pageSize);
+
+    res.json({
+      data: rows,
+      pagination: {
+        totalItems: count,
+        totalPages,
+        currentPage: parseInt(page, 10),
+        pageSize: limit,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
+};
+
+// Get Not Approved Events
+exports.getNotApprovedEvents = async (req, res) => {
+  const { page = 1, pageSize = 10 } = req.query;
+
+  const offset = (page - 1) * pageSize;
+  const limit = parseInt(pageSize, 10);
+
+  try {
+    const { count, rows } = await Event.findAndCountAll({
+      where: { approved: false },
+      offset,
+      limit,
+      order: [["createdAt", "DESC"]],
+    });
+
+    const totalPages = Math.ceil(count / pageSize);
+
+    res.json({
+      data: rows,
+      pagination: {
+        totalItems: count,
+        totalPages,
+        currentPage: parseInt(page, 10),
+        pageSize: limit,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
+};
