@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { loginVolunteer, loginAdmin, loginOrganization, getAuthToken, verifyToken } from './endpoints';
+import { loginVolunteer, loginAdmin, loginOrganization, getAuthToken, verifyToken, registerVolunteer } from './endpoints';
 
 export const AuthContext = createContext();
 
@@ -31,6 +31,15 @@ export const AuthProvider = ({ children }) => {
     isLoading,
     userToken,
     userRole,
+    registerVolunteer: async (volunteerData) => {
+      try {
+        const response = await registerVolunteer(volunteerData);
+        return response;
+      } catch (error) {
+        console.error('Volunteer registration error:', error);
+        throw error;
+      }
+    },
     loginVolunteer: async (credentials) => {
       try {
         const response = await loginVolunteer(credentials);
@@ -44,7 +53,6 @@ export const AuthProvider = ({ children }) => {
         throw error;
       }
     },
-        
     loginAdmin: async (credentials) => {
       try {
         const response = await loginAdmin(credentials);

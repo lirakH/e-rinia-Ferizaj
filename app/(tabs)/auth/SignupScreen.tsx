@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -28,7 +28,7 @@ const SignupScreen = () => {
     clientId: 'YOUR_FACEBOOK_APP_ID',
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (googleResponse?.type === 'success') {
       const { authentication } = googleResponse;
       // Here you would typically send the authentication token to your backend
@@ -45,7 +45,27 @@ const SignupScreen = () => {
     }
   }, [googleResponse, facebookResponse]);
 
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSignUp = async () => {
+    if (!fullName || !email || !password || !confirmPassword) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters long');
+      return;
+    }
+
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
       return;
@@ -61,14 +81,10 @@ const SignupScreen = () => {
       router.push('auth/LoginScreen');
     } catch (error) {
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
         Alert.alert('Registration failed', error.response.data.message || 'Please try again.');
       } else if (error.request) {
-        // The request was made but no response was received
         Alert.alert('Network error', 'Unable to connect to the server. Please check your internet connection.');
       } else {
-        // Something happened in setting up the request that triggered an Error
         Alert.alert('Error', 'An unexpected error occurred. Please try again.');
       }
       console.error('Registration error:', error);
@@ -95,6 +111,8 @@ const SignupScreen = () => {
             placeholder="abc@email.com"
             value={email}
             onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
           />
         </View>
         <View style={styles.inputContainer}>

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, Image, StyleSheet, SectionList, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { useLocalSearchParams, Stack } from 'expo-router';
+import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import EventItem2 from '@/components/EventItem2';
 import MemberList from '@/components/MemberList';
-import { getOrganizationById, getEventsByOrganization, favoriteOrganization, unfavoriteOrganization, getAuthToken, getLikedOrganizations } from '@/endpoints';
+import { getOrganizationById, getEventsByOrganization, favoriteOrganization, unfavoriteOrganization, getLikedOrganizations } from '@/endpoints';
+import { AuthContext } from '@/AuthContext';
 
 export default function Page() {
   const { id } = useLocalSearchParams();
@@ -12,31 +13,28 @@ export default function Page() {
   const [events, setEvents] = useState([]);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const { userToken, userRole } = useContext(AuthContext);
+  const router = useRouter();
 
   useEffect(() => {
-    const checkAuthentication = async () => {
-      const token = await getAuthToken();
-      console.log("Auth token:", token); // Debug statement
-      setIsAuthenticated(!!token);
-      if (token) {
-        const likedOrganizations = await getLikedOrganizations();
-        const liked = likedOrganizations.some(org => org.id.toString() === id.toString());
-        setIsLiked(liked);
-      }
-    };
-
-    const fetchNGODetails = async () => {
+    const fetchData = async () => {
       try {
-        const fetchedNGODetails = await getOrganizationById(id);
-        const fetchedEvents = await getEventsByOrganization(id);
-        // Placeholder for fetching members
-        const fetchedMembers = []; // await getMembersByOrganization(id);
-
+        const [fetchedNGODetails, fetchedEvents] = await Promise.all([
+          getOrganizationById(id),
+          getEventsByOrganization(id)
+        ]);
+        
         setNgoDetails(fetchedNGODetails);
         setEvents(fetchedEvents);
-        setMembers(fetchedMembers);
+        
+        if (userRole === 'volunteer') {
+          const likedOrganizations = await getLikedOrganizations();
+          setIsLiked(likedOrganizations.some(org => org.id.toString() === id.toString()));
+        }
+        
+        // Placeholder for fetching members
+        setMembers([]); // await getMembersByOrganization(id);
       } catch (error) {
         console.error('Error fetching NGO details:', error);
       } finally {
@@ -44,11 +42,15 @@ export default function Page() {
       }
     };
 
-    checkAuthentication();
-    fetchNGODetails();
-  }, [id]);
+    fetchData();
+  }, [id, userRole]);
 
   const handleLikeButtonPress = async () => {
+    if (userRole !== 'volunteer') {
+      // Optionally, show an alert that only volunteers can like organizations
+      return;
+    }
+    
     try {
       if (isLiked) {
         await unfavoriteOrganization(id);
@@ -63,18 +65,25 @@ export default function Page() {
 
   const renderNGODetails = () => (
     <View style={styles.detailsContainer}>
-      {isAuthenticated && (
-        <TouchableOpacity style={styles.likeButton} onPress={handleLikeButtonPress}>
-          <FontAwesome name={isLiked ? 'heart' : 'heart-o'} size={24} color="#007BFF" />
-        </TouchableOpacity>
-      )}
       <View style={styles.logoContainer}>
-        <Image source={{ uri: ngoDetails.picture }} style={styles.logo} />
+        {userRole === 'volunteer' && (
+          <TouchableOpacity style={styles.likeButton} onPress={handleLikeButtonPress}>
+            <FontAwesome name={isLiked ? 'heart' : 'heart-o'} size={24} color="#007BFF" />
+          </TouchableOpacity>
+        )}
+        <Image 
+          source={{ uri: `http://192.168.178.131:4000${ngoDetails.picture}` }} 
+          style={styles.logo} 
+          onError={(e) => console.log('Image load error:', e.nativeEvent.error)}
+        />
+        <Text style={styles.shortName}>{ngoDetails.shortname}</Text>
         <Text style={styles.name}>{ngoDetails.name}</Text>
       </View>
+      
       <Text style={styles.description}>{ngoDetails.description}</Text>
     </View>
   );
+  
 
   const renderMemberSection = ({ item }) => (
     <View style={styles.memberSectionContainer}>
@@ -92,7 +101,11 @@ export default function Page() {
   const renderEventItem = ({ item }) => <EventItem2 event={item} />;
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
   }
 
   const sections = [
@@ -125,7 +138,7 @@ export default function Page() {
           stickySectionHeadersEnabled={false}
         />
       ) : (
-        <Text style={{ fontSize: 18, textAlign: 'center', marginTop: 20 }}>NGO not found</Text>
+        <Text style={styles.notFoundText}>NGO not found</Text>
       )}
     </>
   );
@@ -135,59 +148,69 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     backgroundColor: '#fff',
+    padding: 15,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   detailsContainer: {
-    padding: 20,
+    alignItems: 'center',
+    marginBottom: 20,
   },
   logoContainer: {
-    flexDirection: 'column',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 15,
   },
   logo: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginRight: 10,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    marginBottom: 10,
+  },
+  shortName: {
+    fontSize: 30,
+    color: '#000',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 5,
   },
   name: {
-    fontSize: 20,
+    fontSize: 16,
+    color: '#000',
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   description: {
     fontSize: 16,
     lineHeight: 24,
     marginBottom: 20,
+    textAlign: 'justify',
   },
   likeButton: {
+    padding: 10,
     marginTop: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: 'transparent',
-    borderRadius: 5,
-  },
-  likeButtonText: {
-    color: '#007BFF',
-    fontWeight: 'bold',
   },
   sectionHeader: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    padding: 10,
-    marginVertical: 10,
+    marginTop: 20,
+    marginBottom: 10,
+    textAlign: 'center',
   },
   memberSectionContainer: {
     marginVertical: 10,
-    width: '100%',
-    backgroundColor: '#f1f1f1',
-    justifyContent: 'space-between',
-    marginBottom: 20,
   },
   noEventsText: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#888',
+    color: '#666',
     marginVertical: 20,
+  },
+  notFoundText: {
+    fontSize: 18,
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
