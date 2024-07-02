@@ -1,40 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from 'react-native';
-import CheckBox from 'expo-checkbox';
+import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import { AuthContext } from '@/AuthContext';
+import { registerOrganization, uploadOrganizationPicture } from '@/endpoints';
 
 const AddNgo = () => {
   const [ngoDetails, setNgoDetails] = useState({
     picture: '',
     name: '',
-    shkurtesa: '',
+    shortname: '',
     joinCode: '',
     email: '',
     description: '',
-    type: '',
+    type: 'NGO',
   });
+
+  const router = useRouter();
+  const { userRole } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (userRole !== 'admin') {
+      Alert.alert('Access Denied', 'Only administrators can add NGOs.');
+      router.replace('/(tabs)/profile');
+      return;
+    }
+
+    (async () => {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Sorry, we need camera roll permissions to upload images.');
+      }
+    })();
+  }, [userRole]);
 
   const handleInputChange = (field, value) => {
     setNgoDetails({ ...ngoDetails, [field]: value });
   };
 
-  const handleTypeChange = (type) => {
-    setNgoDetails((prevState) => ({
-      ...prevState,
-      type: type,
-    }));
-  };
-
   const handlePickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
 
-    if (!result.canceled) {
-      setNgoDetails({ ...ngoDetails, picture: result.uri });
+      if (!result.canceled) {
+        setNgoDetails({ ...ngoDetails, picture: result.assets[0].uri });
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image. Please try again.');
     }
   };
 
@@ -43,10 +61,10 @@ const AddNgo = () => {
     return emailRegex.test(email);
   };
 
-  const handleAddNgo = () => {
-    const { picture, name, shkurtesa, joinCode, email, description, type } = ngoDetails;
+  const handleAddNgo = async () => {
+    const { picture, name, shortname, joinCode, email, description, type } = ngoDetails;
 
-    if (!picture || !name || !shkurtesa || !joinCode || !email || !description || !type) {
+    if (!name || !shortname || !joinCode || !email || !description || !type) {
       Alert.alert('Error', 'All fields are required');
       return;
     }
@@ -56,9 +74,43 @@ const AddNgo = () => {
       return;
     }
 
-    // Handle the logic to add the NGO
-    console.log('NGO Details:', ngoDetails);
+    try {
+      const organizationData = {
+        name,
+        shortname,
+        joinCode,
+        email,
+        description,
+        type,
+      };
+
+      const createdOrganization = await registerOrganization(organizationData);
+
+      if (picture) {
+        const formData = new FormData();
+        const uriParts = picture.split('.');
+        const fileType = uriParts[uriParts.length - 1];
+
+        formData.append('picture', {
+          uri: picture,
+          name: `photo.${fileType}`,
+          type: `image/${fileType}`,
+        });
+
+        await uploadOrganizationPicture(createdOrganization.id, formData);
+      }
+
+      Alert.alert('Success', 'NGO created successfully');
+      router.back();
+    } catch (error) {
+      console.error('Error creating NGO:', error);
+      Alert.alert('Error', 'Failed to create NGO. Please try again.');
+    }
   };
+
+  if (userRole !== 'admin') {
+    return null; // Render nothing while redirecting
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -81,9 +133,9 @@ const AddNgo = () => {
         />
         <TextInput
           style={styles.input}
-          placeholder="NGO Shkurtesa"
-          value={ngoDetails.shkurtesa}
-          onChangeText={(value) => handleInputChange('shkurtesa', value)}
+          placeholder="NGO Shortname"
+          value={ngoDetails.shortname}
+          onChangeText={(value) => handleInputChange('shortname', value)}
         />
         <TextInput
           style={styles.input}
@@ -105,20 +157,20 @@ const AddNgo = () => {
           onChangeText={(value) => handleInputChange('description', value)}
           multiline={true}
         />
-        <View style={styles.checkboxContainer}>
-          <Text style={styles.checkboxLabel}>Type:</Text>
-          <View style={styles.checkboxRow}>
-            <CheckBox
-              value={ngoDetails.type === 'NGO'}
-              onValueChange={() => handleTypeChange('NGO')}
-            />
-            <Text style={styles.checkboxText}>NGO</Text>
-            <CheckBox
-              value={ngoDetails.type === 'Institution'}
-              onValueChange={() => handleTypeChange('Institution')}
-            />
-            <Text style={styles.checkboxText}>Institution</Text>
-          </View>
+        <View style={styles.typeContainer}>
+          <Text style={styles.typeLabel}>Type:</Text>
+          <TouchableOpacity
+            style={[styles.typeButton, ngoDetails.type === 'NGO' && styles.selectedType]}
+            onPress={() => handleInputChange('type', 'NGO')}
+          >
+            <Text style={styles.typeButtonText}>NGO</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.typeButton, ngoDetails.type === 'Institution' && styles.selectedType]}
+            onPress={() => handleInputChange('type', 'Institution')}
+          >
+            <Text style={styles.typeButtonText}>Institution</Text>
+          </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.button} onPress={handleAddNgo}>
           <Text style={styles.buttonText}>Add NGO</Text>
@@ -166,40 +218,47 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   imageContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
     backgroundColor: '#ccc',
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
     marginBottom: 20,
+    overflow: 'hidden',
   },
   image: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
   imagePlaceholder: {
     color: '#fff',
     textAlign: 'center',
   },
-  checkboxContainer: {
+  typeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
   },
-  checkboxRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  checkboxLabel: {
+  typeLabel: {
     fontSize: 16,
     marginRight: 10,
   },
-  checkboxText: {
-    fontSize: 16,
+  typeButton: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
     marginRight: 10,
+  },
+  selectedType: {
+    backgroundColor: '#007BFF',
+    borderColor: '#007BFF',
+  },
+  typeButtonText: {
+    color: '#000',
   },
 });
 

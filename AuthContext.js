@@ -44,6 +44,7 @@ export const AuthProvider = ({ children }) => {
         throw error;
       }
     },
+        
     loginAdmin: async (credentials) => {
       try {
         const response = await loginAdmin(credentials);

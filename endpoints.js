@@ -133,14 +133,25 @@ export const decodeOrganizationToken = async () => {
   return null;
 };
 
-export const decodeVolunteerToken = async () => {
-  const token = await getAuthToken();
-  if (token) {
+
+export const decodeVolunteerToken = (token) => {
+  console.log('Decoding token:', token);
+  try {
+    if (!token) {
+      console.log('No token provided');
+      return null;
+    }
     const decoded = jwtDecode(token);
+    console.log('Decoded token:', decoded);
     return decoded.volunteer.id;
+  } catch (error) {
+    console.error('Error decoding token:', error);
+    return null;
   }
-  return null;
 };
+
+
+
 
 
 export const verifyToken = async () => {
@@ -204,6 +215,7 @@ export const getAllVolunteers = async () => {
 };
 
 export const getVolunteerById = async (id) => {
+  console.log('Fetching volunteer with ID:', id);
   try {
     const token = await getAuthToken();
     const response = await axios.get(`${API_BASE_URL}volunteer/${id}`, {
@@ -211,12 +223,14 @@ export const getVolunteerById = async (id) => {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log('Volunteer data response:', response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching volunteer:", error);
     throw error;
   }
 };
+
 
 export const updateVolunteer = async (id, volunteerData) => {
   try {
@@ -559,6 +573,26 @@ export const uploadEventPicture = async (id, formData) => {
     return response.data;
   } catch (error) {
     console.error("Error uploading event picture:", error);
+    throw error;
+  }
+};
+
+export const uploadVolunteerProfilePicture = async (id, formData) => {
+  try {
+    const token = await getAuthToken();
+    const response = await axios.post(
+      `${API_BASE_URL}volunteer/volunteers/${id}/upload`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading volunteer profile picture:", error);
     throw error;
   }
 };

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { createEvent, uploadEventPicture } from '@/endpoints'; // Adjust the import path as needed
+import { createEvent, uploadEventPicture } from '@/endpoints';
+import { useRouter } from 'expo-router';
+import { AuthContext } from '@/AuthContext';
 
 const AddEvent = () => {
   const [eventDetails, setEventDetails] = useState({
@@ -11,57 +13,94 @@ const AddEvent = () => {
     date: new Date(),
     place: '',
     description: '',
-    adminComment: ''
   });
 
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const router = useRouter();
+  const { userRole } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (userRole !== 'organization') {
+      Alert.alert('Access Denied', 'Only organizations can add events.');
+      router.replace('/'); // or wherever you want to redirect non-organization users
+      return;
+    }
+
+    (async () => {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Sorry, we need camera roll permissions to upload images.');
+      }
+    })();
+  }, [userRole]);
 
   const handleInputChange = (field, value) => {
     setEventDetails({ ...eventDetails, [field]: value });
   };
 
   const handlePickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
 
-    if (!result.canceled) {
-      setEventDetails({ ...eventDetails, picture: result.uri });
+      console.log('ImagePicker result:', result);
+
+      if (!result.canceled) {
+        setEventDetails({ ...eventDetails, picture: result.assets[0].uri });
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image. Please try again.');
     }
   };
 
   const handleAddEvent = async () => {
     try {
-      // Create event data
       const eventData = {
         name: eventDetails.name,
         date: eventDetails.date.toISOString(),
         place: eventDetails.place,
         description: eventDetails.description,
-        adminComment: eventDetails.adminComment,
       };
 
-      const createdEvent = await createEvent(eventData);
-      Alert.alert('Success', 'Event created successfully.');
+      console.log('Sending event data:', eventData);
 
-      // Upload event picture
+      const createdEvent = await createEvent(eventData);
+      console.log('Event created:', createdEvent);
+
       if (eventDetails.picture) {
         const formData = new FormData();
+        const uriParts = eventDetails.picture.split('.');
+        const fileType = uriParts[uriParts.length - 1];
+        
         formData.append('picture', {
           uri: eventDetails.picture,
-          name: 'eventPicture.jpg',
-          type: 'image/jpeg',
+          name: `photo.${fileType}`,
+          type: `image/${fileType}`,
         });
 
+        console.log('Uploading picture for event:', createdEvent.id);
         await uploadEventPicture(createdEvent.id, formData);
-        Alert.alert('Success', 'Event picture uploaded successfully.');
+        console.log('Picture uploaded successfully');
       }
+
+      Alert.alert('Success', 'Event created and picture uploaded successfully.');
+      router.back();
     } catch (error) {
-      Alert.alert('Error', 'Failed to create event. Please try again.');
-      console.error(error);
+      let errorMessage = 'An unexpected error occurred';
+      if (error.response) {
+        errorMessage = error.response.data.message || error.response.data;
+      } else if (error.request) {
+        errorMessage = 'No response received from server';
+      } else {
+        errorMessage = error.message;
+      }
+      Alert.alert('Error', `Failed to create event: ${errorMessage}`);
+      console.error('Full error:', error);
     }
   };
 
@@ -70,6 +109,10 @@ const AddEvent = () => {
     setShowDatePicker(false);
     setEventDetails({ ...eventDetails, date: currentDate });
   };
+
+  if (userRole !== 'organization') {
+    return null; // Render nothing while redirecting
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -114,12 +157,6 @@ const AddEvent = () => {
           onChangeText={(value) => handleInputChange('description', value)}
           multiline={true}
         />
-        <TextInput
-          style={[styles.input, styles.readOnlyInput]}
-          placeholder="Admin Comment"
-          value={eventDetails.adminComment}
-          editable={false}
-        />
         <TouchableOpacity style={styles.button} onPress={handleAddEvent}>
           <Text style={styles.buttonText}>Add Event</Text>
         </TouchableOpacity>
@@ -127,6 +164,7 @@ const AddEvent = () => {
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -154,9 +192,6 @@ const styles = StyleSheet.create({
   textArea: {
     height: 100,
   },
-  readOnlyInput: {
-    backgroundColor: '#f1f1f1',
-  },
   button: {
     backgroundColor: '#007BFF',
     padding: 15,
@@ -169,23 +204,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   imageContainer: {
-    width: 200,
-    height: 100,
-    borderRadius: 15,
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
     backgroundColor: '#ccc',
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'center',
     marginBottom: 20,
+    overflow: 'hidden',
   },
   image: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
   imagePlaceholder: {
     color: '#fff',
-    textAlign: 'center',
+    fontSize: 16,
   },
   dateInput: {
     width: '100%',
