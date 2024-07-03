@@ -311,7 +311,7 @@ exports.uploadProfilePicture = async (req, res) => {
     }
 
     const file = req.file;
-    const imageUrl = `/uploads/${file.filename}`;
+    const imageUrl = `/uploads/volunteer/${file.filename}`;
 
     volunteer.profilePicture = imageUrl;
     await volunteer.save();

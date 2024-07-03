@@ -206,7 +206,7 @@ exports.uploadPicture = async (req, res) => {
     }
 
     const file = req.file;
-    const imageUrl = `/uploads/${file.filename}`;
+    const imageUrl = `/uploads/organizations/${file.filename}`;
 
     organization.picture = imageUrl;
     await organization.save();
