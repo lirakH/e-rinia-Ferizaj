@@ -19,6 +19,7 @@ export default function DebugScreen() {
       <Link href="/event/AddEvent" style={styles.link}>event/AddEvent</Link>
       <Link href="/event/AproveEvent" style={styles.link}>event/AproveEvent</Link>
       <Link href="/NGO/AddNgo" style={styles.link}>/NGO/AddNgo</Link>
+      <Link href="/NGO/AddMembers" style={styles.link}>/NGO/AddMembers</Link>
       <Link href="/profile/AdminProfileScreen" style={styles.link}>/profile/AdminProfileScreen</Link>
       <Link href="/profile/NgoProfileScreen" style={styles.link}>/profile/NgoProfileScreen</Link>
       <Link href="/profile/VolunteerProfileScreen" style={styles.link}>/profile/VolunteerProfileScreen</Link>

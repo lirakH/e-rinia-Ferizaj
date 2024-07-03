@@ -22,6 +22,7 @@ export default function TabLayout() {
     'event/index',
     'NGO/[id]',
     'NGO/AddNgo',
+    'NGO/AddMembers',
     'NGO/index',
     'profile/AdminProfileScreen',
     'profile/index',

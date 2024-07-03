@@ -22,7 +22,7 @@ const AddNgo = () => {
   useEffect(() => {
     if (userRole !== 'admin') {
       Alert.alert('Access Denied', 'Only administrators can add NGOs.');
-      router.replace('/(tabs)/profile');
+      router.replace('/');
       return;
     }
 
