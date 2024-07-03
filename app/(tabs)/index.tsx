@@ -57,7 +57,7 @@ const HomeScreen = () => {
           <AntDesign name="caretright" size={12} color="#555" />
         </Link>
       </View>
-      <DraggableCircleGrid items={typeOneOrganizations.map(org => ({ id: org.id.toString(), label: org.name, picture: org.picture || 'https://via.placeholder.com/150' }))} />
+      <DraggableCircleGrid items={typeOneOrganizations.map(org => ({ id: org.id.toString(), label: org.shortname, picture: org.picture || 'https://via.placeholder.com/150' }))} />
 
       <View style={styles.titleContainer}>
         <Text style={styles.titleContainerTitle}>Organizatat</Text>
@@ -66,7 +66,7 @@ const HomeScreen = () => {
           <AntDesign name="caretright" size={12} color="#555" />
         </Link>
       </View>
-      <DraggableCircleGrid items={typeTwoOrganizations.map(org => ({ id: org.id.toString(), label: org.name, picture: org.picture || 'https://via.placeholder.com/150' }))} />
+      <DraggableCircleGrid items={typeTwoOrganizations.map(org => ({ id: org.id.toString(), label: org.shortname, picture: org.picture || 'https://via.placeholder.com/150' }))} />
 
       <View style={styles.titleContainer2}>
         <Text style={styles.titleContainerTitle}>Safe Zona</Text>
@@ -87,7 +87,7 @@ const HomeScreen = () => {
         <Text style={styles.newSectionTitle}>Falenderim Donatorit</Text>
         <Text style={styles.newSectionDescription}>
           Aplikacioni E-Rinia u realizua falë:
-          Projektit "filan fiskteku", projekt i realizuar nga organizata KUSA - Kosovo US Alumni dhe financuar nga Ambasada Amerikane në Kosovë
+          Projektit "Youth VOICE", projekt i realizuar nga organizata KUSA - Kosovo US Alumni dhe financuar nga Ambasada Amerikane në Kosovë
         </Text>
         <View style={styles.newSectionImages}>
         <Image source={{ uri: 'https://d2v9ipibika81v.cloudfront.net/uploads/sites/133/Pristina_Seal-1.png' }} style={styles.logoPlaceholder2} />
