@@ -1,33 +1,44 @@
 import React, { useContext, useEffect } from 'react';
 import { Text, TouchableOpacity, StyleSheet, Image, ScrollView, View, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { AuthContext } from '@/AuthContext';
 
 export default function ProfilePage() {
   const router = useRouter();
   const { userToken, userRole } = useContext(AuthContext);
 
-  useEffect(() => {
-    if (userToken && userRole) {
-      redirectToProfileScreen();
-    }
-  }, [userToken, userRole]);
-
   const redirectToProfileScreen = () => {
+    console.log('Redirecting with role:', userRole); // Logging
     switch (userRole) {
       case 'volunteer':
-        router.replace('/(tabs)/profile/VolunteerProfileScreen');
+        router.push('/(tabs)/profile/VolunteerProfileScreen');
         break;
       case 'organization':
-        router.replace('/(tabs)/profile/NgoProfileScreen');
+        router.push('/(tabs)/profile/NgoProfileScreen');
         break;
       case 'admin':
-        router.replace('/(tabs)/profile/AdminProfileScreen');
+        router.push('/(tabs)/profile/AdminProfileScreen');
         break;
       default:
         console.error('Unknown user role:', userRole);
     }
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('Screen focused. Token:', userToken, 'Role:', userRole); // Logging
+      if (userToken && userRole) {
+        redirectToProfileScreen();
+      }
+    }, [userToken, userRole])
+  );
+
+  useEffect(() => {
+    console.log('Component mounted. Token:', userToken, 'Role:', userRole); // Logging
+    if (userToken && userRole) {
+      redirectToProfileScreen();
+    }
+  }, []);
 
   if (userToken && userRole) {
     return (

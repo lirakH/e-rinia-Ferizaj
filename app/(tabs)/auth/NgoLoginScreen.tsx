@@ -24,7 +24,7 @@ const NgoLoginScreen = () => {
       setEmail('');
       setNgoCode('');
       setNgoName('');
-      router.push('/(tabs)');
+      router.push('/profile');
     } catch (error) {
       if (error.response) {
         if (error.response.status === 401) {

@@ -17,7 +17,7 @@ const LoginScreen = () => {
       Alert.alert('Login successful');
       setEmail('');
       setPassword('');
-      // Navigation is handled in the ProfilePage component
+      router.push('/profile');
     } catch (error) {
       if (error.response) {
         if (error.response.status === 401) {
