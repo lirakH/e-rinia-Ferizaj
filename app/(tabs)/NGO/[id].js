@@ -6,6 +6,8 @@ import EventItem2 from '@/components/EventItem2';
 import MemberList from '@/components/MemberList';
 import { getOrganizationById, getEventsByOrganization, favoriteOrganization, unfavoriteOrganization, getLikedOrganizations } from '@/endpoints';
 import { AuthContext } from '@/AuthContext';
+import { MEDIA_BASE_URL } from '@/config';
+
 
 export default function Page() {
   const { id } = useLocalSearchParams();
@@ -72,7 +74,7 @@ export default function Page() {
           </TouchableOpacity>
         )}
         <Image 
-          source={{ uri: `http://192.168.178.131:4000${ngoDetails.picture}` }} 
+          source={{ uri: `${MEDIA_BASE_URL}${ngoDetails.picture}` }} 
           style={styles.logo} 
           onError={(e) => console.log('Image load error:', e.nativeEvent.error)}
         />

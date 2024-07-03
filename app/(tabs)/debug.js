@@ -16,9 +16,6 @@ export default function DebugScreen() {
       <Text style={styles.title}>Debug Menu</Text>
       <Button title="Reset App and Clear Data" onPress={handleReset} />
 
-      <Link href="/auth/LoginScreen" style={styles.link}>/auth/LoginScreen</Link>
-      <Link href="/auth/NgoLoginScreen" style={styles.link}>/auth/NgoLoginScreen</Link>
-      <Link href="/auth/SignupScreen" style={styles.link}>auth/SignupScreen</Link>
       <Link href="/event/AddEvent" style={styles.link}>event/AddEvent</Link>
       <Link href="/event/AproveEvent" style={styles.link}>event/AproveEvent</Link>
       <Link href="/NGO/AddNgo" style={styles.link}>/NGO/AddNgo</Link>
