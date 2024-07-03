@@ -36,3 +36,6 @@ npm install @react-native-community/datetimepicker
 
 
 npm install axios react-native-async-storage jwt-decode // <<-- nese se kemi
+
+
+npm install react-native-dotenv

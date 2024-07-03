@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ActivityIn
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { getEventById, getOrganizationById } from '@/endpoints'; // Adjust path as necessary
+import { MEDIA_BASE_URL } from '@/config';
 
 export default function Page() {
   const { id } = useLocalSearchParams();
@@ -40,7 +41,11 @@ export default function Page() {
       {eventDetails ? (
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.imageContainer}>
-            <Image source={{ uri: eventDetails.picture || 'https://via.placeholder.com/150' }} style={styles.image} />
+          <Image 
+              source={{ uri: `${MEDIA_BASE_URL}${eventDetails.picture}` }} 
+              style={styles.image}
+              onError={(e) => console.log('Event image load error:', e.nativeEvent.error)}
+            />
             <View style={styles.titleContainer1}>
               <View style={styles.titleContainer}>
               <Text style={styles.title}>{eventDetails.name}</Text>

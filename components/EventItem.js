@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, Image, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
+import { MEDIA_BASE_URL } from '@/config';
 
 const EventItem = ({ item }) => {
   const router = useRouter();
@@ -11,7 +12,11 @@ const EventItem = ({ item }) => {
 
   return (
     <Pressable style={styles.eventCard} onPress={handleEventPress}>
-      <Image source={{ uri: item.picture }} style={styles.eventImage} />
+      <Image         
+        source={{ uri: `${MEDIA_BASE_URL}${item.picture}` }} 
+        style={styles.eventImage} 
+        onError={(e) => console.log('Event image load error:', e.nativeEvent.error)}
+      />
       <Text style={styles.eventDate}>{item.date}</Text>
       <Text style={styles.eventTitle}>{item.name}</Text>
       <Text style={styles.eventLocation}>{item.place}</Text>

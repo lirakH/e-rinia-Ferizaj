@@ -48,7 +48,7 @@ export default function NgoScreen() {
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
       <CircleItem item={item} />
-      <Text style={styles.itemName}>{item.name}</Text>
+      <Text style={styles.itemName}>{item.shortname}</Text>
     </View>
   );
 
@@ -125,7 +125,6 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 16,
-    marginTop: 5,
     marginBottom: 10,
   },
   sectionHeader: {
