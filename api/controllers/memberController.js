@@ -88,7 +88,7 @@ exports.uploadProfilePicture = async (req, res) => {
     }
 
     const file = req.file;
-    const imageUrl = `/uploads/${file.filename}`;
+    const imageUrl = `/uploads/members/${file.filename}`;
 
     member.profilePicture = imageUrl;
     await member.save();
