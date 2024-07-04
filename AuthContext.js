@@ -11,6 +11,7 @@ import {
   decodeOrganizationToken,
   decodeVolunteerToken
 } from './endpoints';
+import jwtDecode from 'jwt-decode';
 
 export const AuthContext = createContext();
 
@@ -24,6 +25,8 @@ export const AuthProvider = ({ children }) => {
     const bootstrapAsync = async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
+        console.log('Decoded token:', jwtDecode(token));
+
         const role = await AsyncStorage.getItem('userRole');
         if (token && await verifyToken(token)) {
           setUserToken(token);
@@ -41,17 +44,23 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const decodeUserId = (token, role) => {
-    switch (role) {
-      case 'volunteer':
-        return decodeVolunteerToken(token);
-      case 'admin':
-        return decodeToken(token);
-      case 'organization':
-        return decodeOrganizationToken(token);
-      default:
-        return null;
+    try {
+      switch (role) {
+        case 'volunteer':
+          return decodeVolunteerToken(token);
+        case 'admin':
+          return decodeToken(token);
+        case 'organization':
+          return decodeOrganizationToken(token);
+        default:
+          return null;
+      }
+    } catch (error) {
+      console.error('Error decoding user ID:', error);
+      return null;
     }
   };
+  
 
   const authContext = {
     isLoading,

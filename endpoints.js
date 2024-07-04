@@ -112,14 +112,21 @@ export const deleteAdmin = async (id) => {
 };
 
 // Decode token to get admin ID
-export const decodeToken = async () => {
-  const token = await getAuthToken();
-  if (token) {
+export const decodeToken = (token) => {
+  try {
+    if (!token) {
+      console.log('No token provided');
+      return null;
+    }
     const decoded = jwtDecode(token);
+    console.log('Decoded token:', decoded);
     return decoded.admin.id;
+  } catch (error) {
+    console.error('Error decoding token:', error);
+    return null;
   }
-  return null;
 };
+
 
 export const decodeOrganizationToken = async () => {
   const token = await getAuthToken();
