@@ -1,54 +1,91 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View, Text, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback, useRef } from 'react';
+import { ScrollView, StyleSheet, View, Text, ActivityIndicator, Image, TouchableOpacity, RefreshControl, Linking } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { AntDesign } from '@expo/vector-icons';
-import EventList from "@/components/EventList.js";
+import { useFocusEffect } from '@react-navigation/native';
+import EventList from "@/components/EventList";
 import DraggableCircleGrid from '@/components/DraggableCircleGrid';
-import { getAllOrganizations } from '@/endpoints';
+import { getAllOrganizations, getApprovedEvents } from '@/endpoints';
 
 const HomeScreen = () => {
   const [typeOneOrganizations, setTypeOneOrganizations] = useState([]);
   const [typeTwoOrganizations, setTypeTwoOrganizations] = useState([]);
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
+  const scrollViewRef = useRef(null);
 
-  useEffect(() => {
-    const fetchOrganizations = async () => {
-      try {
-        const data = await getAllOrganizations();
-        const typeOne = data.filter(org => org.type === 'Institution');
-        const typeTwo = data.filter(org => org.type === 'NGO');
+  const fetchData = useCallback(async () => {
+    try {
+      const [organizationsData, eventsData] = await Promise.all([
+        getAllOrganizations(),
+        getApprovedEvents()
+      ]);
+      
+      const typeOne = organizationsData.filter(org => org.type === 'Institution');
+      const typeTwo = organizationsData.filter(org => org.type === 'NGO');
 
-        setTypeOneOrganizations(typeOne);
-        setTypeTwoOrganizations(typeTwo);
-      } catch (error) {
-        console.error('Error fetching organizations:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrganizations();
+      setTypeOneOrganizations(typeOne);
+      setTypeTwoOrganizations(typeTwo);
+      setEvents(eventsData.data || []);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (loading) {
+        fetchData();
+      }
+    }, [fetchData, loading])
+  );
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchData();
+  }, [fetchData]);
+
+  const handleSafePress = async () => {
+    const appURL = 'myapp://'; // Replace with your app's deep link scheme
+    const storeURL = 'https://play.google.com/store/apps/details?id=org.nativescript.raportopolicin&hl=sq'; // Replace with your app's Google Play Store URL
+
+    try {
+      const supported = await Linking.canOpenURL(appURL);
+      if (supported) {
+        await Linking.openURL(appURL);
+      } else {
+        await Linking.openURL(storeURL);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'An error occurred while trying to open the app or store.');
+    }
+  };
+  
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
   }
 
-  const handleSafePress = () => {
-    router.push('/safe');
-  };
-  
   return (
-    <ScrollView contentContainerStyle={styles.contentContainer}>
+    <ScrollView 
+      ref={scrollViewRef}
+      contentContainerStyle={styles.contentContainer}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <View style={styles.titleContainer}>
-        <Text style={styles.titleContainerTitle} >Aktivitetet e reja</Text>
+        <Text style={styles.titleContainerTitle}>Aktivitetet e reja</Text>
         <Link href="/event" style={styles.link}>
           See All
           <AntDesign name="caretright" size={12} color="#555" />
         </Link>
       </View>
-      <EventList />
+      <EventList events={events} />
 
       <View style={styles.titleContainer}>
         <Text style={styles.titleContainerTitle}>Institucionet</Text>
@@ -57,7 +94,10 @@ const HomeScreen = () => {
           <AntDesign name="caretright" size={12} color="#555" />
         </Link>
       </View>
-      <DraggableCircleGrid items={typeOneOrganizations.map(org => ({ id: org.id.toString(), label: org.shortname, picture: org.picture || 'https://via.placeholder.com/150' }))} />
+      <DraggableCircleGrid 
+        items={typeOneOrganizations.map(org => ({ id: org.id.toString(), label: org.shortname, picture: org.picture || 'https://via.placeholder.com/150' }))} 
+        scrollViewRef={scrollViewRef}
+      />
 
       <View style={styles.titleContainer}>
         <Text style={styles.titleContainerTitle}>Organizatat</Text>
@@ -66,7 +106,10 @@ const HomeScreen = () => {
           <AntDesign name="caretright" size={12} color="#555" />
         </Link>
       </View>
-      <DraggableCircleGrid items={typeTwoOrganizations.map(org => ({ id: org.id.toString(), label: org.shortname, picture: org.picture || 'https://via.placeholder.com/150' }))} />
+      <DraggableCircleGrid 
+        items={typeTwoOrganizations.map(org => ({ id: org.id.toString(), label: org.shortname, picture: org.picture || 'https://via.placeholder.com/150' }))} 
+        scrollViewRef={scrollViewRef}
+      />
 
       <View style={styles.titleContainer2}>
         <Text style={styles.titleContainerTitle}>Safe Zona</Text>
@@ -90,14 +133,14 @@ const HomeScreen = () => {
           Projektit "Youth VOICE", projekt i realizuar nga organizata KUSA - Kosovo US Alumni dhe financuar nga Ambasada Amerikane në Kosovë
         </Text>
         <View style={styles.newSectionImages}>
-        <Image source={{ uri: 'https://d2v9ipibika81v.cloudfront.net/uploads/sites/133/Pristina_Seal-1.png' }} style={styles.logoPlaceholder2} />
-        <Image source={{ uri: 'https://kusalumni.org/wp-content/uploads/2022/07/Kusa-png-512x512_tinified.png' }} style={styles.logoPlaceholder2} />
+          <Image source={{ uri: 'https://d2v9ipibika81v.cloudfront.net/uploads/sites/133/Pristina_Seal-1.png' }} style={styles.logoPlaceholder2} />
+          <Image source={{ uri: 'https://kusalumni.org/wp-content/uploads/2022/07/Kusa-png-512x512_tinified.png' }} style={styles.logoPlaceholder2} />
         </View>
       </View>
-
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   contentContainer: {
@@ -129,45 +172,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  newSection: {
-    marginTop: 30,
-    padding: 20,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 10,
-  },
-  newSectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  newSectionContent: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  newSectionDescription: {
-    flex: 1,
-    textAlign: 'center',
-    paddingHorizontal: 10,
-  },
-  logoPlaceholder: {
-    width: 100,
-    height: 80,
-    margin: 15,
-    padding: 20,
-    borderColor: '#0091F9',
-    borderRadius: 10,
-    resizeMode: 'contain',
-    backgroundColor: '#fff',
-  },
-  logoPlaceholder2:{
-    width: 120,
-    height: 120,
-    margin: 15,
-    borderRadius: 10,
-    resizeMode: 'contain',
-  },
   safeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -191,6 +195,39 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#0091F9',
     marginLeft: 10,
+  },
+  logoPlaceholder: {
+    width: 100,
+    height: 80,
+    margin: 15,
+    padding: 20,
+    borderColor: '#0091F9',
+    borderRadius: 10,
+    resizeMode: 'contain',
+    backgroundColor: '#fff',
+  },
+  logoPlaceholder2: {
+    width: 120,
+    height: 120,
+    margin: 15,
+    borderRadius: 10,
+    resizeMode: 'contain',
+  },
+  newSectionContent: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  newSectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  newSectionDescription: {
+    flex: 1,
+    textAlign: 'center',
+    paddingHorizontal: 10,
   },
   newSectionImages: {
     flexDirection: 'row',

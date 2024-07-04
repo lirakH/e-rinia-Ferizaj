@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { View, Text, Image, StyleSheet, SectionList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
@@ -7,7 +7,6 @@ import MemberList from '@/components/MemberList';
 import { getOrganizationById, getEventsByOrganization, favoriteOrganization, unfavoriteOrganization, getLikedOrganizations } from '@/endpoints';
 import { AuthContext } from '@/AuthContext';
 import { MEDIA_BASE_URL } from '@/config';
-
 
 export default function Page() {
   const { id } = useLocalSearchParams();
@@ -19,33 +18,48 @@ export default function Page() {
   const { userToken, userRole } = useContext(AuthContext);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [fetchedNGODetails, fetchedEvents] = await Promise.all([
-          getOrganizationById(id),
-          getEventsByOrganization(id)
-        ]);
-        
-        setNgoDetails(fetchedNGODetails);
-        setEvents(fetchedEvents);
-        
-        if (userRole === 'volunteer') {
-          const likedOrganizations = await getLikedOrganizations();
-          setIsLiked(likedOrganizations.some(org => org.id.toString() === id.toString()));
-        }
-        
-        // Placeholder for fetching members
-        setMembers([]); // await getMembersByOrganization(id);
-      } catch (error) {
-        console.error('Error fetching NGO details:', error);
-      } finally {
-        setLoading(false);
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [fetchedNGODetails, fetchedEvents] = await Promise.all([
+        getOrganizationById(id),
+        getEventsByOrganization(id)
+      ]);
+      
+      setNgoDetails(fetchedNGODetails);
+      
+      // Filter approved events and sort them by date (most recent first)
+      const approvedEvents = fetchedEvents
+        .filter(event => event.approved)
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+      
+      setEvents(approvedEvents);
+      
+      if (userRole === 'volunteer') {
+        const likedOrganizations = await getLikedOrganizations();
+        setIsLiked(likedOrganizations.some(org => org.id.toString() === id.toString()));
       }
-    };
-
-    fetchData();
+      
+      // Placeholder for fetching members
+      setMembers([]); // await getMembersByOrganization(id);
+    } catch (error) {
+      console.error('Error fetching NGO details:', error);
+    } finally {
+      setLoading(false);
+    }
   }, [id, userRole]);
+
+  useEffect(() => {
+    fetchData();
+
+    return () => {
+      // Reset state when component unmounts or id changes
+      setNgoDetails(null);
+      setEvents([]);
+      setMembers([]);
+      setIsLiked(false);
+    };
+  }, [id, fetchData]);
 
   const handleLikeButtonPress = async () => {
     if (userRole !== 'volunteer') {
@@ -68,28 +82,21 @@ export default function Page() {
   const renderNGODetails = () => (
     <View style={styles.detailsContainer}>
       <View style={styles.logoContainer}>
-        {userRole === 'volunteer' && (
-          <TouchableOpacity style={styles.likeButton} onPress={handleLikeButtonPress}>
-            <FontAwesome name={isLiked ? 'heart' : 'heart-o'} size={24} color="#007BFF" />
-          </TouchableOpacity>
-        )}
         <Image 
           source={{ uri: `${MEDIA_BASE_URL}${ngoDetails.picture}` }} 
           style={styles.logo} 
           onError={(e) => console.log('Image load error:', e.nativeEvent.error)}
         />
+        {userRole === 'volunteer' && (
+          <TouchableOpacity style={styles.likeButton} onPress={handleLikeButtonPress}>
+            <FontAwesome name={isLiked ? 'heart' : 'heart-o'} size={24} color="#007BFF" />
+          </TouchableOpacity>
+        )}
         <Text style={styles.shortName}>{ngoDetails.shortname}</Text>
         <Text style={styles.name}>{ngoDetails.name}</Text>
       </View>
       
       <Text style={styles.description}>{ngoDetails.description}</Text>
-    </View>
-  );
-  
-
-  const renderMemberSection = ({ item }) => (
-    <View style={styles.memberSectionContainer}>
-      <MemberList members={item.members} />
     </View>
   );
 
@@ -100,7 +107,16 @@ export default function Page() {
     return <Text style={styles.sectionHeader}>{section.title}</Text>;
   };
 
-  const renderEventItem = ({ item }) => <EventItem2 event={item} />;
+  const renderEventItem = ({ item }) => {
+    if (item.id === 'no-events') {
+      return <Text style={styles.noEventsText}>{item.title}</Text>;
+    }
+    return (
+      <View style={styles.eventItemContainer}>
+        <EventItem2 event={item} />
+      </View>
+    );
+  };
 
   if (loading) {
     return (
@@ -112,19 +128,17 @@ export default function Page() {
 
   const sections = [
     { title: 'Ngo Details', data: [ngoDetails], renderItem: renderNGODetails },
-    { title: 'Eventet e Organizates', data: events.length > 0 ? events : [{ id: 'no-events', title: 'No Events at the moment', date: '', location: '', picture: '' }], horizontal: true },
+    { 
+      title: 'Eventet e Organizates', 
+      data: events.length > 0 ? events : [{ id: 'no-events', title: 'No approved events at the moment' }], 
+      renderItem: renderEventItem, 
+      horizontal: true 
+    },
   ];
 
   if (ngoDetails && ngoDetails.type === 'government' && members.length > 0) {
     sections.push({ title: 'Members', data: [{ members }], renderItem: renderMemberSection });
   }
-
-  const renderItem = ({ item }) => {
-    if (item.id === 'no-events') {
-      return <Text style={styles.noEventsText}>{item.title}</Text>;
-    }
-    return <EventItem2 event={item} />;
-  };
 
   return (
     <>
@@ -133,7 +147,7 @@ export default function Page() {
       {ngoDetails ? (
         <SectionList
           sections={sections}
-          renderItem={renderItem}
+          renderItem={({ item, section }) => section.renderItem({ item })}
           renderSectionHeader={renderSectionHeader}
           keyExtractor={(item, index) => `${item.id}-${index}`}
           contentContainerStyle={styles.container}
@@ -164,6 +178,8 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     marginBottom: 15,
+    width: '100%',
+    position: 'relative',
   },
   logo: {
     width: 120,
@@ -191,8 +207,11 @@ const styles = StyleSheet.create({
     textAlign: 'justify',
   },
   likeButton: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
     padding: 10,
-    marginTop: 10,
+    zIndex: 1,
   },
   sectionHeader: {
     fontSize: 20,
@@ -201,14 +220,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
   },
-  memberSectionContainer: {
-    marginVertical: 10,
+  eventItemContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 10,
   },
   noEventsText: {
     fontSize: 16,
     textAlign: 'center',
     color: '#666',
     marginVertical: 20,
+    marginHorizontal: 20,
   },
   notFoundText: {
     fontSize: 18,

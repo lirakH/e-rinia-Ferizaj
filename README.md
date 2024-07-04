@@ -39,3 +39,5 @@ npm install axios react-native-async-storage jwt-decode // <<-- nese se kemi
 
 
 npm install react-native-dotenv
+
+npm install date-fns

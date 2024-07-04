@@ -1,7 +1,8 @@
 import React from 'react';
-import { Text, Image, StyleSheet, Pressable } from 'react-native';
+import { Text, Image, StyleSheet, Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MEDIA_BASE_URL } from '@/config';
+import { format } from 'date-fns';
 
 const EventItem = ({ item }) => {
   const router = useRouter();
@@ -10,6 +11,11 @@ const EventItem = ({ item }) => {
     router.push(`/event/${item.id}`);
   };
 
+  // Format the date
+  const formattedDate = item.date 
+    ? `Data: ${format(new Date(item.date), 'dd-MM-yyy')}\nOra: ${format(new Date(item.date), 'HH:mm')}`
+    : 'Date not available';
+
   return (
     <Pressable style={styles.eventCard} onPress={handleEventPress}>
       <Image         
@@ -17,7 +23,7 @@ const EventItem = ({ item }) => {
         style={styles.eventImage} 
         onError={(e) => console.log('Event image load error:', e.nativeEvent.error)}
       />
-      <Text style={styles.eventDate}>{item.date}</Text>
+      <Text style={styles.eventDate}>{formattedDate}</Text>
       <Text style={styles.eventTitle}>{item.name}</Text>
       <Text style={styles.eventLocation}>{item.place}</Text>
     </Pressable>
@@ -40,14 +46,19 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 100,
     borderRadius: 10,
+    marginBottom: 5,
+    //borderWidth: 0.5,
+    //borderColor: '#ccc',
   },
   eventDate: {
     fontSize: 12,
     color: '#FF0000',
+    marginBottom: 3,
   },
   eventTitle: {
     fontSize: 16,
     fontWeight: 'bold',
+    marginBottom: 3,
   },
   eventLocation: {
     fontSize: 12,

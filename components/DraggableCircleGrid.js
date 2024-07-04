@@ -1,35 +1,26 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import DraggableFlatList from 'react-native-draggable-flatlist';
-import CircleItem from './CircleItem'; // Ensure the path is correct based on your project structure
+import React from 'react';
+import { ScrollView, StyleSheet } from 'react-native';
+import CircleItem from './CircleItem';
 
 const DraggableCircleGrid = ({ items }) => {
-  const [data, setData] = useState(items);
-
   return (
-    <View style={styles.container}>
-      <DraggableFlatList
-        data={data}
-        horizontal
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, drag, isActive }) => (
-          <CircleItem item={item} drag={drag} isActive={isActive} />
-        )}
-        onDragEnd={({ data }) => setData(data)}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
-      />
-    </View>
+    <ScrollView 
+      horizontal 
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.container}
+    >
+      {items.map((item) => (
+        <CircleItem key={item.id} item={item} />
+      ))}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    height: 140, // Adjust based on your content size
-  },
-  listContainer: {
+    flexDirection: 'row',
     paddingHorizontal: 10,
-    paddingVertical: 0,
+    paddingVertical: 10,
   },
 });
 

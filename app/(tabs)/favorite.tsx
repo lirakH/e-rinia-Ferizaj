@@ -51,7 +51,7 @@ export default function FavouriteScreen() {
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
       <CircleItem item={item} onRemove={fetchFavorites} />
-      <Text style={styles.itemName}>{item.name}</Text>
+      <Text style={styles.itemName}>{item.shortname}</Text>
     </View>
   );
 

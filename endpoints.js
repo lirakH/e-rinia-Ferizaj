@@ -600,3 +600,21 @@ export const uploadVolunteerProfilePicture = async (id, formData) => {
     throw error;
   }
 };
+
+// Add this to endpoints.js
+
+export const getApprovedEvents = async (page = 1, pageSize = 10) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}events/approved`, {
+      params: {
+        page,
+        pageSize,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching approved events:", error);
+    throw error;
+  }
+};
+

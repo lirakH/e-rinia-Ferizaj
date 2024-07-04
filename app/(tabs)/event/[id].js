@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { getEventById, getOrganizationById } from '@/endpoints'; // Adjust path as necessary
+import { getEventById, getOrganizationById } from '@/endpoints';
 import { MEDIA_BASE_URL } from '@/config';
+import { format } from 'date-fns';
 
 export default function Page() {
   const { id } = useLocalSearchParams();
@@ -34,6 +35,11 @@ export default function Page() {
     return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
   }
 
+  // Format the date
+  const formattedDate = eventDetails && eventDetails.date
+    ? `Data: ${format(new Date(eventDetails.date), 'dd MMM yyyy')}\nOra: ${format(new Date(eventDetails.date), 'HH:mm')}`
+    : 'Date not available';
+
   return (
     <>
       <Stack.Screen options={{ headerTitle: `Event ${id}` }} />
@@ -41,44 +47,42 @@ export default function Page() {
       {eventDetails ? (
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.imageContainer}>
-          <Image 
+            <Image 
               source={{ uri: `${MEDIA_BASE_URL}${eventDetails.picture}` }} 
               style={styles.image}
               onError={(e) => console.log('Event image load error:', e.nativeEvent.error)}
             />
             <View style={styles.titleContainer1}>
               <View style={styles.titleContainer}>
-              <Text style={styles.title}>{eventDetails.name}</Text>
-            </View>
+                <Text style={styles.title}>{eventDetails.name}</Text>
+              </View>
             </View>
           </View>
           <View style={styles.detailsContainer}>
-{/*            <View style={styles.shareContainer}>
-            <TouchableOpacity style={styles.shareButton}>
-              <Text style={{ color: '#fff' }}>Share</Text>
-            </TouchableOpacity>
-            </View> */}
             <View style={styles.dateContainer}>
               <View style={styles.IconContainer}>
                 <Ionicons name="calendar-outline" size={20} color="#fff" />
-                </View>
-                <View style={styles.infoContainer}>
-                <Text style={styles.NGOtitle}>Data:</Text>
-                <Text style={styles.date}>{eventDetails.date}</Text>
-                </View>
+              </View>
+              <View style={styles.infoContainer}>
+                <Text style={styles.date}>{formattedDate}</Text>
+              </View>
             </View>
             <View style={styles.locationContainer}>
-                <View style={styles.IconContainer}>
+              <View style={styles.IconContainer}>
                 <Ionicons name="location-outline" size={20} color="#fff" />
-                </View>
-                <View style={styles.infoContainer}>
+              </View>
+              <View style={styles.infoContainer}>
                 <Text style={styles.NGOtitle}>Lokacioni:</Text>
                 <Text style={styles.location}>{eventDetails.place}</Text>
-                </View>
+              </View>
             </View>
             {organization && (
               <View style={styles.organizationContainer}>
-                <Image source={{ uri: organization.picture || 'https://via.placeholder.com/100' }} style={styles.organizationImage} />
+                <Image 
+                  source={{ uri: `${MEDIA_BASE_URL}${organization.picture}` }} 
+                  style={styles.organizationImage} 
+                  onError={(e) => console.log('Organization image load error:', e.nativeEvent.error)}
+                />
                 <View style={styles.infoContainer}>
                   <Text style={styles.NGOtitle}>Event i organizuar nga:</Text>
                   <Text style={styles.ngoName}>{organization.name}</Text>
@@ -95,6 +99,9 @@ export default function Page() {
     </>
   );
 }
+
+// ... styles remain the same
+
 
 const styles = StyleSheet.create({
   container: {

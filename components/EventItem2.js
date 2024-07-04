@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MEDIA_BASE_URL } from '@/config';
+import { format } from 'date-fns';
 
 const EventItem2 = ({ event }) => {
   const router = useRouter();
@@ -9,6 +10,11 @@ const EventItem2 = ({ event }) => {
   const handleEventPress = () => {
     router.push(`/event/${event.id}?title=${event.title}`);
   };
+
+  // Format the date
+  const formattedDate = event.date 
+    ? `Data: ${format(new Date(event.date), 'dd-MM-yy')}    Ora: ${format(new Date(event.date), 'HH:mm')}`
+    : 'Date not available';
 
   return (
     <Pressable style={styles.eventCard} onPress={handleEventPress}>
@@ -19,7 +25,7 @@ const EventItem2 = ({ event }) => {
       />
       <View style={styles.eventDetails}>
         <Text style={styles.eventTitle}>{event.name}</Text>
-        <Text style={styles.eventDate}>{event.date}</Text>
+        <Text style={styles.eventDate}>{formattedDate}</Text>
         <Text style={styles.eventLocation}>{event.place}</Text>
       </View>
     </Pressable>
@@ -36,8 +42,8 @@ const styles = StyleSheet.create({
     width: 300,
     flexDirection: 'row',
     alignItems: 'center',
-    elevation: 2, // Add shadow on Android
-    shadowColor: '#000', // Add shadow on iOS
+    elevation: 2,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -57,12 +63,12 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   eventDate: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 13,
+    color: '#f00',
   },
   eventLocation: {
     fontSize: 14,
-    color: '#666',
+    color: '#000',
   },
 });
 
