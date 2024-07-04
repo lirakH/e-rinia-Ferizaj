@@ -1,7 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import jwtDecode from 'jwt-decode';
-import { API_BASE_URL } from '@/config';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { API_BASE_URL } from "@/config";
 
 // Helper function to get the auth token using AsyncStorage
 export const getAuthToken = async () => {
@@ -115,18 +115,17 @@ export const deleteAdmin = async (id) => {
 export const decodeToken = (token) => {
   try {
     if (!token) {
-      console.log('No token provided');
+      console.log("No token provided");
       return null;
     }
     const decoded = jwtDecode(token);
-    console.log('Decoded token:', decoded);
+    console.log("Decoded token:", decoded);
     return decoded.admin.id;
   } catch (error) {
-    console.error('Error decoding token:', error);
+    console.error("Error decoding token:", error);
     return null;
   }
 };
-
 
 export const decodeOrganizationToken = async () => {
   const token = await getAuthToken();
@@ -137,26 +136,21 @@ export const decodeOrganizationToken = async () => {
   return null;
 };
 
-
 export const decodeVolunteerToken = (token) => {
-  console.log('Decoding token:', token);
+  console.log("Decoding token:", token);
   try {
     if (!token) {
-      console.log('No token provided');
+      console.log("No token provided");
       return null;
     }
     const decoded = jwtDecode(token);
-    console.log('Decoded token:', decoded);
+    console.log("Decoded token:", decoded);
     return decoded.volunteer.id;
   } catch (error) {
-    console.error('Error decoding token:', error);
+    console.error("Error decoding token:", error);
     return null;
   }
 };
-
-
-
-
 
 export const verifyToken = async () => {
   const token = await getAuthToken();
@@ -219,7 +213,7 @@ export const getAllVolunteers = async () => {
 };
 
 export const getVolunteerById = async (id) => {
-  console.log('Fetching volunteer with ID:', id);
+  console.log("Fetching volunteer with ID:", id);
   try {
     const token = await getAuthToken();
     const response = await axios.get(`${API_BASE_URL}volunteer/${id}`, {
@@ -227,14 +221,13 @@ export const getVolunteerById = async (id) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log('Volunteer data response:', response.data);
+    console.log("Volunteer data response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching volunteer:", error);
     throw error;
   }
 };
-
 
 export const updateVolunteer = async (id, volunteerData) => {
   try {
@@ -452,15 +445,11 @@ export const uploadOrganizationPicture = async (id, formData) => {
 export const createEvent = async (eventData) => {
   try {
     const token = await getAuthToken();
-    const response = await axios.post(
-      `${API_BASE_URL}events`,
-      eventData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await axios.post(`${API_BASE_URL}events`, eventData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error creating event:", error);
@@ -617,4 +606,3 @@ export const getApprovedEvents = async (page = 1, pageSize = 10) => {
     throw error;
   }
 };
-
