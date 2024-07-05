@@ -22,22 +22,17 @@ This tutorial was used for the base code (it saved us time) because it was simil
 
 
 donwloads:
-npm install jwt-decode
-npm install @react-native-async-storage/async-storage
-npm install react-native-draggable-flatlist axios @react-native-async-storage/async-storage
 expo install expo-image-picker
+expo install expo-auth-session expo-google-auth-session
+npm install @react-native-community/datetimepicker
+npm install date-fns
+npm install @react-navigation/stack
+npx expo install @react-navigation/drawer react-native-gesture-handler react-native-reanimated
+npm install axios react-native-async-storage jwt-decode
+expo install expo-checkbox
+npm install react-native-draggable-flatlist
+npm install @react-native-async-storage/async-storage
 
 npm install react-native-share
-
 expo install expo-auth-session expo-auth-session/providers/facebook
-expo install expo-auth-session expo-google-auth-session
-expo install expo-checkbox
-npm install @react-native-community/datetimepicker
-
-
-npm install axios react-native-async-storage jwt-decode // <<-- nese se kemi
-
-
 npm install react-native-dotenv
-
-npm install date-fns
