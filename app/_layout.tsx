@@ -1,37 +1,226 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+// app/_layout.tsx
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { StyleSheet, TouchableOpacity, Text } from "react-native";
+import React, { useContext, useEffect } from "react";
+import { Drawer } from "expo-router/drawer";
+import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
+import {
+  Feather,
+  AntDesign,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
+import { router, usePathname } from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthProvider, AuthContext } from '@/AuthContext'; // Adjust this path as needed
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+const CustomDrawerContent = (props) => {
+  const pathname = usePathname();
+  const { userToken, logout, resetApp } = useContext(AuthContext);
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
+    console.log(pathname);
+  }, [pathname]);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
+    <DrawerContentScrollView {...props} contentContainerStyle={styles.drawerContentContainer}>
+      <DrawerItem
+        icon={({ color, size }) => (
+          <Feather
+           name="home" 
+           size={size} 
+           color={pathname === "/" ? "#fff" : "#000"}
+           />
+        )}
+        label={"Home"}
+        labelStyle={[
+          styles.navItemLabel,
+          { color: pathname === "/" ? "#fff" : "#000" },
+        ]}
+        style={{ backgroundColor: pathname === "/" ? "#0091F9" : "#fff" }}
+        onPress={() => {
+          router.push("/");
+        }}
+      />
+      <DrawerItem
+        icon={({ color, size }) => (
+          <Feather 
+            name="user" 
+            size={size} 
+            color={pathname === "/profile" ? "#fff" : "#000"}
+            />
+        )}
+        label={"Profili"}
+        labelStyle={[
+          styles.navItemLabel,
+          { color: pathname === "/profile" ? "#fff" : "#000" },
+        ]}
+        style={{ backgroundColor: pathname === "/profile" ? "#0091F9" : "#fff" }}
+        onPress={() => {
+          router.push("/profile");
+        }}
+      />
+      <DrawerItem
+        icon={({ color, size }) => (
+          <Feather
+            name="list"
+            size={size}
+            color={pathname === "/event" ? "#fff" : "#000"}
+          />
+        )}
+        label={"Aktivitet"}
+        labelStyle={[
+          styles.navItemLabel,
+          { color: pathname === "/event" ? "#fff" : "#000" },
+        ]}
+        style={{ backgroundColor: pathname === "/event" ? "#0091F9" : "#fff" }}
+        onPress={() => {
+          router.push("/event");
+        }}
+      />
+      <DrawerItem
+        icon={({ color, size }) => (
+          <MaterialCommunityIcons
+            name="hand-heart-outline"
+            size={size}
+            color={pathname === "/NGO" ? "#fff" : "#000"}
+          />
+        )}
+        label={"Organizatat"}
+        labelStyle={[
+          styles.navItemLabel,
+          { color: pathname === "/NGO" ? "#fff" : "#000" },
+        ]}
+        style={{ backgroundColor: pathname === "/NGO" ? "#0091F9" : "#fff" }}
+        onPress={() => {
+          router.push("/NGO");
+        }}
+      />
+      <DrawerItem
+        icon={({ color, size }) => (
+          <AntDesign 
+            name="Safety" 
+            size={size} 
+            color={pathname === "/safe" ? "#fff" : "#000"}
+            />
+        )}
+        label={"Safe Zona"}
+        labelStyle={[
+          styles.navItemLabel,
+          { color: pathname === "/safe" ? "#fff" : "#000" },
+        ]}
+        style={{ backgroundColor: pathname === "/safe" ? "#0091F9" : "#fff" }}
+        onPress={() => {
+          router.push("/safe");
+        }}
+      />
+      {userToken && (
+        <DrawerItem
+          icon={({ color, size }) => (
+            <Feather
+              name="log-out"
+              size={size}
+              color="#000"
+            />
+          )}
+          label={"Logout"}
+          labelStyle={[
+            styles.navItemLabel,
+            { color: "#000" },
+          ]}
+          style={{ backgroundColor: "#fff" }}
+          onPress={async () => {
+            await logout();
+            router.push('/');
+          }}
+        />
+      )}
+    </DrawerContentScrollView>
+  );
+};
+
+function RootLayoutNav() {
+  const { resetApp } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (__DEV__) {
+      resetApp();
+    }
+  }, []);
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Drawer 
+        drawerContent={(props) => <CustomDrawerContent {...props} />} 
+        screenOptions={{ 
+          headerTitle: () =>
+            <TouchableOpacity onPress={() => {router.push('/')}} style={{ paddingHorizontal: 20 }}>
+              <Text style={{ color:"#0091F9", fontSize:20, fontWeight:"500" }}>E-rinia</Text>
+            </TouchableOpacity>,
+          headerTintColor: "#0091F9",
+          headerTitleAlign: "center",
+          headerRight: () => 
+            <TouchableOpacity onPress={() => {router.push('profile')}} style={{ paddingHorizontal: 20 }}>
+              <Feather 
+                  name="user" 
+                  size={25} 
+                  color="#0091F9"
+                  />
+            </TouchableOpacity>
+        }}
+      >
+      </Drawer>
+    </GestureHandlerRootView>
   );
 }
+
+export default function Layout() {
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
+  );
+}
+
+const styles = StyleSheet.create({
+  drawerContentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    gap: 25
+  },
+  drawerItemsContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  navItemLabel: {
+    marginLeft: -20,
+    fontSize: 18,
+  },
+  navItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  userInfoWrapper: {
+    flexDirection: "row",
+    paddingHorizontal: 10,
+    paddingVertical: 20,
+    borderBottomColor: "#ccc",
+    borderBottomWidth: 1,
+    marginBottom: 10,
+  },
+  userImg: {
+    borderRadius: 40,
+  },
+  userDetailsWrapper: {
+    marginTop: 25,
+    marginLeft: 10,
+  },
+  userName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  userEmail: {
+    fontSize: 16,
+    fontStyle: 'italic',
+    textDecorationLine: 'underline',
+  },
+});
