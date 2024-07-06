@@ -14,12 +14,7 @@ exports.createEvent = async (req, res) => {
       approved: false,
       organizationId,
     });
-
-    broadcastEventNotification({
-      type: "new_event",
-      event,
-    });
-
+  
     res.status(201).json(event);
   } catch (error) {
     console.error(error);
@@ -85,7 +80,7 @@ exports.updateEvent = async (req, res) => {
         );
     }
 
-    const { name, picture, place, date, description, adminComment } = req.body;
+    const { name, picture, place, date, description, adminComment, approved } = req.body;
     await event.update({
       name,
       picture,
@@ -93,6 +88,7 @@ exports.updateEvent = async (req, res) => {
       date,
       description,
       adminComment,
+      approved: false,
     });
 
     res.json(event);
@@ -130,6 +126,11 @@ exports.approveEvent = async (req, res) => {
     const { id } = req.params;
 
     const event = await Event.findByPk(id);
+
+    broadcastEventNotification({
+      type: "new_event",
+      event,
+    });
 
     if (!event) {
       return res.status(404).send("Event not found.");
