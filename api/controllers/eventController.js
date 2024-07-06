@@ -1,5 +1,5 @@
 const { Event, Organization } = require("../models");
-const { broadcastEventNotification } = require("../index");
+const { broadcastEventNotification } = require("../websocketUtils");
 
 exports.createEvent = async (req, res) => {
   try {
@@ -252,7 +252,7 @@ exports.getApprovedEvents = async (req, res) => {
 
 // Get Not Approved Events
 exports.getNotApprovedEvents = async (req, res) => {
-  const { page =  1, pageSize = 10 } = req.query;
+  const { page = 1, pageSize = 10 } = req.query;
 
   const offset = (page - 1) * pageSize;
   const limit = parseInt(pageSize, 10);
@@ -281,4 +281,3 @@ exports.getNotApprovedEvents = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
-
