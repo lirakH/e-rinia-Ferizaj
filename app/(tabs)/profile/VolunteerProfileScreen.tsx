@@ -78,7 +78,7 @@ const VolunteerScreen = () => {
         });
 
         const updatedUser = await uploadVolunteerProfilePicture(userId, formData);
-        userData.profilePicture = updatedUser.imageUrl ? `${MEDIA_BASE_URL}${updatedUser.imageUrl}` : null;
+        userData.profilePicture = updatedUser.imageUrl ? `${updatedUser.imageUrl}` : null;
       } else if (isImageRemoved) {
         // If the image was removed, set profilePicture to null
         userData.profilePicture = null;

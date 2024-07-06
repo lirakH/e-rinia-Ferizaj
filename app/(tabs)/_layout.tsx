@@ -20,6 +20,7 @@ export default function TabLayout() {
     'event/AddEvent',
     'event/AproveEvent',    
     'event/index',
+    'event/UpdateEvent',
     'NGO/[id]',
     'NGO/AddNgo',
     'NGO/AddMembers',

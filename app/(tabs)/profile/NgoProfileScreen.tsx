@@ -53,7 +53,7 @@ const NGOScreen = () => {
           setNgoDetails(fetchedNGODetails);
           
           // Sort events by date (most recent first)
-          const sortedEvents = fetchedEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
+          const sortedEvents = fetchedEvents.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
           setEvents(sortedEvents);
         } catch (error) {
           console.error('Error fetching NGO details and events:', error);
@@ -71,7 +71,18 @@ const NGOScreen = () => {
   };
 
   const handleEditEvent = (eventId) => {
-    router.push(`event/EditEvent?id=${eventId}`);
+    router.push({
+      pathname: 'event/UpdateEvent',
+      params: { id: eventId },
+    });
+  };
+
+  const getApprovalStatus = (approved) => {
+    return approved ? 'Aprovuar' : 'Ne Pritje';
+  };
+
+  const getApprovalStatusColor = (approved) => {
+    return approved ? 'green' : 'red';
   };
 
   if (loading || isLoading) {
@@ -106,13 +117,18 @@ const NGOScreen = () => {
       {events.length > 0 ? (
         events.map((event) => (
           <View key={event.id} style={styles.eventContainer}>
-            <EventItem2 event={event} />
-            <TouchableOpacity 
-              style={styles.editButton} 
-              onPress={() => handleEditEvent(event.id)}
-            >
-              <FontAwesome name="edit" size={24} color="#007BFF" />
-            </TouchableOpacity>
+            <View style={styles.eventHeader}>
+              <EventItem2 event={event} />
+              <TouchableOpacity 
+                style={styles.editButton} 
+                onPress={() => handleEditEvent(event.id)}
+              >
+                <FontAwesome name="edit" size={24} color="#007BFF" />
+              </TouchableOpacity>
+            </View>
+            <Text style={[styles.eventStatus, { color: getApprovalStatusColor(event.approved) }]}>
+              {getApprovalStatus(event.approved)}
+            </Text>
           </View>
         ))
       ) : (
@@ -174,10 +190,18 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   eventContainer: {
+    marginBottom: 10,
+  },
+  eventHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+  },
+  eventStatus: {
+    textAlign: 'center',
+    fontSize: 14,
+    marginTop: 5,
+    marginBottom: 5,
   },
   editButton: {
     padding: 10,
