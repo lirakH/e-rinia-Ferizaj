@@ -1,4 +1,5 @@
-const { Event, Organization } = require("../models"); // Adjust the path as necessary
+const { Event, Organization } = require("../models");
+const { broadcastEventNotification } = require("../index");
 
 exports.createEvent = async (req, res) => {
   try {
@@ -12,6 +13,11 @@ exports.createEvent = async (req, res) => {
       description,
       approved: false,
       organizationId,
+    });
+
+    broadcastEventNotification({
+      type: "new_event",
+      event,
     });
 
     res.status(201).json(event);
@@ -111,6 +117,7 @@ exports.deleteEvent = async (req, res) => {
     }
 
     await event.destroy();
+
     res.send("Event deleted successfully");
   } catch (error) {
     console.error(error);
@@ -245,7 +252,7 @@ exports.getApprovedEvents = async (req, res) => {
 
 // Get Not Approved Events
 exports.getNotApprovedEvents = async (req, res) => {
-  const { page = 1, pageSize = 10 } = req.query;
+  const { page =  1, pageSize = 10 } = req.query;
 
   const offset = (page - 1) * pageSize;
   const limit = parseInt(pageSize, 10);
@@ -274,3 +281,4 @@ exports.getNotApprovedEvents = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+
