@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
+import { getEventById, approveEvent } from '@/endpoints';
+import { MEDIA_BASE_URL } from '@/config';
+import { AuthContext } from '@/AuthContext';
 
 const ApproveEvent = () => {
+  const { id } = useLocalSearchParams();
   const [eventDetails, setEventDetails] = useState({
     picture: '',
     name: '',
@@ -11,14 +16,48 @@ const ApproveEvent = () => {
     description: '',
     adminComment: ''
   });
+  const router = useRouter();
+  const { userRole } = useContext(AuthContext);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (userRole !== 'admin') {
+        Alert.alert('Access Denied', 'Only administrators can approve events.');
+        router.push('profile');
+      }
+    }, [userRole])
+  );
+
+  useEffect(() => {
+    const fetchEventDetails = async () => {
+      try {
+        const event = await getEventById(id);
+        setEventDetails({
+          ...event,
+          date: new Date(event.date),
+          adminComment: ''
+        });
+      } catch (error) {
+        console.error('Error fetching event details:', error);
+      }
+    };
+
+    fetchEventDetails();
+  }, [id]);
 
   const handleInputChange = (field, value) => {
     setEventDetails({ ...eventDetails, [field]: value });
   };
 
-  const handleApproveEvent = () => {
-    // Handle the logic to approve the event
-    console.log('Approved Event Details:', eventDetails);
+  const handleApproveEvent = async () => {
+    try {
+      await approveEvent(id);
+      alert('Event approved successfully');
+      router.back();
+    } catch (error) {
+      console.error('Error approving event:', error);
+      alert('Failed to approve event. Please try again.');
+    }
   };
 
   const handleRejectEvent = () => {
@@ -26,15 +65,19 @@ const ApproveEvent = () => {
     console.log('Rejected Event Details:', eventDetails);
   };
 
+  if (userRole !== 'admin') {
+    return null; // Render nothing while redirecting
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>Approve Event</Text>
       <View style={styles.inputContainer}>
         <View style={styles.imageContainer}>
           {eventDetails.picture ? (
-            <Image source={{ uri: eventDetails.picture }} style={styles.image} />
+            <Image source={{ uri: `${MEDIA_BASE_URL}${eventDetails.picture}` }} style={styles.image} />
           ) : (
-            <Text style={styles.imagePlaceholder}>Event Picture</Text>
+            <Text style={styles.imagePlaceholder}>No Event Picture</Text>
           )}
         </View>
         <TextInput
@@ -138,9 +181,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   image: {
-    width: 100,
+    width: 200,
     height: 100,
-    borderRadius: 50,
+    borderRadius: 15,
   },
   imagePlaceholder: {
     color: '#fff',

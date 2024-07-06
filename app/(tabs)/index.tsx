@@ -1,11 +1,14 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { ScrollView, StyleSheet, View, Text, ActivityIndicator, Image, TouchableOpacity, RefreshControl, Linking } from 'react-native';
+// app/(tabs)/index.tsx
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { ScrollView, StyleSheet, View, Text, ActivityIndicator, Image, TouchableOpacity, RefreshControl, Linking, BackHandler } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { AntDesign } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import EventList from "@/components/EventList";
 import DraggableCircleGrid from '@/components/DraggableCircleGrid';
 import { getAllOrganizations, getApprovedEvents } from '@/endpoints';
+
+const POLLING_INTERVAL = 30000; // 30 seconds
 
 const HomeScreen = () => {
   const [typeOneOrganizations, setTypeOneOrganizations] = useState([]);
@@ -42,12 +45,32 @@ const HomeScreen = () => {
       if (loading) {
         fetchData();
       }
-    }, [fetchData, loading])
+
+      const onBackPress = () => {
+        // Navigate to the previous screen
+        router.back();
+        return true;
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => {
+        BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      };
+    }, [fetchData, loading, router])
   );
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchData();
+    }, POLLING_INTERVAL);
+
+    return () => clearInterval(interval);
   }, [fetchData]);
 
   const handleSafePress = async () => {
@@ -65,7 +88,7 @@ const HomeScreen = () => {
       Alert.alert('Error', 'An error occurred while trying to open the app or store.');
     }
   };
-  
+
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
   }
@@ -119,7 +142,7 @@ const HomeScreen = () => {
         </Link>
       </View>
       <TouchableOpacity onPress={handleSafePress} style={styles.safeContainer}>
-        <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/en/thumb/a/ac/Kosovo-Police_logo.svg/1200px-Kosovo-Police_logo.svg.png' }} style={styles.logoPlaceholder} />
+        <Image source={require('@/assets/images/Kosovo-Police.png')} style={styles.logoPlaceholder} />
         <View style={styles.safeContent}>
           <Text style={styles.safeText}>Lajmro Policinë</Text>
           <Text style={styles.safeText2}>Instalo aplikacionin e Policisë</Text>
@@ -129,18 +152,22 @@ const HomeScreen = () => {
       <View style={styles.newSectionContent}>
         <Text style={styles.newSectionTitle}>Falenderim Donatorit</Text>
         <Text style={styles.newSectionDescription}>
-          Aplikacioni E-Rinia u realizua falë:
-          Projektit "Youth VOICE", projekt i realizuar nga organizata KUSA - Kosovo US Alumni dhe financuar nga Ambasada Amerikane në Kosovë
+          Aplikacioni u realizua në kuadër të projektit 
+          {"\n"}
+          "Angazhimi i të rinjve, një zë për ndikim"
+          </Text>
+        <Text style={styles.newSectionDescription2}>
+        Financuar nga Departamenti i Shtetit i Shteteve të Bashkuara të Amerikës përmes programit “AEIF2023”, mbështetur nga Ambasada
+        e SHBA-ve në Kosovë, administruar nga KUSA, dhe implementuar nga dy anëtarë të Alumni nga Ferizaj
+        dhe Drenas, në partneritet me OJQ "AdVOICE".
         </Text>
         <View style={styles.newSectionImages}>
-          <Image source={{ uri: 'https://d2v9ipibika81v.cloudfront.net/uploads/sites/133/Pristina_Seal-1.png' }} style={styles.logoPlaceholder2} />
-          <Image source={{ uri: 'https://kusalumni.org/wp-content/uploads/2022/07/Kusa-png-512x512_tinified.png' }} style={styles.logoPlaceholder2} />
+          <Image source={require('@/assets/images/Kusa Logo Transparent.png')} style={styles.logoPlaceholder2} />
         </View>
       </View>
     </ScrollView>
   );
 };
-
 
 const styles = StyleSheet.create({
   contentContainer: {
@@ -207,9 +234,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   logoPlaceholder2: {
-    width: 120,
-    height: 120,
-    margin: 15,
+    width: "100%",
+    height: 330,
     borderRadius: 10,
     resizeMode: 'contain',
   },
@@ -228,12 +254,18 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     paddingHorizontal: 10,
+    marginBottom: 20,
+  },
+  newSectionDescription2: {
+    flex: 1,
+    textAlign: 'center',
+    paddingHorizontal: 10,
+    marginBottom: 0,
   },
   newSectionImages: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
   }
 });
 

@@ -1,3 +1,4 @@
+// app/_layout.tsx
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, TouchableOpacity, Text } from "react-native";
 import React, { useContext, useEffect } from "react";

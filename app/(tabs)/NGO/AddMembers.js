@@ -1,22 +1,41 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-import { ScrollView, Text } from 'react-native';
-import { Link, useRouter } from 'expo-router';
+import React, { useEffect, useContext } from 'react';
+import { Image, StyleSheet, Platform, ScrollView, Text, Alert } from 'react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { AuthContext } from '@/AuthContext';
 
-export default function AdminScreen() {
+const AddMembers = () => {
+  const router = useRouter();
+  const { userRole } = useContext(AuthContext);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (userRole !== 'admin') {
+        Alert.alert('Access Denied', 'Only administrators can add members.');
+        router.push('profile');
+      }
+    }, [userRole])
+  );
+
+  if (userRole !== 'admin') {
+    return null; // Render nothing while redirecting
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
-      <Text> Add Member </Text>
+      <Text>Add Member</Text>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   contentContainer: {
-   flex:1,
-   justifyContent:'center',
-   alignItems:'center'
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  link:{
-    margin:10,
-  }
+  link: {
+    margin: 10,
+  },
 });
+
+export default AddMembers;

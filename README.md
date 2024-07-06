@@ -33,6 +33,9 @@ expo install expo-checkbox
 npm install react-native-draggable-flatlist
 npm install @react-native-async-storage/async-storage
 
+npm install react-native-gesture-handler
+
+
 npm install react-native-share
 expo install expo-auth-session expo-auth-session/providers/facebook
 npm install react-native-dotenv

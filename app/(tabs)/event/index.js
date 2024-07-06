@@ -1,9 +1,11 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, SectionList } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import EventList from "@/components/EventList";
 import EventList2 from "@/components/EventList2";
 import { getApprovedEvents, getOrganizationById } from '@/endpoints';
+
+const POLLING_INTERVAL = 30000; // 30 seconds
 
 const EventScreen = () => {
   const [events, setEvents] = useState([]);
@@ -42,7 +44,6 @@ const EventScreen = () => {
       setLoading(false);
     }
   }, []);
-  
 
   useFocusEffect(
     useCallback(() => {
@@ -54,6 +55,14 @@ const EventScreen = () => {
     }, [fetchEventsAndOrganizations])
   );
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchEventsAndOrganizations();
+    }, POLLING_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, [fetchEventsAndOrganizations]);
+
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
@@ -61,7 +70,6 @@ const EventScreen = () => {
       </View>
     );
   }
-
 
   const renderSectionHeader = ({ section }) => (
     <View style={styles.titleContainer}>

@@ -1,33 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, SectionList, ActivityIndicator, FlatList } from 'react-native';
 import CircleItem from '@/components/CircleItem';
 import { getAllOrganizations } from '@/endpoints'; // Adjust the path as necessary
+
+const POLLING_INTERVAL = 30000; // 30 seconds
 
 export default function NgoScreen() {
   const [sections, setSections] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchNGOs = async () => {
-      try {
-        const data = await getAllOrganizations();
-        const institutions = data.filter(item => item.type === 'Institution');
-        const ngos = data.filter(item => item.type === 'NGO');
-        
-        setSections([
-          { title: 'Institutions', data: institutions },
-          { title: 'NGOs', data: ngos }
-        ]);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchNGOs();
+  const fetchNGOs = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await getAllOrganizations();
+      const institutions = data.filter(item => item.type === 'Institution');
+      const ngos = data.filter(item => item.type === 'NGO');
+      
+      setSections([
+        { title: 'Institutions', data: institutions },
+        { title: 'NGOs', data: ngos }
+      ]);
+    } catch (err) {
+      console.error("Error fetching organizations:", err);
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchNGOs();
+    const interval = setInterval(() => {
+      fetchNGOs();
+    }, POLLING_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, [fetchNGOs]);
 
   if (isLoading) {
     return (

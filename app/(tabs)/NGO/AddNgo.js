@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { AuthContext } from '@/AuthContext';
 import { registerOrganization, uploadOrganizationPicture } from '@/endpoints';
@@ -19,20 +19,23 @@ const AddNgo = () => {
   const router = useRouter();
   const { userRole } = useContext(AuthContext);
 
-  useEffect(() => {
-    if (userRole !== 'admin') {
-      Alert.alert('Access Denied', 'Only administrators can add NGOs.');
-      router.replace('/');
-      return;
-    }
+  useFocusEffect(
+    React.useCallback(() => {
+      if (userRole !== 'admin') {
+        Alert.alert('Access Denied', 'Only administrators can add NGOs.');
+        router.push('profile');
+      }
+    }, [userRole])
+  );
 
+  useEffect(() => {
     (async () => {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert('Permission Denied', 'Sorry, we need camera roll permissions to upload images.');
       }
     })();
-  }, [userRole]);
+  }, []);
 
   const handleInputChange = (field, value) => {
     setNgoDetails({ ...ngoDetails, [field]: value });

@@ -606,3 +606,8 @@ export const getApprovedEvents = async (page = 1, pageSize = 10) => {
     throw error;
   }
 };
+
+export const getLatestUpdateTimestamp = async () => {
+  const response = await axios.get('/api/latest-update-timestamp');
+  return response.data.timestamp;
+};

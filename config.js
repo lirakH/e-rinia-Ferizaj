@@ -4,5 +4,6 @@
 // "http://192.168.1.47:4000"; //punë
 
 // config.js
-export const API_BASE_URL = 'http://192.168.178.131:4000/api/';
-export const MEDIA_BASE_URL = 'http://192.168.178.131:4000';
+
+export const MEDIA_BASE_URL = 'http://192.168.100.125:4000';
+export const API_BASE_URL = `${MEDIA_BASE_URL}/api/`;
