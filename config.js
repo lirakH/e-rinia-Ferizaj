@@ -5,5 +5,5 @@
 
 // config.js
 
-export const MEDIA_BASE_URL = 'http://192.168.100.125:4000';
+export const MEDIA_BASE_URL = 'http://192.168.178.131:4000';
 export const API_BASE_URL = `${MEDIA_BASE_URL}/api/`;

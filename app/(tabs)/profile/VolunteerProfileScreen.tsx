@@ -7,6 +7,7 @@ import { getLikedOrganizations, updateVolunteer, getVolunteerById, uploadVolunte
 import DraggableCircleGrid from '@/components/DraggableCircleGrid';
 import { AntDesign } from '@expo/vector-icons';
 import { AuthContext } from '@/AuthContext';
+import { MEDIA_BASE_URL } from '@/config';
 
 const VolunteerScreen = () => {
   const { userRole, isLoading, userId, logout } = useContext(AuthContext);
@@ -14,6 +15,8 @@ const VolunteerScreen = () => {
   const [favoriteNGOs, setFavoriteNGOs] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [tempProfilePicture, setTempProfilePicture] = useState(null); // Temporary state for profile picture
+  const [isImageRemoved, setIsImageRemoved] = useState(false); // State to track image removal
   const router = useRouter();
 
   useFocusEffect(
@@ -35,7 +38,12 @@ const VolunteerScreen = () => {
           setLoading(true);
           try {
             const userData = await getVolunteerById(userId);
-            setUserData(userData);
+            setUserData({
+              ...userData,
+              profilePicture: userData.profilePicture ? `${MEDIA_BASE_URL}${userData.profilePicture}` : null,
+            });
+            setTempProfilePicture(null);
+            setIsImageRemoved(false);
             await fetchFavoriteNGOs();
           } catch (error) {
             console.error('Error fetching user data:', error);
@@ -60,9 +68,32 @@ const VolunteerScreen = () => {
 
   const handleUpdate = async () => {
     try {
-      await updateVolunteer(userData.id, userData);
+      // If there's a new profile picture, upload it first
+      if (tempProfilePicture) {
+        const formData = new FormData();
+        formData.append('profilePicture', {
+          uri: tempProfilePicture,
+          type: 'image/jpeg',
+          name: 'profile_picture.jpg',
+        });
+
+        const updatedUser = await uploadVolunteerProfilePicture(userId, formData);
+        userData.profilePicture = updatedUser.imageUrl ? `${MEDIA_BASE_URL}${updatedUser.imageUrl}` : null;
+      } else if (isImageRemoved) {
+        // If the image was removed, set profilePicture to null
+        userData.profilePicture = null;
+      }
+
+      // Ensure the profile picture URL is relative before sending it to the server
+      const updatedUserData = {
+        ...userData,
+        profilePicture: userData.profilePicture ? userData.profilePicture.replace(MEDIA_BASE_URL, '') : null,
+      };
+
+      await updateVolunteer(userData.id, updatedUserData);
       alert('Profile updated successfully');
       setIsEditing(false);
+      console.log('Updated user data:', userData); // Log user data after update
     } catch (error) {
       console.error('Error updating profile:', error.response?.data || error.message);
       alert('Error updating profile. Please try again.');
@@ -78,22 +109,15 @@ const VolunteerScreen = () => {
     });
 
     if (!result.canceled && result.assets && result.assets[0].uri) {
-      try {
-        const formData = new FormData();
-        formData.append('profilePicture', {
-          uri: result.assets[0].uri,
-          type: 'image/jpeg',
-          name: 'profile_picture.jpg',
-        });
-
-        const updatedUser = await uploadVolunteerProfilePicture(userId, formData);
-        setUserData({ ...userData, profilePicture: updatedUser.profilePicture });
-        alert('Profile picture updated successfully');
-      } catch (error) {
-        console.error('Error uploading profile picture:', error);
-        alert('Error uploading profile picture. Please try again.');
-      }
+      setTempProfilePicture(result.assets[0].uri); // Set the temporary profile picture
+      setIsImageRemoved(false); // Reset image removal state
     }
+  };
+
+  const handleRemoveImage = () => {
+    setTempProfilePicture(null);
+    setUserData({ ...userData, profilePicture: null });
+    setIsImageRemoved(true); // Set image removal state
   };
 
   const handleLogout = async () => {
@@ -113,13 +137,31 @@ const VolunteerScreen = () => {
     <View style={styles.container}>
       <Text style={styles.header}>Profile Page</Text>
       <TouchableOpacity onPress={isEditing ? handlePickImage : undefined}>
-        <Image
-          source={userData.profilePicture ? { uri: userData.profilePicture } : require('@/assets/images/placeholder.png')}
-          style={styles.profileImage}
-        />
+        {tempProfilePicture ? (
+          <Image
+            source={{ uri: tempProfilePicture }}
+            style={styles.profileImage}
+            onError={(error) => console.error('Error loading image:', error)} // Log image loading errors
+          />
+        ) : userData.profilePicture ? (
+          <Image
+            source={{ uri: userData.profilePicture }}
+            style={styles.profileImage}
+            onError={(error) => console.error('Error loading image:', error)} // Log image loading errors
+          />
+        ) : (
+          <Image
+            source={require('@/assets/images/placeholder.png')}
+            style={styles.profileImage}
+            onError={(error) => console.error('Error loading placeholder image:', error)} // Log placeholder image loading errors
+          />
+        )}
       </TouchableOpacity>
       {isEditing ? (
         <>
+          <TouchableOpacity onPress={handleRemoveImage}>
+            <Text style={styles.removeImageText}>Remove Image</Text>
+          </TouchableOpacity>
           <TextInput
             style={styles.input}
             value={userData.name}
@@ -167,7 +209,7 @@ const VolunteerScreen = () => {
           }))}
         />
       ) : (
-        <Text>No liked NGOs yet.</Text>
+        <Text style={styles.noNGO} >No liked NGOs yet.</Text>
       )}
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -193,6 +235,10 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
+    marginBottom: 10,
+  },
+  removeImageText: {
+    color: 'red',
     marginBottom: 10,
   },
   userName: {
@@ -260,6 +306,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  noNGO: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 40,
+    marginTop: 40,
   },
 });
 

@@ -7,8 +7,8 @@ const Stack = createStackNavigator();
 
 const Safe = () => {
   const handlePress = async () => {
-    const appURL = 'myapp://'; // Replace with your app's deep link scheme
-    const storeURL = 'https://play.google.com/store/apps/details?id=org.nativescript.raportopolicin&hl=sq'; // Replace with your app's Google Play Store URL
+    const appURL =  'https://play.google.com/store/apps/details?id=org.nativescript.raportopolicin&hl=sq'; //'myapp://'; // Replace with your app's deep link scheme
+    const storeURL = 'https://play.google.com/store/apps/details?id=org.nativescript.raportopolicin&hl=sq';
 
     try {
       const supported = await Linking.canOpenURL(appURL);
