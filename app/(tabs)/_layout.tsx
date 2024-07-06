@@ -28,7 +28,7 @@ export default function TabLayout() {
     'profile/index',
     'profile/NgoProfileScreen',
     'profile/VolunteerProfileScreen',
-    'debug',
+    //'debug',
   ];
 
   return (
