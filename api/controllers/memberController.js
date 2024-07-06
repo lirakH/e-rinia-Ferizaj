@@ -3,7 +3,6 @@ const { Member, Organization } = require("../models");
 exports.createMember = async (req, res) => {
   try {
     const { name, position } = req.body;
-    // Use organizationId from the authenticated organization
     const organizationId = req.organization.id;
 
     const member = await Member.create({ name, position, organizationId });
@@ -67,7 +66,6 @@ exports.getMember = async (req, res) => {
 };
 exports.getAllMembers = async (req, res) => {
   try {
-    // Use organizationId from the authenticated organization
     const organizationId = req.organization.id;
 
     const members = await Member.findAll({
@@ -103,7 +101,6 @@ exports.getMembersByOrganizationId = async (req, res) => {
   try {
     const { organizationId } = req.params;
 
-    // Fetch the organization and check its type
     const organization = await Organization.findByPk(organizationId);
 
     if (!organization) {
@@ -118,7 +115,6 @@ exports.getMembersByOrganizationId = async (req, res) => {
         );
     }
 
-    // Fetch members associated with the organization
     const members = await Member.findAll({ where: { organizationId } });
 
     if (!members.length) {

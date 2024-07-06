@@ -25,7 +25,7 @@ exports.loginOrganization = async (req, res) => {
       organization: {
         id: organization.id,
         role: "organization",
-        type: organization.type, // Include the type in the token
+        type: organization.type,
       },
     };
 
@@ -39,10 +39,6 @@ exports.loginOrganization = async (req, res) => {
   }
 };
 
-// Authentication middleware
-// Assuming jwtSecret is defined at the top of the file
-// const jwtSecret = process.env.JWT_SECRET;
-
 exports.authorizeRole = (expectedRole) => (req, res, next) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
   //const token = req.header("Authorization");
@@ -52,16 +48,12 @@ exports.authorizeRole = (expectedRole) => (req, res, next) => {
   }
 
   try {
-    // Verify the token using the jwtSecret from the environment variable
     const decoded = jwt.verify(token, jwtSecret);
-    // Ensure that the user role in the token matches the expectedRole
     if (decoded.organization.role !== expectedRole) {
       return res
         .status(403)
         .send("Access denied. You do not have the right role.");
     }
-
-    // Attach the decoded token to the request object and call next middleware
     req.organization = decoded.organization;
     next();
   } catch (ex) {
@@ -84,14 +76,11 @@ exports.authMiddlewareOrganization = (req, res, next) => {
   }
 };
 
-// Other controller functions...
-
 exports.createOrganization = async (req, res) => {
   try {
     const { name, email, joinCode, picture, description, type, shortname } =
       req.body;
 
-    // Validate the type
     if (type !== "NGO" && type !== "Institution") {
       return res.status(400).send("Invalid organization type.");
     }
@@ -107,18 +96,17 @@ exports.createOrganization = async (req, res) => {
       picture,
       description,
       type,
-      shortname, // Include shortname in the creation
+      shortname,
     });
 
-    // Respond with the new organization data, but do not include sensitive info like joinCode
     return res.status(201).json({
       id: organization.id,
       name: organization.name,
       email: organization.email,
       picture: organization.picture,
       description: organization.description,
-      type, // Include the type in the response
-      shortname: organization.shortname, // Include shortname in the response
+      type,
+      shortname: organization.shortname,
     });
   } catch (error) {
     console.error(error);
@@ -128,7 +116,9 @@ exports.createOrganization = async (req, res) => {
 
 exports.getAllOrganizations = async (req, res) => {
   try {
-    const organizations = await Organization.findAll();
+    const organizations = await Organization.findAll({
+      attributes: { exclude: ["joinCode"] }, // Exclude passwords from the result
+    });
     return res.json(organizations);
   } catch (error) {
     console.error(error);
@@ -166,17 +156,23 @@ exports.updateOrganization = async (req, res) => {
       joinCode,
       picture,
       description,
-      shortname, // Include shortname in the update
+      shortname,
     };
 
     if (joinCode) {
-      // If joinCode is provided, hash it before updating
       updatedData.joinCode = await bcrypt.hash(joinCode, 10);
     }
 
     const updatedOrganization = await organization.update(updatedData);
 
-    return res.json(updatedOrganization);
+    return res.json({
+      id: organization.id,
+      name: organization.name,
+      email: organization.email,
+      picture: organization.picture,
+      description: organization.description,
+      shortname: organization.shortname,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).send("Server error");

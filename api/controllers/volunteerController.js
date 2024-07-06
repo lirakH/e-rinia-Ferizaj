@@ -104,33 +104,33 @@ exports.authMiddleware = (req, res, next) => {
 
 exports.register = async (req, res) => {
   try {
-    // Extract info from request body
     const { name, email, password } = req.body;
 
-    // Validate user input
     if (!(email && password && name)) {
       return res.status(400).send("All input is required");
     }
 
-    // Check if volunteer already exists
     const oldVolunteer = await Volunteer.findOne({ where: { email } });
 
     if (oldVolunteer) {
       return res.status(409).send("Volunteer Already Exists. Please Login");
     }
 
-    //Encrypt user password
     const encryptedPassword = await bcrypt.hash(password, 10);
 
-    // Create volunteer in database
     const volunteer = await Volunteer.create({
       name,
-      email: email.toLowerCase(), // convert email to lowercase
+      email: email.toLowerCase(),
       password: encryptedPassword,
     });
 
     // Return the new volunteer
-    res.status(201).json(volunteer);
+    res.status(201).json({
+      id: volunteer.id,
+      name: volunteer.name,
+      email: volunteer.email,
+      // Do not send the password back
+    });
   } catch (err) {
     console.log(err);
     res.status(500).send("Something went wrong");
@@ -140,8 +140,6 @@ exports.register = async (req, res) => {
 exports.getAllVolunteers = async (req, res) => {
   try {
     const volunteers = await Volunteer.findAll({
-      // Optionally, you can specify which attributes to include
-      // For security reasons, you might want to exclude the password field
       attributes: { exclude: ["password"] },
     });
     res.json(volunteers);
@@ -160,9 +158,9 @@ exports.authMiddleware = (req, res, next) => {
   }
   try {
     const decoded = jwt.verify(token, jwtSecret);
-    console.log("Decoded volunteer ID:", decoded.volunteer.id);
+    //console.log("Decoded volunteer ID:", decoded.volunteer.id);
     req.volunteer = decoded.volunteer;
-    console.log("Volunteer in middleware:", req.volunteer);
+    // console.log("Volunteer in middleware:", req.volunteer);
     next();
   } catch (err) {
     return res.status(401).json({ msg: "Token is not valid" });
@@ -182,8 +180,6 @@ exports.getVolunteer = async (req, res) => {
     return res.status(500).send("Server error");
   }
 };
-
-// In your routes file
 
 // Update a volunteer
 exports.updateVolunteer = async (req, res) => {
@@ -277,7 +273,6 @@ exports.unfavoriteOrganization = async (req, res) => {
 };
 
 exports.getLikedOrganizations = async (req, res) => {
-  //const volunteerId = req.volunteer.id; // Confirmed as '6' from your log
   const volunteerId = req.volunteer.id;
   console.log("Fetching organizations for volunteer ID:", volunteerId);
   try {
@@ -291,7 +286,6 @@ exports.getLikedOrganizations = async (req, res) => {
       ],
     });
 
-    // If you're aiming to return only the organizations, map over the results
     const organizations = favoriteOrganizations.map((fav) => fav.Organization);
 
     res.json(organizations);
@@ -300,9 +294,7 @@ exports.getLikedOrganizations = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
-// In your volunteer controller
 
-// Route to upload a profile picture
 exports.uploadProfilePicture = async (req, res) => {
   try {
     const volunteer = await Volunteer.findByPk(req.params.id);
@@ -322,5 +314,3 @@ exports.uploadProfilePicture = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
-
-// In your routes file

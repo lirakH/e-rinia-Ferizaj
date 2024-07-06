@@ -67,10 +67,9 @@ exports.getEvent = async (req, res) => {
 
 exports.updateEvent = async (req, res) => {
   try {
-    const { id } = req.params; // The event ID
-    const organizationId = req.organization.id; // Assuming this is set from the authMiddleware
+    const { id } = req.params;
+    const organizationId = req.organization.id;
 
-    // Find the event, and ensure it belongs to the requesting organization
     const event = await Event.findOne({ where: { id, organizationId } });
     if (!event) {
       return res
@@ -100,9 +99,8 @@ exports.updateEvent = async (req, res) => {
 exports.deleteEvent = async (req, res) => {
   try {
     const { id } = req.params;
-    const organizationId = req.organization.id; // Assuming this is set from the authMiddleware
+    const organizationId = req.organization.id;
 
-    // Find the event, and ensure it belongs to the requesting organization
     const event = await Event.findOne({ where: { id, organizationId } });
     if (!event) {
       return res
@@ -122,16 +120,14 @@ exports.deleteEvent = async (req, res) => {
 
 exports.approveEvent = async (req, res) => {
   try {
-    const { id } = req.params; // Assuming the event's ID is passed in the URL
+    const { id } = req.params;
 
-    // Fetch the event by ID
     const event = await Event.findByPk(id);
 
     if (!event) {
       return res.status(404).send("Event not found.");
     }
 
-    // Set the event as approved
     await event.update({ approved: true });
 
     return res.status(200).json(event);
@@ -144,12 +140,10 @@ exports.approveEvent = async (req, res) => {
 // Get Events by Organization Public
 exports.getEventsByOrganizationPublic = async (req, res) => {
   try {
-    // The organization's ID is retrieved from the URL parameters
     const { orgId } = req.params;
 
     const events = await Event.findAll({
       where: { organizationId: orgId },
-      // Optionally, include other related models or specify attributes if needed
     });
 
     res.json(events);
