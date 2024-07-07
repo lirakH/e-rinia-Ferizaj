@@ -9,11 +9,11 @@ wss.on("connection", (ws, req) => {
   const userId = req.url.split("?userId=")[1];
   if (userId) {
     connectedUsers.set(userId, ws);
-    //console.log(`User ${userId} connected`);
+    console.log(`User ${userId} connected`);
 
     ws.on("close", () => {
       connectedUsers.delete(userId);
-      //console.log(`User ${userId} disconnected`);
+      console.log(`User ${userId} disconnected`);
     });
   }
 
