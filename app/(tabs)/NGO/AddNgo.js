@@ -22,7 +22,7 @@ const AddNgo = () => {
   useFocusEffect(
     React.useCallback(() => {
       if (userRole !== 'admin') {
-        Alert.alert('Access Denied', 'Only administrators can add NGOs.');
+        //Alert.alert('Access Denied', 'Only administrators can add NGOs.');
         router.push('profile');
       }
     }, [userRole])

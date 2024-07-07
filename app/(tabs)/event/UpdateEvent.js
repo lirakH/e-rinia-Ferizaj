@@ -29,7 +29,7 @@ const UpdateEvent = () => {
 
   useEffect(() => {
     if (userRole !== 'organization') {
-      Alert.alert('Access Denied', 'Only organizations can update events.');
+      //Alert.alert('Access Denied', 'Only organizations can update events.');
       router.replace('/'); // or wherever you want to redirect non-organization users
       return;
     }

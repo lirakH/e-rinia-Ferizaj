@@ -30,7 +30,7 @@ const Safe = () => {
         Lajmëro Policinë për rastet kriminale apo problemet e sigurisë në aktivitetet publike!
       </Text>
       <TouchableOpacity onPress={handlePress} style={styles.safeContainer}>
-        <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/en/thumb/a/ac/Kosovo-Police_logo.svg/1200px-Kosovo-Police_logo.svg.png' }} style={styles.logo} />
+      <Image source={require('@/assets/images/Kosovo-Police.png')} style={styles.logo} />
           <Text style={styles.safeText}>Lajmro Policine</Text>
       </TouchableOpacity>
       <Text style={styles.placeholderText}>Rreth këtij aplikacioni.</Text>
@@ -38,7 +38,7 @@ const Safe = () => {
         Aplikimi do të përdoret nga qytetarët e Kosovës për të njoftuar policinë për krime të ndryshme. Qytetari ka të drejtë të mos i zbulojë informacionet e tij personale nëse nuk do të donte t'i zbulonte ato detaje. Për përdorim më të mirë kur të dërgohet një informacion në polici do të marrim gjithashtu IP të përdoruesit që dërgon informacionin. Qytetari mund të dërgojë gjithashtu vendndodhjen nga ku po raporton. Për më shumë detaje, ju lutemi referojuni dokumentacionit.
       </Text>
       <TouchableOpacity style={styles.storeButton} onPress={handlePress}>
-        <Image source={{ uri: 'https://getsby.com/wp-content/uploads/2023/06/google-play-badge.png' }} style={styles.storeImage} />
+      <Image source={require('@/assets/images/google-play.png')} style={styles.storeImage} />
       </TouchableOpacity>
     </ScrollView>
   );

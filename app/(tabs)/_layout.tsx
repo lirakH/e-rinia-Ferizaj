@@ -18,7 +18,7 @@ export default function TabLayout() {
     'auth/SignupScreen',
     'event/[id]',
     'event/AddEvent',
-    'event/AproveEvent',    
+    'event/ApproveEvent',    
     'event/index',
     'event/UpdateEvent',
     'NGO/[id]',
@@ -29,7 +29,7 @@ export default function TabLayout() {
     'profile/index',
     'profile/NgoProfileScreen',
     'profile/VolunteerProfileScreen',
-    //'debug',
+    'debug',
   ];
 
   return (

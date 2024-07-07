@@ -25,25 +25,30 @@ export const AuthProvider = ({ children }) => {
     const bootstrapAsync = async () => {
       try {
         const token = await AsyncStorage.getItem("userToken");
-        console.log("token" + token);
-        console.log("Decoded token:", jwtDecode(token));
-
-        const role = await AsyncStorage.getItem("userRole");
-        if (token && (await verifyToken(token))) {
-          setUserToken(token);
-          setUserRole(role);
-          const id = decodeUserId(token, role);
-          console.log("TESTINGGGGG HTIESS AUTHHHH" + id + userRole);
-          setUserId(id);
+        console.log("token", token);
+  
+        if (token && typeof token === 'string' && token.trim() !== '') {
+          console.log("Decoded token:", jwtDecode(token));
+  
+          const role = await AsyncStorage.getItem("userRole");
+          if (await verifyToken(token)) {
+            setUserToken(token);
+            setUserRole(role);
+            const id = decodeUserId(token, role);
+            console.log("TESTINGGGGG HTIESS AUTHHHH" + id + userRole);
+            setUserId(id);
+          }
+        } else {
+          console.log("No valid token found");
         }
       } catch (e) {
         console.error("Restoring token failed", e);
       }
       setIsLoading(false);
     };
-
+  
     bootstrapAsync();
-  }, []);
+  }, []);  
 
   const decodeUserId = (token, role) => {
     try {
@@ -129,6 +134,7 @@ export const AuthProvider = ({ children }) => {
         setUserToken(null);
         setUserRole(null);
         setUserId(null);
+        //Alert.alert('Success', 'You have been logged out.');
       } catch (error) {
         console.error("Logout error:", error);
       }

@@ -6,9 +6,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import EventList from "@/components/EventList";
 import DraggableCircleGrid from '@/components/DraggableCircleGrid';
 import { getAllOrganizations, getApprovedEvents } from '@/endpoints';
-import WebSocketComponent from '@/components/WebSocketComponent'; // Adjust the path as needed
-
-const POLLING_INTERVAL = 30000; // 30 seconds
+import WebSocketComponent from '@/components/WebSocketComponent';
 
 const HomeScreen = () => {
   const [typeOneOrganizations, setTypeOneOrganizations] = useState([]);
@@ -47,7 +45,6 @@ const HomeScreen = () => {
       }
 
       const onBackPress = () => {
-        // Navigate to the previous screen
         router.back();
         return true;
       };
@@ -65,16 +62,12 @@ const HomeScreen = () => {
     fetchData();
   }, [fetchData]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchData();
-    }, POLLING_INTERVAL);
-
-    return () => clearInterval(interval);
-  }, [fetchData]);
+  const handleNewEvent = useCallback((newEvent) => {
+    setEvents(prevEvents => [newEvent, ...prevEvents]);
+  }, []);
 
   const handleSafePress = async () => {
-    const appURL =  'https://play.google.com/store/apps/details?id=org.nativescript.raportopolicin&hl=sq'; //'myapp://'; // Replace with app's deep link scheme
+    const appURL = 'https://play.google.com/store/apps/details?id=org.nativescript.raportopolicin&hl=sq';
     const storeURL = 'https://play.google.com/store/apps/details?id=org.nativescript.raportopolicin&hl=sq';
 
     try {
@@ -101,7 +94,7 @@ const HomeScreen = () => {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      <WebSocketComponent />
+      <WebSocketComponent onNewEvent={handleNewEvent} />
       <View style={styles.titleContainer}>
         <Text style={styles.titleContainerTitle}>Aktivitetet e reja</Text>
         <Link href="/event" style={styles.link}>
@@ -158,7 +151,7 @@ const HomeScreen = () => {
           "Angazhimi i të rinjve, një zë për ndikim"
           </Text>
         <Text style={styles.newSectionDescription2}>
-        Financuar nga Departamenti i Shtetit i Shteteve të Bashkuara të Amerikës përmes programit “AEIF2023”, mbështetur nga Ambasada
+        Financuar nga Departamenti i Shtetit i Shteteve të Bashkuara të Amerikës përmes programit "AEIF2023", mbështetur nga Ambasada
         e SHBA-ve në Kosovë, administruar nga KUSA, dhe implementuar nga dy anëtarë të Alumni nga Ferizaj
         dhe Drenas, në partneritet me OJQ "AdVOICE".
         </Text>

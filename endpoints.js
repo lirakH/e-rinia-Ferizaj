@@ -461,17 +461,21 @@ export const createEvent = async (eventData) => {
 export const updateEvent = async (id, eventData) => {
   try {
     const token = await getAuthToken();
+    console.log('Updating event with ID:', id);
+    console.log('Event data being sent:', eventData);
     const response = await axios.put(`${API_BASE_URL}events/${id}`, eventData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log('Server response:', response.data);
     return response.data;
   } catch (error) {
-    console.error("Error updating event:", error);
+    console.error("Error updating event:", error.response?.data || error.message);
     throw error;
   }
 };
+
 
 // Delete Event
 export const deleteEvent = async (id) => {
@@ -528,13 +532,20 @@ export const getAllEvents = async (page = 1, pageSize = 10) => {
 // Get Event by ID
 export const getEventById = async (id) => {
   try {
+    console.log(`Fetching event with ID: ${id}`);
     const response = await axios.get(`${API_BASE_URL}events/${id}`);
+    console.log('Event data received:', response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching event:", error);
+    console.error("Error fetching event:", error.response?.data || error.message);
+    if (error.response?.status === 404) {
+      console.log(`Event with ID ${id} not found`);
+      return null; // or you could throw a custom error
+    }
     throw error;
   }
 };
+
 
 // Get Events by Organization ID
 export const getEventsByOrganization = async (orgId) => {

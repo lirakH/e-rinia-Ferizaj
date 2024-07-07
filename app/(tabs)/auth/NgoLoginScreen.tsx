@@ -16,10 +16,10 @@ const NgoLoginScreen = () => {
     try {
       if (ngoName.toLowerCase() === 'admin') {
         await loginAdmin(credentials);
-        Alert.alert('Success', 'Logged in as admin');
+        //Alert.alert('Success', 'Logged in as admin');
       } else {
         await loginOrganization(credentials);
-        Alert.alert('Success', 'Logged in as NGO');
+        //Alert.alert('Success', 'Logged in as NGO');
       }
       setEmail('');
       setNgoCode('');

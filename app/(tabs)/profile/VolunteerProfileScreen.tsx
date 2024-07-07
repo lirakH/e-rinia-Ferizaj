@@ -122,7 +122,7 @@ const VolunteerScreen = () => {
 
   const handleLogout = async () => {
     await logout();
-    router.push('auth/LoginScreen');
+    router.push('/');
   };
 
   if (loading || isLoading) {
