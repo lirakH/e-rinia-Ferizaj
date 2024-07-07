@@ -22,6 +22,7 @@ const AddEvent = () => {
 
   useEffect(() => {
     if (userRole !== 'organization') {
+      //Alert.alert('Access Denied', 'Only organizations can add events.');
       router.replace('/'); // or wherever you want to redirect non-organization users
       return;
     }
