@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Alert } from 'react-native';
 import useWebSocket from '@/useWebSocket'; // Adjust the path as needed
 
-const WebSocketComponent = () => {
+const WebSocketComponent = ({ userId }) => {
   const handleWebSocketMessage = (message) => {
     if (message.type === 'new_event') {
       Alert.alert(
@@ -12,7 +12,7 @@ const WebSocketComponent = () => {
     }
   };
 
-  useWebSocket(handleWebSocketMessage);
+  useWebSocket(userId, handleWebSocketMessage);
 
   return null; // No need to render anything
 };

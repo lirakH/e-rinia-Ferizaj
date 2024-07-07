@@ -1,15 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { MEDIA_BASE_URL } from '@/config'; // Adjust the path as needed
 
-const useWebSocket = (onMessage) => {
+const useWebSocket = (userId, onMessage) => {
   const ws = useRef(null);
 
   useEffect(() => {
-    const wsUrl = `${MEDIA_BASE_URL.replace('http', 'ws')}`;
+    const wsUrl = `${MEDIA_BASE_URL.replace('http', 'ws')}?userId=${userId}`;
     ws.current = new WebSocket(wsUrl);
 
     ws.current.onopen = () => {
-      console.log('WebSocket connection opened');
+      //console.log('WebSocket connection opened');
     };
 
     ws.current.onmessage = (event) => {
@@ -21,7 +21,7 @@ const useWebSocket = (onMessage) => {
     };
 
     ws.current.onclose = () => {
-      console.log('WebSocket connection closed');
+      //console.log('WebSocket connection closed');
     };
 
     ws.current.onerror = (error) => {
@@ -33,7 +33,7 @@ const useWebSocket = (onMessage) => {
         ws.current.close();
       }
     };
-  }, [onMessage]);
+  }, [userId, onMessage]);
 
   return ws.current;
 };
