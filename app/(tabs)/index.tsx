@@ -1,12 +1,12 @@
-// app/(tabs)/index.tsx
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { ScrollView, StyleSheet, View, Text, ActivityIndicator, Image, TouchableOpacity, RefreshControl, Linking, BackHandler } from 'react-native';
+import { ScrollView, StyleSheet, View, Text, ActivityIndicator, Image, TouchableOpacity, RefreshControl, Linking, BackHandler, Alert } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { AntDesign } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import EventList from "@/components/EventList";
 import DraggableCircleGrid from '@/components/DraggableCircleGrid';
 import { getAllOrganizations, getApprovedEvents } from '@/endpoints';
+import WebSocketComponent from '@/components/WebSocketComponent'; // Adjust the path as needed
 
 const POLLING_INTERVAL = 30000; // 30 seconds
 
@@ -101,10 +101,11 @@ const HomeScreen = () => {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
+      <WebSocketComponent />
       <View style={styles.titleContainer}>
         <Text style={styles.titleContainerTitle}>Aktivitetet e reja</Text>
         <Link href="/event" style={styles.link}>
-          See All
+          <Text>See All</Text>
           <AntDesign name="caretright" size={12} color="#555" />
         </Link>
       </View>
@@ -113,7 +114,7 @@ const HomeScreen = () => {
       <View style={styles.titleContainer}>
         <Text style={styles.titleContainerTitle}>Institucionet</Text>
         <Link href="/NGO" style={styles.link}>
-          See All
+          <Text>See All</Text>
           <AntDesign name="caretright" size={12} color="#555" />
         </Link>
       </View>
@@ -125,7 +126,7 @@ const HomeScreen = () => {
       <View style={styles.titleContainer}>
         <Text style={styles.titleContainerTitle}>Organizatat</Text>
         <Link href="/NGO" style={styles.link}>
-          See All
+          <Text>See All</Text>
           <AntDesign name="caretright" size={12} color="#555" />
         </Link>
       </View>
@@ -137,7 +138,7 @@ const HomeScreen = () => {
       <View style={styles.titleContainer2}>
         <Text style={styles.titleContainerTitle}>Safe Zona</Text>
         <Link href="/safe" style={styles.link}>
-          See All
+          <Text>See All</Text>
           <AntDesign name="caretright" size={12} color="#555" />
         </Link>
       </View>
