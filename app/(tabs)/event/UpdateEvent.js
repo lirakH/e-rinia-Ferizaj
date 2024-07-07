@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { getEventById, updateEvent, uploadEventPicture } from '@/endpoints';
@@ -19,9 +19,11 @@ const UpdateEvent = () => {
     date: new Date(),
     place: '',
     description: '',
+    adminComment: '',
   });
 
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const router = useRouter();
   const { userRole } = useContext(AuthContext);
 
@@ -51,6 +53,7 @@ const UpdateEvent = () => {
           date: new Date(eventData.date),
           place: eventData.place,
           description: eventData.description,
+          adminComment: eventData.adminComment || '',
         });
       } catch (error) {
         console.error('Error fetching event data:', error);
@@ -94,7 +97,7 @@ const UpdateEvent = () => {
         date: eventDetails.date.toISOString(),
         place: eventDetails.place,
         description: eventDetails.description,
-        approved: 0, // Set approved to false when updating the event
+        approved: 0, // Set approved to 0 when updating the event
       };
 
       console.log('Sending event data:', eventData);
@@ -135,9 +138,25 @@ const UpdateEvent = () => {
   };
 
   const handleDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || eventDetails.date;
-    setShowDatePicker(false);
-    setEventDetails({ ...eventDetails, date: currentDate });
+    if (selectedDate) {
+      setEventDetails({ ...eventDetails, date: selectedDate });
+      if (Platform.OS === 'android') {
+        setShowDatePicker(false);
+        setShowTimePicker(true);
+      }
+    } else {
+      setShowDatePicker(false);
+    }
+  };
+
+  const handleTimeChange = (event, selectedTime) => {
+    if (selectedTime) {
+      const currentDate = new Date(eventDetails.date);
+      currentDate.setHours(selectedTime.getHours());
+      currentDate.setMinutes(selectedTime.getMinutes());
+      setEventDetails({ ...eventDetails, date: currentDate });
+    }
+    setShowTimePicker(false);
   };
 
   if (userRole !== 'organization') {
@@ -164,14 +183,22 @@ const UpdateEvent = () => {
           onChangeText={(value) => handleInputChange('name', value)}
         />
         <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.dateInput}>
-          <Text style={styles.dateText}>{eventDetails.date.toDateString()}</Text>
+          <Text style={styles.dateText}>{eventDetails.date.toLocaleString()}</Text>
         </TouchableOpacity>
         {showDatePicker && (
           <DateTimePicker
             value={eventDetails.date}
-            mode="date"
-            display="default"
+            mode="date" // Set mode to "date" for date selection
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
             onChange={handleDateChange}
+          />
+        )}
+        {showTimePicker && (
+          <DateTimePicker
+            value={eventDetails.date}
+            mode="time" // Set mode to "time" for time selection
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={handleTimeChange}
           />
         )}
         <TextInput
@@ -187,6 +214,17 @@ const UpdateEvent = () => {
           onChangeText={(value) => handleInputChange('description', value)}
           multiline={true}
         />
+        <View style={styles.readOnlyInputContainer}>
+          <ScrollView nestedScrollEnabled={true}>
+            <TextInput
+              style={[styles.input, styles.readOnlyInput]}
+              placeholder="Admin Comment"
+              value={eventDetails.adminComment}
+              editable={false}
+              multiline={true}
+            />
+          </ScrollView>
+        </View>
         <TouchableOpacity style={styles.button} onPress={handleUpdateEvent}>
           <Text style={styles.buttonText}>Update Event</Text>
         </TouchableOpacity>
@@ -220,6 +258,19 @@ const styles = StyleSheet.create({
   },
   textArea: {
     height: 100,
+  },
+  readOnlyInputContainer: {
+    maxHeight: 100, // Adjust max height as needed
+    marginBottom: 15,
+    backgroundColor: '#f0f0f0',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+  },
+  readOnlyInput: {
+    backgroundColor: '#f0f0f0',
+    textAlignVertical: 'top', // Align text to the top
+    borderWidth: 0,
   },
   button: {
     backgroundColor: '#007BFF',

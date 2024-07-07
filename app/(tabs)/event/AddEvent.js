@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { createEvent, uploadEventPicture } from '@/endpoints';
@@ -16,6 +16,7 @@ const AddEvent = () => {
   });
 
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const router = useRouter();
   const { userRole } = useContext(AuthContext);
 
@@ -105,9 +106,25 @@ const AddEvent = () => {
   };
 
   const handleDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || eventDetails.date;
-    setShowDatePicker(false);
-    setEventDetails({ ...eventDetails, date: currentDate });
+    if (selectedDate) {
+      setEventDetails({ ...eventDetails, date: selectedDate });
+      if (Platform.OS === 'android') {
+        setShowDatePicker(false);
+        setShowTimePicker(true);
+      }
+    } else {
+      setShowDatePicker(false);
+    }
+  };
+
+  const handleTimeChange = (event, selectedTime) => {
+    if (selectedTime) {
+      const currentDate = new Date(eventDetails.date);
+      currentDate.setHours(selectedTime.getHours());
+      currentDate.setMinutes(selectedTime.getMinutes());
+      setEventDetails({ ...eventDetails, date: currentDate });
+    }
+    setShowTimePicker(false);
   };
 
   if (userRole !== 'organization') {
@@ -134,14 +151,22 @@ const AddEvent = () => {
           onChangeText={(value) => handleInputChange('name', value)}
         />
         <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.dateInput}>
-          <Text style={styles.dateText}>{eventDetails.date.toDateString()}</Text>
+          <Text style={styles.dateText}>{eventDetails.date.toLocaleString()}</Text>
         </TouchableOpacity>
         {showDatePicker && (
           <DateTimePicker
             value={eventDetails.date}
-            mode="date"
-            display="default"
+            mode="date" // Set mode to "date" for date selection
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
             onChange={handleDateChange}
+          />
+        )}
+        {showTimePicker && (
+          <DateTimePicker
+            value={eventDetails.date}
+            mode="time" // Set mode to "time" for time selection
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={handleTimeChange}
           />
         )}
         <TextInput
@@ -164,7 +189,6 @@ const AddEvent = () => {
     </ScrollView>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {

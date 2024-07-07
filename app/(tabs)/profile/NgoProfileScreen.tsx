@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { getOrganizationById, getEventsByOrganization, decodeOrganizationToken } from '@/endpoints';
 import EventItem2 from '@/components/EventItem2';
@@ -8,7 +8,7 @@ import { MEDIA_BASE_URL } from '@/config';
 import { AuthContext } from '@/AuthContext';
 
 const NGOScreen = () => {
-  const { userRole, isLoading } = useContext(AuthContext);
+  const { userRole, isLoading, logout } = useContext(AuthContext);
   const [ngoDetails, setNgoDetails] = useState(null);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,6 +18,8 @@ const NGOScreen = () => {
   useFocusEffect(
     React.useCallback(() => {
       console.log('Checking user role and loading state...');
+      console.log('userRole:', userRole);
+      console.log('isLoading:', isLoading);
       if (!isLoading) {
         if (userRole !== 'organization' || userRole === null) {
           console.log('Redirecting to index due to invalid role or null role...');
@@ -31,6 +33,7 @@ const NGOScreen = () => {
     const fetchOrganizationId = async () => {
       try {
         const id = await decodeOrganizationToken();
+        console.log('Decoded organization ID:', id);
         setOrganizationId(id);
       } catch (error) {
         console.error('Error decoding organization token:', error);
@@ -42,7 +45,10 @@ const NGOScreen = () => {
   useFocusEffect(
     React.useCallback(() => {
       const fetchData = async () => {
-        if (!organizationId) return;
+        if (!organizationId) {
+          console.log('No organization ID found, skipping fetch.');
+          return;
+        }
         setLoading(true);
         try {
           const [fetchedNGODetails, fetchedEvents] = await Promise.all([
@@ -85,6 +91,17 @@ const NGOScreen = () => {
     return approved ? 'green' : 'red';
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      Alert.alert('Logged out', 'You have been logged out successfully.');
+      router.push('auth/LoginScreen');
+    } catch (error) {
+      console.error('Error logging out:', error);
+      Alert.alert('Error', 'Failed to log out. Please try again.');
+    }
+  };
+
   if (loading || isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -95,21 +112,22 @@ const NGOScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>NGO Profile</Text>
-
       {ngoDetails && (
         <View style={styles.ngoDetailsContainer}>
           <Image 
             source={{ uri: `${MEDIA_BASE_URL}${ngoDetails.picture}` }} 
             style={styles.logo} 
           />
-          <Text style={styles.ngoName}>{ngoDetails.name}</Text>
+          <Text style={styles.ngoName}>{ngoDetails.shortname}</Text>
           <Text style={styles.ngoDescription}>{ngoDetails.description}</Text>
         </View>
       )}
 
       <TouchableOpacity style={styles.addButton} onPress={handleAddEvent}>
         <Text style={styles.buttonText}>Add Event</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.buttonText}>Log Out</Text>
       </TouchableOpacity>
 
       <Text style={styles.eventsTitle}>Events</Text>
@@ -134,6 +152,7 @@ const NGOScreen = () => {
       ) : (
         <Text style={styles.noEventsText}>No events at the moment</Text>
       )}
+
     </ScrollView>
   );
 };
@@ -185,6 +204,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   eventsTitle: {
+    textAlign: 'center',
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
@@ -210,6 +230,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#666',
     marginTop: 20,
+  },
+  logoutButton: {
+    backgroundColor: '#FF0000',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 0,
+    marginBottom: 20,
   },
 });
 
