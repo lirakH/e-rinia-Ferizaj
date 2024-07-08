@@ -88,7 +88,12 @@ router.put(
   authorizeRoleAdmin("admin"),
   adminUpdateEvent
 );
-router.put("/:id", allowAdminOrOrganization, updateEvent);
+router.put(
+  "/:id",
+  authMiddlewareOrganization,
+  authorizeRoleOrganization("organization"),
+  updateEvent
+);
 
 router.delete("/:id", allowAdminOrOrganization, deleteEvent);
 
