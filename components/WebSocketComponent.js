@@ -1,20 +1,33 @@
-import React, { useEffect } from 'react';
-import { Alert } from 'react-native';
-import useWebSocket from '@/useWebSocket'; // Adjust the path as needed
+import React, { useEffect, useRef } from 'react';
+import { MEDIA_BASE_URL } from '@/config';
 
-const WebSocketComponent = () => {
-  const handleWebSocketMessage = (message) => {
-    if (message.type === 'new_event') {
-      Alert.alert(
-        'New Event Notification',
-        `Event: ${message.event.name}\nDescription: ${message.event.description}`
-      );
-    }
-  };
+const WebSocketComponent = ({ onNewEvent }) => {
+  const ws = useRef(null);
 
-  useWebSocket(handleWebSocketMessage);
+  useEffect(() => {
+    // Convert http:// to ws:// or https:// to wss://
+    const wsUrl = MEDIA_BASE_URL.replace(/^http/, 'ws') + '/ws';
+    ws.current = new WebSocket(wsUrl);
 
-  return null; // No need to render anything
+    ws.current.onopen = () => {
+      console.log('WebSocket Connected');
+    };
+
+    ws.current.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'new_event') {
+        onNewEvent(data.event);
+      }
+    };
+
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, [onNewEvent]);
+
+  return null;
 };
 
 export default WebSocketComponent;

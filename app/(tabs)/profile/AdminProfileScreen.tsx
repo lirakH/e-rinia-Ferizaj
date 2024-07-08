@@ -6,7 +6,7 @@ import EventItem2 from '@/components/EventItem2';
 import { AuthContext } from '@/AuthContext';
 
 const AdminScreen = () => {
-  const { userRole, isLoading } = useContext(AuthContext);
+  const { userRole, isLoading, logout } = useContext(AuthContext);
   const [nonApprovedEvents, setNonApprovedEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -50,10 +50,20 @@ const AdminScreen = () => {
     }, [])
   );
 
-  const handleApproveEvent = (eventId) => {
-    router.push(`event/ApproveEvent?id=${eventId}`);
+  const handleAddNGO = () => {
+    router.push('NGO/AddNgo');
   };
 
+  const handleLogout = async () => {
+    await logout();
+    router.push('/');
+  };
+
+  const handleApproveEvent = (eventId) => {
+    console.log('Navigating to ApproveEvent with id:', eventId);
+    router.push(`/event/ApproveEvent?id=${eventId}`);
+  };
+  
   if (loading || isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -73,6 +83,12 @@ const AdminScreen = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Admin Dashboard</Text>
+      <TouchableOpacity style={styles.addButton} onPress={handleAddNGO}>
+        <Text style={styles.buttonText}>Add NGO</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.buttonText}>Logout</Text>
+      </TouchableOpacity>
       <Text style={styles.subtitle}>Non-Approved Events</Text>
 
       {nonApprovedEvents.length > 0 ? (
@@ -83,7 +99,7 @@ const AdminScreen = () => {
               style={styles.approveButton} 
               onPress={() => handleApproveEvent(event.id)}
             >
-              <Text style={styles.approveButtonText}>Approve</Text>
+              <Text style={styles.approveButtonText}>Approve / Reject</Text>
             </TouchableOpacity>
           </View>
         ))
@@ -116,7 +132,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   eventContainer: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
@@ -142,6 +158,25 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: 'red',
+  },
+  addButton: {
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  logoutButton: {
+    backgroundColor: '#ff0000',
+    padding: 10,
+    borderRadius: 5,
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });
 

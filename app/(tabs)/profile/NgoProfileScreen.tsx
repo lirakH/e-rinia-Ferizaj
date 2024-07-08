@@ -94,11 +94,11 @@ const NGOScreen = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      Alert.alert('Logged out', 'You have been logged out successfully.');
-      router.push('auth/LoginScreen');
+      //Alert.alert('Logged out', 'You have been logged out successfully.');
+      router.push('/');
     } catch (error) {
       console.error('Error logging out:', error);
-      Alert.alert('Error', 'Failed to log out. Please try again.');
+      //Alert.alert('Error', 'Failed to log out. Please try again.');
     }
   };
 

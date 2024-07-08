@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
-import { getEventById, approveEvent } from '@/endpoints';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { getEventById, approveEvent, updateEvent } from '@/endpoints';
 import { MEDIA_BASE_URL } from '@/config';
 import { AuthContext } from '@/AuthContext';
 
 const ApproveEvent = () => {
+  const router = useRouter();
+  const { userRole } = useContext(AuthContext);
   const { id } = useLocalSearchParams();
   const [eventDetails, setEventDetails] = useState({
     picture: '',
@@ -14,28 +15,29 @@ const ApproveEvent = () => {
     date: new Date(),
     place: '',
     description: '',
-    adminComment: ''
+    adminComment: '',
+    organizationId: null
   });
-  const router = useRouter();
-  const { userRole } = useContext(AuthContext);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      if (userRole !== 'admin') {
-        Alert.alert('Access Denied', 'Only administrators can approve events.');
-        router.push('profile');
-      }
-    }, [userRole])
-  );
 
   useEffect(() => {
     const fetchEventDetails = async () => {
+      if (!id) {
+        console.log('No id provided');
+        return;
+      }
       try {
+        console.log('Attempting to fetch event details for id:', id);
         const event = await getEventById(id);
+        console.log('Received event details:', event);
+        if (!event) {
+          console.log('Event not found for id:', id);
+          return;
+        }
         setEventDetails({
           ...event,
           date: new Date(event.date),
-          adminComment: ''
+          adminComment: event.adminComment || '',
+          organizationId: event.organizationId
         });
       } catch (error) {
         console.error('Error fetching event details:', error);
@@ -52,21 +54,40 @@ const ApproveEvent = () => {
   const handleApproveEvent = async () => {
     try {
       await approveEvent(id);
-      alert('Event approved successfully');
-      router.back();
+      Alert.alert('Success', 'Event approved successfully', [
+        { text: 'OK', onPress: () => router.back() }
+      ]);
     } catch (error) {
       console.error('Error approving event:', error);
-      alert('Failed to approve event. Please try again.');
+      Alert.alert('Error', 'Failed to approve event. Please try again.');
     }
   };
 
-  const handleRejectEvent = () => {
-    // Handle the logic to reject the event
-    console.log('Rejected Event Details:', eventDetails);
+  const handleRejectEvent = async () => {
+    if (!eventDetails.adminComment || eventDetails.adminComment.trim() === '') {
+      Alert.alert('Error', 'Please provide a reason for rejection in the admin comment.');
+      return;
+    }
+  
+    try {
+      await updateEvent(id, {
+        adminComment: eventDetails.adminComment,
+        approved: false,
+        organizationId: eventDetails.organizationId // Include this line
+      });
+      Alert.alert('Success', 'Event rejected successfully', [
+        { text: 'OK', onPress: () => router.back() }
+      ]);
+    } catch (error) {
+      console.error('Error rejecting event:', error);
+      Alert.alert('Error', 'Failed to reject event. Please try again.');
+    }
   };
+ 
+  
 
   if (userRole !== 'admin') {
-    return null; // Render nothing while redirecting
+    return <Text>Access Denied. Admin privileges required.</Text>;
   }
 
   return (
@@ -107,12 +128,22 @@ const ApproveEvent = () => {
           placeholder="Admin Comment"
           value={eventDetails.adminComment}
           onChangeText={(value) => handleInputChange('adminComment', value)}
+          multiline
         />
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={[styles.button, styles.approveButton]} onPress={handleApproveEvent}>
-            <Text style={styles.buttonText}>Approve</Text>
+          <TouchableOpacity 
+            style={[styles.button, styles.approveButton, eventDetails.approved && styles.disabledButton]} 
+            onPress={handleApproveEvent}
+            disabled={eventDetails.approved}
+          >
+            <Text style={styles.buttonText}>
+              {eventDetails.approved ? 'Already Approved' : 'Approve'}
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={handleRejectEvent}>
+          <TouchableOpacity 
+            style={[styles.button, styles.rejectButton]} 
+            onPress={handleRejectEvent}
+          >
             <Text style={styles.buttonText}>Reject</Text>
           </TouchableOpacity>
         </View>
@@ -164,6 +195,9 @@ const styles = StyleSheet.create({
   },
   rejectButton: {
     backgroundColor: '#dc3545',
+  },
+  disabledButton: {
+    backgroundColor: '#cccccc',
   },
   buttonText: {
     color: '#fff',

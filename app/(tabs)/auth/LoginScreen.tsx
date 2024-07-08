@@ -32,14 +32,14 @@ const LoginScreen = () => {
       const { authentication } = googleResponse;
       // Here you would typically send the authentication token to your backend
       // and receive a JWT token in response
-      Alert.alert('Login successful', 'Google login was successful.');
+      //Alert.alert('Login successful', 'Google login was successful.');
       router.push('/profile');
     }
 
     if (facebookResponse?.type === 'success') {
       const { authentication } = facebookResponse;
       // Similar to Google login, send this token to your backend
-      Alert.alert('Login successful', 'Facebook login was successful.');
+      //Alert.alert('Login successful', 'Facebook login was successful.');
       router.push('/profile');
     }
   }, [googleResponse, facebookResponse]);
@@ -47,7 +47,7 @@ const LoginScreen = () => {
   const handleSignIn = async () => {
     try {
       await loginVolunteer({ email, password });
-      Alert.alert('Login successful');
+      //Alert.alert('Login successful');
       setEmail('');
       setPassword('');
       router.push('/profile');
@@ -96,7 +96,8 @@ const LoginScreen = () => {
             onValueChange={setRememberMe}
           />
           <Text style={styles.rememberText}>Remember Me</Text>
-          <TouchableOpacity onPress={() => router.push('auth/ForgotPassword')}>
+                            {/* onPress={() => router.push('auth/ForgotPassword')} */}
+          <TouchableOpacity>
             <Text style={styles.forgotText}>Forgot Password?</Text>
           </TouchableOpacity>
         </View>
