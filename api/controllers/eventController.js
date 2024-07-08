@@ -14,7 +14,7 @@ exports.createEvent = async (req, res) => {
       approved: false,
       organizationId,
     });
-  
+
     res.status(201).json(event);
   } catch (error) {
     console.error(error);
@@ -80,7 +80,36 @@ exports.updateEvent = async (req, res) => {
         );
     }
 
-    const { name, picture, place, date, description, adminComment, approved } = req.body;
+    const { name, picture, place, date, description } = req.body;
+    await event.update({
+      name,
+      picture,
+      place,
+      date,
+      description,
+    });
+
+    res.json(event);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
+};
+exports.adminUpdateEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const event = await Event.findOne({ where: { id } });
+    if (!event) {
+      return res
+        .status(404)
+        .send(
+          "Event not found or you do not have permission to update this event."
+        );
+    }
+
+    const { name, picture, place, date, description, adminComment, approved } =
+      req.body;
     await event.update({
       name,
       picture,

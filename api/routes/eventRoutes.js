@@ -11,6 +11,7 @@ const {
   uploadEventPicture,
   getApprovedEvents,
   getNotApprovedEvents,
+  adminUpdateEvent,
 } = require("../controllers/eventController");
 
 const {
@@ -81,7 +82,12 @@ router.post(
   authorizeRoleOrganization("organization"),
   createEvent
 );
-
+router.put(
+  "/admin-update/:id",
+  authMiddlewareAdmin,
+  authorizeRoleAdmin("admin"),
+  adminUpdateEvent
+);
 router.put("/:id", allowAdminOrOrganization, updateEvent);
 
 router.delete("/:id", allowAdminOrOrganization, deleteEvent);
