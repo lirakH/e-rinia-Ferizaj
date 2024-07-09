@@ -39,7 +39,6 @@ npm install react-native-draggable-flatlist
 npm install @react-native-async-storage/async-storage
 npm install react-native-gesture-handler
 npm install @react-navigation/native @react-navigation/stack
-
 expo install expo-notifications
 
 
