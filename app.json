@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "E-rinia",
-    "slug": "E-rinia",
+    "slug": "e-rinia",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -39,7 +39,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "8a55cd75-9a7f-4d7f-ab35-19686058bcd5"
+        "projectId": "a88897af-1833-4259-9be4-c40a2e934292"
       }
     }
   }
