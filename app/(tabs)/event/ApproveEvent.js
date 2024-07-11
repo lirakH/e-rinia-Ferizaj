@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { getEventById, approveEvent, updateEvent } from '@/endpoints';
+import { getEventById, approveEvent, adminUpdateEvent } from '@/endpoints'; // Import adminUpdateEvent
 import { MEDIA_BASE_URL } from '@/config';
 import { AuthContext } from '@/AuthContext';
 
@@ -55,7 +55,7 @@ const ApproveEvent = () => {
     try {
       await approveEvent(id);
       Alert.alert('Success', 'Event approved successfully', [
-        { text: 'OK', onPress: () => router.back() }
+        { text: 'OK', onPress: () => router.push("/profile") }
       ]);
     } catch (error) {
       console.error('Error approving event:', error);
@@ -70,21 +70,19 @@ const ApproveEvent = () => {
     }
   
     try {
-      await updateEvent(id, {
+      await adminUpdateEvent(id, { // Use adminUpdateEvent here
         adminComment: eventDetails.adminComment,
         approved: false,
         organizationId: eventDetails.organizationId // Include this line
       });
       Alert.alert('Success', 'Event rejected successfully', [
-        { text: 'OK', onPress: () => router.back() }
+        { text: 'OK', onPress: () => router.push("/profile") }
       ]);
     } catch (error) {
       console.error('Error rejecting event:', error);
       Alert.alert('Error', 'Failed to reject event. Please try again.');
     }
   };
- 
-  
 
   if (userRole !== 'admin') {
     return <Text>Access Denied. Admin privileges required.</Text>;

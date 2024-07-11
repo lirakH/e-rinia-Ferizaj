@@ -622,3 +622,22 @@ export const getLatestUpdateTimestamp = async () => {
   const response = await axios.get('/api/latest-update-timestamp');
   return response.data.timestamp;
 };
+
+
+export const adminUpdateEvent = async (id, eventData) => {
+  try {
+    const token = await getAuthToken();
+    console.log('Admin updating event with ID:', id);
+    console.log('Event data being sent:', eventData);
+    const response = await axios.put(`${API_BASE_URL}events/admin-update/${id}`, eventData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log('Server response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating event by admin:", error.response?.data || error.message);
+    throw error;
+  }
+};
