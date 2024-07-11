@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "rinia",
-    "slug": "rinia",
+    "name": "E-rinia",
+    "slug": "E-rinia",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -20,7 +20,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.liraku.rinia"
+      "package": "com.liraku.rinia",
+      "usesCleartextTraffic": true
     },
     "web": {
       "bundler": "metro",

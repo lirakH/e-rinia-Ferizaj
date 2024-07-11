@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { getAllEvents } from '@/endpoints';
@@ -14,13 +14,8 @@ const AdminScreen = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      console.log('Checking user role and loading state...');
-      console.log('isLoading:', isLoading, 'userRole:', userRole);
-      if (!isLoading) {
-        if (userRole !== 'admin' || userRole === null) {
-          console.log('Redirecting to profile/index due to invalid role or null role...');
-          router.push('profile');
-        }
+      if (!isLoading && userRole !== 'admin') {
+        router.push('profile');
       }
     }, [isLoading, userRole, router])
   );
@@ -32,12 +27,12 @@ const AdminScreen = () => {
         setError(null);
         try {
           const response = await getAllEvents();
-          if (!response || !response.data || !Array.isArray(response.data)) {
-            throw new Error('Invalid response from getAllEvents');
+          if (response && response.data && Array.isArray(response.data)) {
+            const filteredEvents = response.data.filter(event => !event.approved);
+            setNonApprovedEvents(filteredEvents);
+          } else {
+            setNonApprovedEvents([]);
           }
-
-          const filteredEvents = response.data.filter(event => event.approved === false);
-          setNonApprovedEvents(filteredEvents);
         } catch (error) {
           console.error('Error fetching non-approved events:', error);
           setError(error.message);
@@ -60,25 +55,8 @@ const AdminScreen = () => {
   };
 
   const handleApproveEvent = (eventId) => {
-    console.log('Navigating to ApproveEvent with id:', eventId);
     router.push(`/event/ApproveEvent?id=${eventId}`);
   };
-  
-  if (loading || isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Error: {error}</Text>
-      </View>
-    );
-  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -91,7 +69,15 @@ const AdminScreen = () => {
       </TouchableOpacity>
       <Text style={styles.subtitle}>Non-Approved Events</Text>
 
-      {nonApprovedEvents.length > 0 ? (
+      {loading && <Text>Loading events...</Text>}
+      
+      {error && <Text style={styles.errorText}>Error: {error}</Text>}
+
+      {!loading && !error && nonApprovedEvents.length === 0 && (
+        <Text style={styles.noEventsText}>No events pending approval</Text>
+      )}
+
+      {!loading && !error && nonApprovedEvents.length > 0 && (
         nonApprovedEvents.map((event) => (
           <View key={event.id} style={styles.eventContainer}>
             <EventItem2 event={event} />
@@ -103,12 +89,11 @@ const AdminScreen = () => {
             </TouchableOpacity>
           </View>
         ))
-      ) : (
-        <Text style={styles.noEventsText}>No events pending approval</Text>
       )}
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
