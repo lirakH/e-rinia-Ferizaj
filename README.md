@@ -41,8 +41,11 @@ npm install react-native-gesture-handler
 npm install @react-navigation/native @react-navigation/stack
 expo install expo-notifications
 
-
 (future updates)
 npm install react-native-share
 expo install expo-auth-session expo-auth-session/providers/facebook
 npm install react-native-dotenv
+
+
+APK
+eas build -p android --profile preview
