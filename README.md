@@ -40,6 +40,7 @@ npm install @react-native-async-storage/async-storage
 npm install react-native-gesture-handler
 npm install @react-navigation/native @react-navigation/stack
 expo install expo-notifications
+expo install @react-native-community/netinfo
 
 (future updates)
 npm install react-native-share

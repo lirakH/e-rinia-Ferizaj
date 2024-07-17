@@ -1,7 +1,6 @@
-// app/_layout.tsx
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { StyleSheet, TouchableOpacity, Text } from "react-native";
-import React, { useContext, useEffect } from "react";
+import { StyleSheet, TouchableOpacity, Text, View, Image, StatusBar } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
 import { Drawer } from "expo-router/drawer";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import {
@@ -11,7 +10,9 @@ import {
 } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuthProvider, AuthContext } from '@/AuthContext'; // Adjust this path as needed
+import { AuthProvider, AuthContext } from '@/AuthContext';
+import NetInfo from '@react-native-community/netinfo';
+import { API_BASE_URL } from "@/config";
 
 const CustomDrawerContent = (props) => {
   const pathname = usePathname();
@@ -140,6 +141,32 @@ const CustomDrawerContent = (props) => {
 
 function RootLayoutNav() {
   const { resetApp } = useContext(AuthContext);
+  const [isConnected, setIsConnected] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setIsConnected(state.isConnected);
+    });
+
+    const checkConnection = async () => {
+      try {
+        // Attempt to make a request to your API
+        await fetch(API_BASE_URL);
+        setIsConnected(true);
+      } catch (error) {
+        console.error('Network error:', error);
+        setIsConnected(false);
+      }
+    };
+
+    // Check connection status periodically
+    const intervalId = setInterval(checkConnection, 5000);
+
+    return () => {
+      unsubscribe();
+      clearInterval(intervalId);
+    };
+  }, []);
 
   useEffect(() => {
     if (__DEV__) {
@@ -147,7 +174,29 @@ function RootLayoutNav() {
     }
   }, []);
 
+  if (!isConnected) {
+    return (
+      <View style={styles.offlineContainer}>
+        <View style={styles.offlineHeader}>
+          <Text style={styles.headerText}>E-rinia</Text>
+        </View>
+        <View style={styles.offlineContent}>
+          <Image 
+            source={require('@/assets/images/icon.png')} 
+            style={styles.logo}
+          />
+          <Text style={styles.errorText}>Check your internet connection</Text>
+        </View>
+        <View style={styles.offlineFooter}>
+          <Text style={styles.footerText}>© 2023 E-rinia</Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
+    <>
+    <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer 
         drawerContent={(props) => <CustomDrawerContent {...props} />} 
@@ -170,6 +219,7 @@ function RootLayoutNav() {
       >
       </Drawer>
     </GestureHandlerRootView>
+    </>
   );
 }
 
@@ -222,5 +272,59 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontStyle: 'italic',
     textDecorationLine: 'underline',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 18,
+    textAlign: 'center',
+    color: '#0091F9',
+  },
+  offlineContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  offlineHeader: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#0091F9',
+  },
+  headerText: {
+    marginTop: 40,
+    marginBottom: 20,
+    fontSize: 20,
+    fontWeight: '500',
+    color: '#0091F9',
+  },
+  offlineContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logo: {
+    width: 150,
+    height: 150,
+    marginBottom: 20,
+  },
+  errorText: {
+    fontSize: 18,
+    textAlign: 'center',
+    color: '#0091F9',
+  },
+  offlineFooter: {
+    backgroundColor: '#0091F9',
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
+  },
+  footerText: {
+    fontSize: 14,
+    color: '#fff',
   },
 });
