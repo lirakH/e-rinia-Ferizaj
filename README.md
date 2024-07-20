@@ -50,3 +50,4 @@ npm install react-native-dotenv
 
 APK
 eas build -p android --profile preview
+eas build -p ios
