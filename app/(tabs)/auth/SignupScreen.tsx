@@ -18,10 +18,10 @@ const SignupScreen = () => {
   const { registerVolunteer } = useContext(AuthContext);
 
   const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
-    expoClientId: 'YOUR_EXPO_CLIENT_ID',
-    iosClientId: 'YOUR_IOS_CLIENT_ID',
-    androidClientId: 'YOUR_ANDROID_CLIENT_ID',
-    webClientId: 'YOUR_WEB_CLIENT_ID',
+    expoClientId: '463733012532-ckmdrfn98fjb96oooqpl9gt9eivv4rof.apps.googleusercontent.com',
+    iosClientId: '463733012532-foq1rr4vts8d4n554p16onae52fu2m6p.apps.googleusercontent.com',
+    androidClientId: '463733012532-h1emp6eldre7e1p5e92nt2mckhqgg2s4.apps.googleusercontent.com',
+    //webClientId: 'YOUR_WEB_CLIENT_ID',
   });
 
   const [facebookRequest, facebookResponse, facebookPromptAsync] = Facebook.useAuthRequest({
@@ -33,7 +33,7 @@ const SignupScreen = () => {
       const { authentication } = googleResponse;
       // Here you would typically send the authentication token to your backend
       // and receive a JWT token in response
-      Alert.alert('Sign up successful', 'Google sign-up was successful.');
+      Alert.alert('Sign up successful', `Google sign-up was successful. Token: ${authentication}`);
       router.push('auth/LoginScreen');
     }
 
@@ -49,6 +49,10 @@ const SignupScreen = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
+
+  const updateAlert =  async () =>{
+    Alert.alert("Next Update","Ky funksionalitet nuk është i mundur në këtë moment, do të rregullohet në përditësimin e ardhshëm.")
+  }
 
   const handleSignUp = async () => {
     if (!fullName || !email || !password || !confirmPassword) {
@@ -140,11 +144,11 @@ const SignupScreen = () => {
           <Feather name="arrow-right" size={20} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.orText}>Or With</Text>
-        <TouchableOpacity style={styles.socialButton} onPress={() => googlePromptAsync()}>
+        <TouchableOpacity style={styles.socialButton} onPress={updateAlert} /* () => googlePromptAsync() }> */> 
           <FontAwesome name="google" size={20} color="red" style={styles.socialIcon} />
           <Text style={styles.socialButtonText}>Google</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.socialButton} onPress={() => facebookPromptAsync()}>
+        <TouchableOpacity style={styles.socialButton} onPress={updateAlert} /*() => facebookPromptAsync()}> */> 
           <FontAwesome name="facebook" size={20} color="blue" style={styles.socialIcon} />
           <Text style={styles.socialButtonText}>Facebook</Text>
         </TouchableOpacity>

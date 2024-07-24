@@ -17,10 +17,10 @@ const LoginScreen = () => {
   const { loginVolunteer } = useContext(AuthContext);
 
   const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
-    expoClientId: 'YOUR_EXPO_CLIENT_ID',
-    iosClientId: 'YOUR_IOS_CLIENT_ID',
-    androidClientId: 'YOUR_ANDROID_CLIENT_ID',
-    webClientId: 'YOUR_WEB_CLIENT_ID',
+    expoClientId: '463733012532-ckmdrfn98fjb96oooqpl9gt9eivv4rof.apps.googleusercontent.com',
+    iosClientId: '463733012532-foq1rr4vts8d4n554p16onae52fu2m6p.apps.googleusercontent.com',
+    androidClientId: '463733012532-h1emp6eldre7e1p5e92nt2mckhqgg2s4.apps.googleusercontent.com',
+    //webClientId: 'YOUR_WEB_CLIENT_ID',
   });
 
   const [facebookRequest, facebookResponse, facebookPromptAsync] = Facebook.useAuthRequest({
@@ -43,6 +43,10 @@ const LoginScreen = () => {
       router.push('/profile');
     }
   }, [googleResponse, facebookResponse]);
+
+  const updateAlert =  async () =>{
+    Alert.alert("Next Update","Ky funksionalitet nuk është i mundur në këtë moment, do të rregullohet në përditësimin e ardhshëm.")
+  }
 
   const handleSignIn = async () => {
     try {
@@ -106,11 +110,11 @@ const LoginScreen = () => {
           <Feather name="arrow-right" size={20} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.orText}>OR</Text>
-        <TouchableOpacity style={styles.socialButton} onPress={() => googlePromptAsync()}>
+        <TouchableOpacity style={styles.socialButton} onPress={updateAlert} /* () => googlePromptAsync() }> */> 
           <FontAwesome name="google" size={20} color="red" style={styles.socialIcon} />
           <Text style={styles.socialButtonText}>Login with Google</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.socialButton} onPress={() => facebookPromptAsync()}>
+        <TouchableOpacity style={styles.socialButton} onPress={updateAlert} /*() => facebookPromptAsync()}> */> 
           <FontAwesome name="facebook" size={20} color="blue" style={styles.socialIcon} />
           <Text style={styles.socialButtonText}>Login with Facebook</Text>
         </TouchableOpacity>
