@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "E-rinia",
-    "slug": "e-rinia",
+    "name": "E-rinia Ferizaj",
+    "slug": "e-rinia-ferizaj",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "e-rinia ferizaj",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -40,7 +40,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "a88897af-1833-4259-9be4-c40a2e934292"
+        "projectId": "eba141cc-e563-4ae7-84d2-c7624f29d9bc"
       }
     }
   }
