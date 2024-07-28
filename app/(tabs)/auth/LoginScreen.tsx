@@ -7,7 +7,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import * as Facebook from 'expo-auth-session/providers/facebook';
 import * as WebBrowser from 'expo-web-browser';
 
-WebBrowser.maybeCompleteAuthSession();
+//WebBrowser.maybeCompleteAuthSession();
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -20,7 +20,7 @@ const LoginScreen = () => {
     expoClientId: '463733012532-ckmdrfn98fjb96oooqpl9gt9eivv4rof.apps.googleusercontent.com',
     iosClientId: '463733012532-foq1rr4vts8d4n554p16onae52fu2m6p.apps.googleusercontent.com',
     androidClientId: '463733012532-h1emp6eldre7e1p5e92nt2mckhqgg2s4.apps.googleusercontent.com',
-    //webClientId: 'YOUR_WEB_CLIENT_ID',
+    webClientId: '463733012532-ckmdrfn98fjb96oooqpl9gt9eivv4rof.apps.googleusercontent.com',
   });
 
   const [facebookRequest, facebookResponse, facebookPromptAsync] = Facebook.useAuthRequest({
