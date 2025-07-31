@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
+import { View } from 'react-native';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -38,7 +39,19 @@ export default function TabLayout() {
         headerShown: false,
         tabBarStyle: {
           backgroundColor: "#0091F9",
-        }
+        },
+        tabBarBackground: () => (
+          <View style={{ flex: 1, backgroundColor: "#0091F9" }} />
+        ),
+        tabBarActiveTintColor: "#fff",
+        tabBarInactiveTintColor: "#fff",
+        tabBarLabelStyle: {
+          fontSize: 12,
+        },
+        // Navigation bar styling
+        navigationBarColor: "#000000",
+        navigationBarHidden: false,
+        navigationBarStyle: "dark",
       }}>
       <Tabs.Screen
         name="index"

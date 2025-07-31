@@ -1,9 +1,5 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, Linking, Alert, ScrollView } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-
-const Stack = createStackNavigator();
 
 const Safe = () => {
   const handlePress = async () => {

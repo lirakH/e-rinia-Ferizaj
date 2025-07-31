@@ -12,7 +12,7 @@ import { router, usePathname } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthProvider, AuthContext } from '@/AuthContext';
 import NetInfo from '@react-native-community/netinfo';
-import { API_BASE_URL } from "@/config";
+import { API_BASE_URL, MEDIA_BASE_URL, USE_MOCK_DATA } from "@/config";
 
 const CustomDrawerContent = (props) => {
   const pathname = usePathname();
@@ -142,25 +142,54 @@ const CustomDrawerContent = (props) => {
 function RootLayoutNav() {
   const { resetApp } = useContext(AuthContext);
   const [isConnected, setIsConnected] = useState(true);
+  const [serverReachable, setServerReachable] = useState(true);
 
   useEffect(() => {
+    if (USE_MOCK_DATA) {
+      console.log("Using mock data - skipping network check");
+      setIsConnected(true);
+      setServerReachable(true);
+      return;
+    }
+
+    console.log("Using real server - checking network connectivity");
+
     const unsubscribe = NetInfo.addEventListener(state => {
-      setIsConnected(state.isConnected);
+      setIsConnected(state.isConnected ?? false);
     });
 
     const checkConnection = async () => {
       try {
-        // Attempt to make a request to your API
-        await fetch(API_BASE_URL);
-        setIsConnected(true);
+        console.log('Checking connection to:', API_BASE_URL);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        
+        // Test the API endpoint directly
+        const response = await fetch(`${API_BASE_URL}organization`, {
+          method: 'GET',
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+        
+        console.log('Response status:', response.status);
+        
+        if (response.ok) {
+          setServerReachable(true);
+          setIsConnected(true);
+        } else {
+          setServerReachable(false);
+          setIsConnected(false);
+        }
       } catch (error) {
         console.error('Network error:', error);
+        setServerReachable(false);
         setIsConnected(false);
       }
     };
 
     // Check connection status periodically
-    const intervalId = setInterval(checkConnection, 5000);
+    const intervalId = setInterval(checkConnection, 10000); // Check every 10 seconds
 
     return () => {
       unsubscribe();
@@ -174,29 +203,38 @@ function RootLayoutNav() {
     }
   }, []);
 
-  if (!isConnected) {
-    return (
-      <View style={styles.offlineContainer}>
-        <View style={styles.offlineHeader}>
-          <Text style={styles.headerText}>E-rinia</Text>
-        </View>
-        <View style={styles.offlineContent}>
-          <Image 
-            source={require('@/assets/images/icon.png')} 
-            style={styles.logo}
-          />
-          <Text style={styles.errorText}>Check your internet connection</Text>
-        </View>
-        <View style={styles.offlineFooter}>
-          <Text style={styles.footerText}>© 2023 E-rinia</Text>
-        </View>
-      </View>
-    );
-  }
+  // Temporarily disable network check to allow app to run
+  // if (!isConnected || !serverReachable) {
+  //   return (
+  //     <View style={styles.offlineContainer}>
+  //       <View style={styles.offlineHeader}>
+  //         <Text style={styles.headerText}>E-rinia</Text>
+  //       </View>
+  //       <View style={styles.offlineContent}>
+  //         <Image 
+  //           source={require('@/assets/images/icon.png')} 
+  //           style={styles.logo}
+  //         />
+  //         <Text style={styles.offlineErrorText}>
+  //           {!isConnected 
+  //             ? "Check your internet connection" 
+  //             : "Server is temporarily unavailable"
+  //           }
+  //         </Text>
+  //         <Text style={styles.offlineSubText}>
+  //           Please try again later
+  //         </Text>
+  //       </View>
+  //       <View style={styles.offlineFooter}>
+  //         <Text style={styles.footerText}>© 2023 E-rinia</Text>
+  //       </View>
+  //     </View>
+  //   );
+  // }
 
   return (
     <>
-    <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+    <StatusBar barStyle="light-content" backgroundColor="#000000" translucent />
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer 
         drawerContent={(props) => <CustomDrawerContent {...props} />} 
@@ -214,7 +252,11 @@ function RootLayoutNav() {
                   size={25} 
                   color="#0091F9"
                   />
-            </TouchableOpacity>
+            </TouchableOpacity>,
+          // Navigation bar styling
+          navigationBarColor: "#000000",
+          navigationBarHidden: false,
+          navigationBarStyle: "dark",
         }}
       >
       </Drawer>
@@ -242,7 +284,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   navItemLabel: {
-    marginLeft: -20,
+    marginLeft: 0,
     fontSize: 18,
   },
   navItem: {
@@ -310,10 +352,16 @@ const styles = StyleSheet.create({
     height: 150,
     marginBottom: 20,
   },
-  errorText: {
+  offlineErrorText: {
     fontSize: 18,
     textAlign: 'center',
     color: '#0091F9',
+    marginBottom: 10,
+  },
+  offlineSubText: {
+    fontSize: 14,
+    textAlign: 'center',
+    color: '#666',
   },
   offlineFooter: {
     backgroundColor: '#0091F9',

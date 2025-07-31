@@ -1,7 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { API_BASE_URL } from "@/config";
+import { API_BASE_URL, USE_MOCK_DATA } from "@/config";
+import { mockAPI } from "@/mockData";
 
 // Helper function to get the auth token using AsyncStorage
 export const getAuthToken = async () => {
@@ -360,11 +361,22 @@ export const loginOrganization = async (credentials) => {
 
 // Get All Organizations
 export const getAllOrganizations = async () => {
+  if (USE_MOCK_DATA) {
+    console.log("Using mock data for organizations");
+    return await mockAPI.getAllOrganizations();
+  }
+
   try {
-    const response = await axios.get(`${API_BASE_URL}organization`);
+    const response = await axios.get(`${API_BASE_URL}organization`, {
+      timeout: 10000, // 10 second timeout
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching organizations:", error);
+    if (error.code === 'ECONNABORTED' || error.message.includes('Network Error')) {
+      console.log("Falling back to mock data due to network error");
+      return await mockAPI.getAllOrganizations();
+    }
     throw error;
   }
 };
@@ -604,16 +616,26 @@ export const uploadVolunteerProfilePicture = async (id, formData) => {
 // Add this to endpoints.js
 
 export const getApprovedEvents = async (page = 1, pageSize = 10) => {
+  if (USE_MOCK_DATA) {
+    console.log("Using mock data for approved events");
+    return await mockAPI.getApprovedEvents();
+  }
+
   try {
     const response = await axios.get(`${API_BASE_URL}events/approved`, {
       params: {
         page,
         pageSize,
       },
+      timeout: 10000, // 10 second timeout
     });
     return response.data;
   } catch (error) {
     console.error("Error fetching approved events:", error);
+    if (error.code === 'ECONNABORTED' || error.message.includes('Network Error')) {
+      console.log("Falling back to mock data due to network error");
+      return await mockAPI.getApprovedEvents();
+    }
     throw error;
   }
 };
