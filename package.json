@@ -5,7 +5,6 @@
   "scripts": {
     "start": "NODE_OPTIONS=--max-old-space-size=8192 expo start",
     "dev": "NODE_OPTIONS=--max-old-space-size=8192 expo start",
-    "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
