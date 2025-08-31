@@ -49,5 +49,7 @@ npm install react-native-dotenv
 
 
 APK
+npm install -g eas-cli
+eas login
 eas build -p android --profile preview
 eas build -p ios
