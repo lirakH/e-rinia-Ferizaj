@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, Alert, Platform } from 'react-native';
 import { useRouter, useFocusEffect, Link } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
@@ -101,16 +101,60 @@ const VolunteerScreen = () => {
   };
 
   const handlePickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
+    try {
+      if (Platform.OS === 'android') {
+        // For Android 13+ (API 33+)
+        if (Platform.Version >= 33) {
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1,
+            presentationStyle: 'pageSheet',
+            selectionLimit: 1,
+          });
 
-    if (!result.canceled && result.assets && result.assets[0].uri) {
-      setTempProfilePicture(result.assets[0].uri); // Set the temporary profile picture
-      setIsImageRemoved(false); // Reset image removal state
+          if (!result.canceled && result.assets[0]) {
+            setTempProfilePicture(result.assets[0].uri);
+            setIsImageRemoved(false);
+          }
+        } else {
+          // For older Android versions
+          const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (status !== 'granted') {
+            Alert.alert('Permission Denied', 'Photo access permission is required');
+            return;
+          }
+
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1,
+          });
+
+          if (!result.canceled && result.assets[0]) {
+            setTempProfilePicture(result.assets[0].uri);
+            setIsImageRemoved(false);
+          }
+        }
+      } else {
+        // For iOS
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 1,
+        });
+
+        if (!result.canceled && result.assets[0]) {
+          setTempProfilePicture(result.assets[0].uri);
+          setIsImageRemoved(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image. Please try again.');
     }
   };
 

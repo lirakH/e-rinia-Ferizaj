@@ -41,17 +41,52 @@ const AddEvent = () => {
 
   const handlePickImage = async () => {
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
+      if (Platform.OS === 'android') {
+        // For Android 13+ (API 33+)
+        if (Platform.Version >= 33) {
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+            presentationStyle: 'pageSheet',
+            selectionLimit: 1,
+          });
 
-      console.log('ImagePicker result:', result);
+          if (!result.canceled && result.assets[0]) {
+            setEventDetails({ ...eventDetails, picture: result.assets[0].uri });
+          }
+        } else {
+          // For older Android versions
+          const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (status !== 'granted') {
+            Alert.alert('Permission Denied', 'Photo access permission is required');
+            return;
+          }
 
-      if (!result.canceled) {
-        setEventDetails({ ...eventDetails, picture: result.assets[0].uri });
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+          });
+
+          if (!result.canceled && result.assets[0]) {
+            setEventDetails({ ...eventDetails, picture: result.assets[0].uri });
+          }
+        }
+      } else {
+        // For iOS
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 1,
+        });
+
+        if (!result.canceled && result.assets[0]) {
+          setEventDetails({ ...eventDetails, picture: result.assets[0].uri });
+        }
       }
     } catch (error) {
       console.error('Error picking image:', error);

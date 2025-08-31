@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert, Platform } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { AuthContext } from '@/AuthContext';
@@ -43,15 +43,52 @@ const AddNgo = () => {
 
   const handlePickImage = async () => {
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-      });
+      if (Platform.OS === 'android') {
+        // For Android 13+ (API 33+)
+        if (Platform.Version >= 33) {
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1,
+            presentationStyle: 'pageSheet',
+            selectionLimit: 1,
+          });
 
-      if (!result.canceled) {
-        setNgoDetails({ ...ngoDetails, picture: result.assets[0].uri });
+          if (!result.canceled && result.assets[0]) {
+            setNgoDetails({ ...ngoDetails, picture: result.assets[0].uri });
+          }
+        } else {
+          // For older Android versions
+          const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (status !== 'granted') {
+            Alert.alert('Permission Denied', 'Photo access permission is required');
+            return;
+          }
+
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1,
+          });
+
+          if (!result.canceled && result.assets[0]) {
+            setNgoDetails({ ...ngoDetails, picture: result.assets[0].uri });
+          }
+        }
+      } else {
+        // For iOS
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 1,
+        });
+
+        if (!result.canceled && result.assets[0]) {
+          setNgoDetails({ ...ngoDetails, picture: result.assets[0].uri });
+        }
       }
     } catch (error) {
       console.error('Error picking image:', error);
